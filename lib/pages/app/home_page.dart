@@ -5,6 +5,7 @@ import 'package:tekpayapp/constants/colors.dart';
 import 'package:tekpayapp/pages/app/add_money.dart';
 import 'package:tekpayapp/pages/app/airtime/airtime_page.dart';
 import 'package:tekpayapp/pages/app/all_services_page.dart';
+import 'package:tekpayapp/pages/app/data/data_page.dart';
 import 'package:tekpayapp/pages/app/widgets/custom_icon_widget.dart';
 
 class HomePage extends StatelessWidget {
@@ -275,11 +276,14 @@ class HomePage extends StatelessWidget {
                           ),
                         ),
                       ),
-                      _buildServiceItem(
-                        'Data',
-                        Image.asset(
-                          'assets/images/internet-network-signal-svgrepo-com.png',
-                          scale: 2,
+                      GestureDetector(
+                        onTap: () => Get.to(() => const DataPage()),
+                        child: _buildServiceItem(
+                          'Data',
+                          Image.asset(
+                            'assets/images/internet-network-signal-svgrepo-com.png',
+                            scale: 2,
+                          ),
                         ),
                       ),
                       _buildServiceItem(
