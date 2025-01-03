@@ -3,6 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:tekpayapp/constants/colors.dart';
 import 'package:tekpayapp/pages/app/add_money.dart';
+import 'package:tekpayapp/pages/app/airtime/airtime_page.dart';
 import 'package:tekpayapp/pages/app/all_services_page.dart';
 import 'package:tekpayapp/pages/app/widgets/custom_icon_widget.dart';
 
@@ -264,11 +265,14 @@ class HomePage extends StatelessWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      _buildServiceItem(
-                        'Airtime',
-                        Image.asset(
-                          'assets/images/phone_iphone.png',
-                          scale: 2,
+                      GestureDetector(
+                        onTap: () => Get.to(() => const AirtimePage()),
+                        child: _buildServiceItem(
+                          'Airtime',
+                          Image.asset(
+                            'assets/images/phone_iphone.png',
+                            scale: 2,
+                          ),
                         ),
                       ),
                       _buildServiceItem(
