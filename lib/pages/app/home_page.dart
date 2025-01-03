@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:tekpayapp/constants/colors.dart';
+import 'package:tekpayapp/pages/app/add_money.dart';
 import 'package:tekpayapp/pages/app/all_services_page.dart';
 import 'package:tekpayapp/pages/app/widgets/custom_icon_widget.dart';
 
@@ -234,17 +235,21 @@ class HomePage extends StatelessWidget {
                   SizedBox(height: 24.h),
                   Row(
                     children: [
-                      const Expanded(
+                      Expanded(
                         child: CustomIconButtonWidget(
-                          icon: Icon(Icons.add),
+                          icon: const Icon(Icons.add),
                           text: 'Add money',
+                          onPressed: () {
+                            Get.to(() => const AddMoneyPage());
+                          },
                         ),
                       ),
                       SizedBox(width: 16.w),
-                      const Expanded(
+                      Expanded(
                         child: CustomIconButtonWidget(
-                          icon: Icon(Icons.send),
+                          icon: const Icon(Icons.send),
                           text: 'Transfer',
+                          onPressed: () {},
                         ),
                       ),
                     ],

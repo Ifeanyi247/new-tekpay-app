@@ -5,17 +5,19 @@ import 'package:tekpayapp/constants/colors.dart';
 class CustomIconButtonWidget extends StatelessWidget {
   final Widget icon;
   final String text;
+  final VoidCallback? onPressed;
 
   const CustomIconButtonWidget({
     super.key,
     required this.icon,
     required this.text,
+    this.onPressed,
   });
 
   @override
   Widget build(BuildContext context) {
     return ElevatedButton.icon(
-      onPressed: () {},
+      onPressed: onPressed,
       style: ElevatedButton.styleFrom(
         backgroundColor: Colors.white,
         foregroundColor: primaryColor,
