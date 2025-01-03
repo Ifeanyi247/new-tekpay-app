@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:get/get.dart';
 import 'package:tekpayapp/constants/colors.dart';
+import 'package:tekpayapp/pages/app/all_services_page.dart';
 import 'package:tekpayapp/pages/app/widgets/custom_icon_widget.dart';
 
 class HomePage extends StatelessWidget {
@@ -298,11 +300,14 @@ class HomePage extends StatelessWidget {
                           scale: 2,
                         ),
                       ),
-                      _buildServiceItem(
-                        'All Services',
-                        Image.asset(
-                          'assets/images/widgets.png',
-                          scale: 2,
+                      GestureDetector(
+                        onTap: () => Get.to(() => const AllServicesPage()),
+                        child: _buildServiceItem(
+                          'All Services',
+                          Image.asset(
+                            'assets/images/widgets.png',
+                            scale: 2,
+                          ),
                         ),
                       ),
                     ],
