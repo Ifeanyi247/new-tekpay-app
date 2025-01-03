@@ -3,6 +3,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:tekpayapp/constants/colors.dart';
 import 'package:get/get.dart';
+import 'package:tekpayapp/pages/app/account_details_page.dart';
+import 'package:tekpayapp/pages/app/add_bank_page.dart';
 import 'package:tekpayapp/pages/app/top_up_card_page.dart';
 
 class AddMoneyPage extends StatelessWidget {
@@ -215,7 +217,7 @@ class AddMoneyPage extends StatelessWidget {
                   size: 24.sp,
                 ),
                 onTap: () {
-                  Get.to(() => const TopUpCardPage());
+                  Get.to(() => const AddBankPage());
                 },
               ),
             ),

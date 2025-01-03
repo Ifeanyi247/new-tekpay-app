@@ -1,24 +1,27 @@
 import 'package:flutter/material.dart';
 
 class CustomTextFieldWidget extends StatelessWidget {
-  final IconData icon;
+  final IconData? icon;
   final String label;
   final bool obscureText;
   final Widget? suffixIcon;
   final TextInputType? keyboardType;
+  final TextEditingController? controller;
 
   const CustomTextFieldWidget({
     super.key,
-    required this.icon,
+    this.icon,
     required this.label,
     this.obscureText = false,
     this.suffixIcon,
     this.keyboardType,
+    this.controller,
   });
 
   @override
   Widget build(BuildContext context) {
     return TextFormField(
+      controller: controller,
       obscureText: obscureText,
       keyboardType: keyboardType,
       decoration: InputDecoration(
@@ -41,12 +44,14 @@ class CustomTextFieldWidget extends StatelessWidget {
         filled: true,
         fillColor: Colors.grey[100],
       ),
-      validator: label == 'Referral (Optional)' ? null : (value) {
-        if (value == null || value.isEmpty) {
-          return 'Please enter $label';
-        }
-        return null;
-      },
+      validator: label == 'Referral (Optional)'
+          ? null
+          : (value) {
+              if (value == null || value.isEmpty) {
+                return 'Please enter $label';
+              }
+              return null;
+            },
     );
   }
 }

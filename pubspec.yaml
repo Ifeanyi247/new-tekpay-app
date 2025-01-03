@@ -38,6 +38,7 @@ dependencies:
   smooth_page_indicator: ^1.2.0+3
   pinput: ^3.0.1
   persistent_bottom_nav_bar: ^6.0.2
+  intl: ^0.20.1
 
 dev_dependencies:
   flutter_test:

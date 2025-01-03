@@ -5,8 +5,8 @@ import 'package:tekpayapp/constants/colors.dart';
 import 'package:tekpayapp/pages/widgets/bottom_bar.dart';
 import 'package:tekpayapp/pages/widgets/custom_button_widget.dart';
 
-class TransactionCompletePage extends StatelessWidget {
-  const TransactionCompletePage({super.key});
+class TransactionStatusPage extends StatelessWidget {
+  const TransactionStatusPage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -18,47 +18,47 @@ class TransactionCompletePage extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Spacer(),
-              Center(
-                child: Container(
-                  width: 80.w,
-                  height: 80.w,
-                  decoration: BoxDecoration(
-                    color: Colors.green,
-                    shape: BoxShape.circle,
-                  ),
-                  child: Icon(
-                    Icons.check,
-                    color: Colors.white,
-                    size: 40.sp,
-                  ),
+              // Success Icon
+              Container(
+                width: 80.w,
+                height: 80.w,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Colors.green.withOpacity(0.1),
+                ),
+                child: Icon(
+                  Icons.check_circle_outline,
+                  color: Colors.green,
+                  size: 40.sp,
                 ),
               ),
               SizedBox(height: 24.h),
+              // Transaction Completed Text
               Text(
                 'Transaction Completed',
                 style: TextStyle(
-                  fontSize: 20.sp,
+                  fontSize: 24.sp,
                   fontWeight: FontWeight.w600,
-                  color: Colors.blue,
+                  color: Colors.black,
                 ),
               ),
               SizedBox(height: 8.h),
+              // Success Message
               Text(
-                'Top-up was successful',
+                'Airtime topup was successful',
                 style: TextStyle(
                   fontSize: 16.sp,
-                  color: Colors.grey[600],
+                  color: Colors.grey,
                 ),
               ),
-              const Spacer(),
+              SizedBox(height: 32.h),
+              // Transactions Button
               CustomButtonWidget(
                 text: 'Transactions',
-                bgColor: primaryColor,
                 onTap: () {
-                  // Navigate to transactions page and clear stack
-                  Get.to(() => const BottomBar());
-                  // TODO: Switch to transactions tab
+                  // Navigate to transactions page
+                  Get.offAll(() => const BottomBar());
+                  // You might want to navigate to a specific tab in your bottom navigation
                 },
               ),
               SizedBox(height: 16.h),
