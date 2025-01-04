@@ -3,6 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:tekpayapp/constants/colors.dart';
 import 'package:tekpayapp/pages/app/all_services_page.dart';
 import 'package:tekpayapp/pages/app/home_page.dart';
+import 'package:tekpayapp/pages/app/profile/profile_page.dart';
 
 class BottomBar extends StatefulWidget {
   const BottomBar({super.key});
@@ -26,17 +27,7 @@ class _BottomBarState extends State<BottomBar> {
         ),
       ),
     ),
-    Container(
-      child: Center(
-        child: Text(
-          'Profile',
-          style: TextStyle(
-            fontSize: 24.sp,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-      ),
-    ),
+    ProfilePage(),
   ];
 
   var _currentIndex = 0;
