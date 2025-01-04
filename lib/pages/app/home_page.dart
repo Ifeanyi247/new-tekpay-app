@@ -6,6 +6,7 @@ import 'package:tekpayapp/pages/app/add_money.dart';
 import 'package:tekpayapp/pages/app/airtime/airtime_page.dart';
 import 'package:tekpayapp/pages/app/all_services_page.dart';
 import 'package:tekpayapp/pages/app/data/data_page.dart';
+import 'package:tekpayapp/pages/app/tv/tv_page.dart';
 import 'package:tekpayapp/pages/app/widgets/custom_icon_widget.dart';
 
 class HomePage extends StatelessWidget {
@@ -286,11 +287,14 @@ class HomePage extends StatelessWidget {
                           ),
                         ),
                       ),
-                      _buildServiceItem(
-                        'TV',
-                        Image.asset(
-                          'assets/images/tv-03-svgrepo-com.png',
-                          scale: 2,
+                      GestureDetector(
+                        onTap: () => Get.to(() => const TvPage()),
+                        child: _buildServiceItem(
+                          'TV',
+                          Image.asset(
+                            'assets/images/tv-03-svgrepo-com.png',
+                            scale: 2,
+                          ),
                         ),
                       ),
                     ],
