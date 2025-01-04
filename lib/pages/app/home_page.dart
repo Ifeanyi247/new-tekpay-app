@@ -6,6 +6,7 @@ import 'package:tekpayapp/pages/app/add_money.dart';
 import 'package:tekpayapp/pages/app/airtime/airtime_page.dart';
 import 'package:tekpayapp/pages/app/all_services_page.dart';
 import 'package:tekpayapp/pages/app/data/data_page.dart';
+import 'package:tekpayapp/pages/app/electricity/electricity_page.dart';
 import 'package:tekpayapp/pages/app/tv/tv_page.dart';
 import 'package:tekpayapp/pages/app/widgets/custom_icon_widget.dart';
 
@@ -303,11 +304,14 @@ class HomePage extends StatelessWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      _buildServiceItem(
-                        'Electricity',
-                        Image.asset(
-                          'assets/images/elec-svgrepo-com.png',
-                          scale: 2,
+                      GestureDetector(
+                        onTap: () => Get.to(() => const ElectricityPage()),
+                        child: _buildServiceItem(
+                          'Electricity',
+                          Image.asset(
+                            'assets/images/elec-svgrepo-com.png',
+                            scale: 2,
+                          ),
                         ),
                       ),
                       _buildServiceItem(

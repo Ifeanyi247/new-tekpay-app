@@ -25,7 +25,6 @@ class TransactionConfirmationSheet extends StatelessWidget {
     return Padding(
       padding: EdgeInsets.symmetric(vertical: 8.h),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(
             label,
@@ -34,12 +33,17 @@ class TransactionConfirmationSheet extends StatelessWidget {
               color: Colors.grey[600],
             ),
           ),
-          Text(
-            value,
-            style: TextStyle(
-              fontSize: 14.sp,
-              fontWeight: FontWeight.w500,
-              color: Colors.black,
+          SizedBox(width: 8.w),
+          Expanded(
+            child: Text(
+              value,
+              style: TextStyle(
+                fontSize: 14.sp,
+                fontWeight: FontWeight.w500,
+                color: Colors.black,
+              ),
+              textAlign: TextAlign.right,
+              overflow: TextOverflow.ellipsis,
             ),
           ),
         ],
