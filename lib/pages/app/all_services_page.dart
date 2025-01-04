@@ -1,6 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:get/get.dart';
 import 'package:tekpayapp/constants/colors.dart';
+import 'package:tekpayapp/pages/app/airtime/airtime_page.dart';
+import 'package:tekpayapp/pages/app/data/data_page.dart';
+import 'package:tekpayapp/pages/app/tv/tv_page.dart';
+import 'package:tekpayapp/pages/app/electricity/electricity_page.dart';
+import 'package:tekpayapp/pages/app/internet/internet_page.dart';
 
 class AllServicesPage extends StatelessWidget {
   const AllServicesPage({super.key});
@@ -46,20 +52,23 @@ class AllServicesPage extends StatelessWidget {
             itemCount: items.length,
             itemBuilder: (context, index) {
               final item = items[index];
-              return Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  item.icon,
-                  SizedBox(height: 8.h),
-                  Text(
-                    item.title,
-                    style: TextStyle(
-                      fontSize: 12.sp,
-                      color: primaryColor,
+              return GestureDetector(
+                onTap: item.onTap,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    item.icon,
+                    SizedBox(height: 8.h),
+                    Text(
+                      item.title,
+                      style: TextStyle(
+                        fontSize: 12.sp,
+                        color: primaryColor,
+                      ),
+                      textAlign: TextAlign.center,
                     ),
-                    textAlign: TextAlign.center,
-                  ),
-                ],
+                  ],
+                ),
               );
             },
           ),
@@ -77,6 +86,7 @@ class AllServicesPage extends StatelessWidget {
           'assets/images/phone_iphone.png',
           scale: 2,
         ),
+        onTap: () => Get.to(() => const AirtimePage()),
       ),
       ServiceItem(
         title: 'Data',
@@ -84,6 +94,7 @@ class AllServicesPage extends StatelessWidget {
           'assets/images/internet-network-signal-svgrepo-com.png',
           scale: 2,
         ),
+        onTap: () => Get.to(() => const DataPage()),
       ),
       ServiceItem(
         title: 'TV',
@@ -91,6 +102,7 @@ class AllServicesPage extends StatelessWidget {
           'assets/images/tv-03-svgrepo-com.png',
           scale: 2,
         ),
+        onTap: () => Get.to(() => const TvPage()),
       ),
       ServiceItem(
         title: 'Electricity',
@@ -98,6 +110,7 @@ class AllServicesPage extends StatelessWidget {
           'assets/images/elec-svgrepo-com.png',
           scale: 2,
         ),
+        onTap: () => Get.to(() => const ElectricityPage()),
       ),
       ServiceItem(
         title: 'Internet',
@@ -105,6 +118,7 @@ class AllServicesPage extends StatelessWidget {
           'assets/images/transfer-data-svgrepo-com.png',
           scale: 2,
         ),
+        onTap: () => Get.to(() => const InternetPage()),
       ),
       ServiceItem(
         title: 'Education',
@@ -113,6 +127,7 @@ class AllServicesPage extends StatelessWidget {
           color: primaryColor,
           size: 30.sp,
         ),
+        onTap: () {},
       ),
     ];
 
@@ -124,6 +139,7 @@ class AllServicesPage extends StatelessWidget {
           color: primaryColor,
           size: 25.sp,
         ),
+        onTap: () {},
       ),
     ];
 
@@ -135,6 +151,7 @@ class AllServicesPage extends StatelessWidget {
           color: primaryColor,
           size: 25.sp,
         ),
+        onTap: () {},
       ),
     ];
 
@@ -187,9 +204,11 @@ class AllServicesPage extends StatelessWidget {
 class ServiceItem {
   final String title;
   final Widget icon;
+  final VoidCallback onTap;
 
   ServiceItem({
     required this.title,
     required this.icon,
+    required this.onTap,
   });
 }

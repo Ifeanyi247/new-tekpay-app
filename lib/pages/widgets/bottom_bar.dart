@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:tekpayapp/constants/colors.dart';
+import 'package:tekpayapp/pages/app/all_services_page.dart';
 import 'package:tekpayapp/pages/app/home_page.dart';
 
 class BottomBar extends StatefulWidget {
@@ -13,17 +14,7 @@ class BottomBar extends StatefulWidget {
 class _BottomBarState extends State<BottomBar> {
   final _pages = [
     HomePage(),
-    Container(
-      child: Center(
-        child: Text(
-          'Services',
-          style: TextStyle(
-            fontSize: 24.sp,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-      ),
-    ),
+    AllServicesPage(),
     Container(
       child: Center(
         child: Text(

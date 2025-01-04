@@ -7,6 +7,7 @@ import 'package:tekpayapp/pages/app/airtime/airtime_page.dart';
 import 'package:tekpayapp/pages/app/all_services_page.dart';
 import 'package:tekpayapp/pages/app/data/data_page.dart';
 import 'package:tekpayapp/pages/app/electricity/electricity_page.dart';
+import 'package:tekpayapp/pages/app/internet/internet_page.dart';
 import 'package:tekpayapp/pages/app/tv/tv_page.dart';
 import 'package:tekpayapp/pages/app/widgets/custom_icon_widget.dart';
 
@@ -314,11 +315,14 @@ class HomePage extends StatelessWidget {
                           ),
                         ),
                       ),
-                      _buildServiceItem(
-                        'Internet',
-                        Image.asset(
-                          'assets/images/transfer-data-svgrepo-com.png',
-                          scale: 2,
+                      GestureDetector(
+                        onTap: () => Get.to(() => const InternetPage()),
+                        child: _buildServiceItem(
+                          'Internet',
+                          Image.asset(
+                            'assets/images/transfer-data-svgrepo-com.png',
+                            scale: 2,
+                          ),
                         ),
                       ),
                       GestureDetector(
