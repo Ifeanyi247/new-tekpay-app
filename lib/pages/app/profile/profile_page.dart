@@ -2,9 +2,20 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:tekpayapp/constants/colors.dart';
+import 'package:tekpayapp/controllers/auth_controller.dart';
+import 'package:tekpayapp/controllers/user_controller.dart';
+import 'package:tekpayapp/pages/auth/login_page.dart';
+import 'package:tekpayapp/services/storage_service.dart';
 
-class ProfilePage extends StatelessWidget {
+class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
+
+  @override
+  State<ProfilePage> createState() => _ProfilePageState();
+}
+
+class _ProfilePageState extends State<ProfilePage> {
+  final authController = Get.put(AuthController());
 
   Widget _buildProfileOption({
     required String title,
@@ -73,6 +84,8 @@ class ProfilePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final userController = Get.find<UserController>();
+
     return Scaffold(
       backgroundColor: const Color(0xFF8B3DFF),
       body: SafeArea(
@@ -81,46 +94,53 @@ class ProfilePage extends StatelessWidget {
             // Profile Header
             Padding(
               padding: EdgeInsets.all(24.w),
-              child: Row(
-                children: [
-                  CircleAvatar(
-                    radius: 32.r,
-                    backgroundImage: const NetworkImage(
-                      'https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=1000&auto=format&fit=crop',
+              child: Obx(() {
+                final user = userController.user.value;
+                return Row(
+                  children: [
+                    CircleAvatar(
+                      radius: 32.r,
+                      backgroundImage: user != null
+                          ? NetworkImage(user.profile.profileUrl)
+                          : const NetworkImage(
+                              'https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=1000&auto=format&fit=crop',
+                            ),
                     ),
-                  ),
-                  SizedBox(width: 16.w),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'John Doe',
-                        style: TextStyle(
-                          fontSize: 20.sp,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.white,
+                    SizedBox(width: 16.w),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          user != null
+                              ? '${user.firstName} ${user.lastName}'
+                              : 'John Doe',
+                          style: TextStyle(
+                            fontSize: 20.sp,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.white,
+                          ),
                         ),
-                      ),
-                      SizedBox(height: 4.h),
-                      Text(
-                        'Johndoe1123@testmail.com',
-                        style: TextStyle(
-                          fontSize: 14.sp,
-                          color: Colors.white.withOpacity(0.8),
+                        SizedBox(height: 4.h),
+                        Text(
+                          user?.email ?? 'Johndoe1123@testmail.com',
+                          style: TextStyle(
+                            fontSize: 14.sp,
+                            color: Colors.white.withOpacity(0.8),
+                          ),
                         ),
-                      ),
-                      SizedBox(height: 4.h),
-                      Text(
-                        '08123456789',
-                        style: TextStyle(
-                          fontSize: 14.sp,
-                          color: Colors.white.withOpacity(0.8),
+                        SizedBox(height: 4.h),
+                        Text(
+                          user?.phoneNumber ?? '08123456789',
+                          style: TextStyle(
+                            fontSize: 14.sp,
+                            color: Colors.white.withOpacity(0.8),
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
+                      ],
+                    ),
+                  ],
+                );
+              }),
             ),
             // Profile Options
             Expanded(
@@ -132,47 +152,59 @@ class ProfilePage extends StatelessWidget {
                     top: Radius.circular(24.r),
                   ),
                 ),
-                child: SingleChildScrollView(
-                  child: Column(
-                    children: [
-                      _buildProfileOption(
-                        title: 'Personal Information',
-                        subtitle: 'Edit your informatioon',
-                        icon: Icons.person_outline,
-                        onTap: () {},
-                      ),
-                      _buildProfileOption(
-                        title: 'Settings',
-                        subtitle: 'Account, notification, security',
-                        icon: Icons.settings_outlined,
-                        onTap: () {},
-                      ),
-                      _buildProfileOption(
-                        title: 'My Referral',
-                        subtitle: 'Referral bonuses',
-                        icon: Icons.attach_money_outlined,
-                        onTap: () {},
-                      ),
-                      _buildProfileOption(
-                        title: 'KYC',
-                        subtitle: 'Submit details to verify your account',
-                        icon: Icons.verified_user_outlined,
-                        onTap: () {},
-                      ),
-                      _buildProfileOption(
-                        title: 'Help & Support',
-                        subtitle: 'Help or contact vasel',
-                        icon: Icons.help_outline,
-                        onTap: () {},
-                      ),
-                      SizedBox(height: 16.h),
-                      _buildProfileOption(
-                        title: 'Logout',
-                        subtitle: '',
-                        icon: Icons.logout,
-                        onTap: () {},
-                      ),
-                    ],
+                child: RefreshIndicator(
+                  onRefresh: () => userController.getProfile(),
+                  child: SingleChildScrollView(
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    child: Column(
+                      children: [
+                        _buildProfileOption(
+                          title: 'Personal Information',
+                          subtitle: 'Edit your informatioon',
+                          icon: Icons.person_outline,
+                          onTap: () {},
+                        ),
+                        _buildProfileOption(
+                          title: 'Settings',
+                          subtitle: 'Account, notification, security',
+                          icon: Icons.settings_outlined,
+                          onTap: () {},
+                        ),
+                        _buildProfileOption(
+                          title: 'My Referral',
+                          subtitle: 'Referral bonuses',
+                          icon: Icons.attach_money_outlined,
+                          onTap: () {},
+                        ),
+                        _buildProfileOption(
+                          title: 'KYC',
+                          subtitle: 'Submit details to verify your account',
+                          icon: Icons.verified_user_outlined,
+                          onTap: () {},
+                        ),
+                        _buildProfileOption(
+                          title: 'Help & Support',
+                          subtitle: 'Help or contact vasel',
+                          icon: Icons.help_outline,
+                          onTap: () {},
+                        ),
+                        SizedBox(height: 16.h),
+                        Obx(() {
+                          return authController.isLoading.value
+                              ? const Center(
+                                  child: CircularProgressIndicator(),
+                                )
+                              : _buildProfileOption(
+                                  title: 'Logout',
+                                  subtitle: 'logout of your account',
+                                  icon: Icons.logout,
+                                  onTap: () async {
+                                    await authController.logout();
+                                  },
+                                );
+                        }),
+                      ],
+                    ),
                   ),
                 ),
               ),

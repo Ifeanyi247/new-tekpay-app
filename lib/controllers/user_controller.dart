@@ -1,26 +1,36 @@
 import 'package:get/get.dart';
+import 'package:tekpayapp/controllers/auth_controller.dart';
 import 'package:tekpayapp/models/user_model.dart';
+import 'package:tekpayapp/pages/auth/login_page.dart';
 import 'package:tekpayapp/services/api_service.dart';
 import 'package:tekpayapp/services/api_exception.dart';
 import 'package:tekpayapp/services/storage_service.dart';
 
 class UserController extends GetxController {
-  final isLoading = true.obs;
-  final user = Rxn<UserModel>();
+  late final AuthController _authController;
+  late final ApiService _apiService;
+
+  final isLoading = false.obs;
+  final Rx<UserModel?> user = Rx<UserModel?>(null);
   final error = Rxn<String>();
   final isBalanceVisible = true.obs;
-
-  final _apiService = ApiService();
 
   @override
   void onInit() {
     super.onInit();
+    _initializeController();
+  }
+
+  void _initializeController() {
+    _authController = Get.find<AuthController>();
+    _apiService = _authController.api;
+    _loadBalanceVisibility();
+    
     final token = StorageService.getToken();
     if (token != null) {
       _apiService.setAuthToken(token);
+      getProfile();
     }
-    _loadBalanceVisibility();
-    getProfile();
   }
 
   void _loadBalanceVisibility() {
@@ -33,38 +43,56 @@ class UserController extends GetxController {
     StorageService.box.write('balance_visibility', isBalanceVisible.value);
   }
 
-  Future<void> getProfile() async {
-    try {
-      isLoading.value = true;
-      error.value = null;
+  void clearUserData() {
+    user.value = null;
+    error.value = null;
+    isLoading.value = false;
+    StorageService.box.remove('user_data');
+    StorageService.removeToken();
+    _apiService.removeAuthToken();
+  }
 
+  Future<dynamic> getProfile() async {
+    try {
+      // Check if token exists first
       final token = StorageService.getToken();
       if (token == null) {
-        error.value = 'Authentication token not found';
+        clearUserData();
         return;
       }
 
-      // Add a 2-second delay to simulate network latency
-      await Future.delayed(const Duration(seconds: 2));
+      print('Token for profile fetch: $token');
+
+      // Ensure API service has the latest token
+      _apiService.setAuthToken(token);
+
+      isLoading.value = true;
+      error.value = null;
 
       final response = await _apiService.get('user');
+      print('Profile Response: $response');
+
       if (response['data'] != null) {
-        user.value = UserModel.fromJson(response['data']);
+        print("data: ${response['data']}");
+        final userData = response['data'];
+        user.value = UserModel.fromJson(userData);
+        return response;
       } else {
+        clearUserData();
         error.value = 'Invalid response format';
       }
     } on ApiException catch (e) {
       print('API Error: ${e.message}');
       if (e.statusCode == 401) {
+        clearUserData();
         error.value = 'Session expired. Please login again';
-        // You might want to handle token expiration here
-        // For example: Get.offAll(() => LoginPage());
+        Get.offAll(() => const LoginPage());
       } else {
         error.value = e.message;
       }
     } catch (e) {
-      print('Error fetching user profile: $e');
-      error.value = 'An error occurred while loading your profile';
+      print('Error getting profile: $e');
+      clearUserData();
     } finally {
       isLoading.value = false;
     }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:tekpayapp/constants/colors.dart';
+import 'package:tekpayapp/controllers/auth_controller.dart';
 import 'package:tekpayapp/pages/auth/input_pin_page.dart';
 import 'package:tekpayapp/pages/auth/register_page.dart';
 import 'package:tekpayapp/pages/widgets/bottom_bar.dart';
@@ -16,8 +17,10 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  final TextEditingController _usernameController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
+  final _formKey = GlobalKey<FormState>();
+  final _usernameController = TextEditingController();
+  final _passwordController = TextEditingController();
+  final _authController = Get.put(AuthController());
   bool _obscureText = true;
 
   @override
@@ -59,90 +62,119 @@ class _LoginPageState extends State<LoginPage> {
       ),
       body: Padding(
         padding: EdgeInsets.all(24.w),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Welcome back!',
-              style: TextStyle(
-                fontSize: 24.sp,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            SizedBox(height: 8.h),
-            Text(
-              'Login to you account so you can pay and purchase top-ups faster.',
-              style: TextStyle(
-                fontSize: 14.sp,
-                color: Colors.grey,
-              ),
-            ),
-            SizedBox(height: 40.h),
-            const CustomTextFieldWidget(
-              icon: Icons.person,
-              label: 'Username',
-            ),
-            SizedBox(height: 16.h),
-            const CustomTextFieldWidget(
-              icon: Icons.person,
-              label: 'Password',
-              obscureText: true,
-              suffixIcon: Icon(
-                Icons.visibility_off,
-                color: Colors.grey,
-              ),
-            ),
-            SizedBox(height: 16.h),
-            Align(
-              alignment: Alignment.centerRight,
-              child: TextButton(
-                onPressed: () {
-                  // Handle forgot password
-                },
-                child: Text(
-                  'Forgot Password',
-                  style: TextStyle(
-                    color: primaryColor,
-                    fontSize: 14.sp,
-                  ),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Welcome back!',
+                style: TextStyle(
+                  fontSize: 24.sp,
+                  fontWeight: FontWeight.bold,
                 ),
               ),
-            ),
-            SizedBox(
-              height: 30.h,
-            ),
-            CustomButtonWidget(
-              text: 'Continue',
-              onTap: () {
-                Get.to(() => const InputPinPage());
-              },
-            ),
-            SizedBox(height: 24.h),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  'Don\'t have an account? ',
-                  style: TextStyle(
-                    fontSize: 14.sp,
-                  ),
+              SizedBox(height: 8.h),
+              Text(
+                'Login to you account so you can pay and purchase top-ups faster.',
+                style: TextStyle(
+                  fontSize: 14.sp,
+                  color: Colors.grey,
                 ),
-                GestureDetector(
-                  onTap: () {
-                    Get.to(() => const RegisterPage());
+              ),
+              SizedBox(height: 40.h),
+              CustomTextFieldWidget(
+                icon: Icons.person,
+                label: 'Username',
+                controller: _usernameController,
+              ),
+              SizedBox(height: 16.h),
+              CustomTextFieldWidget(
+                icon: Icons.lock,
+                label: 'Password',
+                obscureText: _obscureText,
+                suffixIcon: IconButton(
+                  icon: Icon(
+                    _obscureText ? Icons.visibility_off : Icons.visibility,
+                    color: Colors.grey,
+                  ),
+                  onPressed: () {
+                    setState(() {
+                      _obscureText = !_obscureText;
+                    });
+                  },
+                ),
+                controller: _passwordController,
+              ),
+              SizedBox(height: 16.h),
+              Align(
+                alignment: Alignment.centerRight,
+                child: TextButton(
+                  onPressed: () {
+                    // Handle forgot password
                   },
                   child: Text(
-                    'Click here to register',
+                    'Forgot Password',
                     style: TextStyle(
-                      fontSize: 14.sp,
                       color: primaryColor,
-                      fontWeight: FontWeight.w500,
+                      fontSize: 14.sp,
                     ),
                   ),
                 ),
-              ],
-            ),
-          ],
+              ),
+              SizedBox(
+                height: 30.h,
+              ),
+              Obx(() {
+                return _authController.isLoading.value
+                    ? const Center(child: CircularProgressIndicator())
+                    : CustomButtonWidget(
+                        text: 'Login',
+                        onTap: () async {
+                          final success = await _authController.login(
+                            _usernameController.text.trim(),
+                            _passwordController.text.trim(),
+                          );
+
+                          if (success) {
+                            Get.to(() => const InputPinPage());
+                          } else {
+                            Get.snackbar(
+                              'Error',
+                              _authController.error.value ?? 'Login failed',
+                              backgroundColor: Colors.red,
+                              colorText: Colors.white,
+                            );
+                          }
+                        });
+              }),
+              SizedBox(height: 24.h),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    'Don\'t have an account? ',
+                    style: TextStyle(
+                      fontSize: 14.sp,
+                    ),
+                  ),
+                  GestureDetector(
+                    onTap: () {
+                      Get.to(() => const RegisterPage());
+                    },
+                    child: Text(
+                      'Click here to register',
+                      style: TextStyle(
+                        fontSize: 14.sp,
+                        color: primaryColor,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );

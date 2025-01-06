@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:http/http.dart';
 import 'package:pinput/pinput.dart';
 import 'package:tekpayapp/constants/colors.dart';
+import 'package:tekpayapp/controllers/auth_controller.dart';
+import 'package:tekpayapp/controllers/user_controller.dart';
 import 'package:tekpayapp/pages/widgets/bottom_bar.dart';
 
 class InputPinPage extends StatefulWidget {
@@ -13,21 +16,24 @@ class InputPinPage extends StatefulWidget {
 }
 
 class _InputPinPageState extends State<InputPinPage> {
-  final pinController = TextEditingController();
-  final focusNode = FocusNode();
+  final _pinController = TextEditingController();
+  final _authController = Get.find<AuthController>();
+  late final UserController userController;
+
+  @override
+  void initState() {
+    super.initState();
+    userController = Get.find<UserController>();
+  }
 
   void _onKeyTap(String value) {
     if (value == 'delete') {
-      if (pinController.text.isNotEmpty) {
-        pinController.text =
-            pinController.text.substring(0, pinController.text.length - 1);
+      if (_pinController.text.isNotEmpty) {
+        _pinController.text =
+            _pinController.text.substring(0, _pinController.text.length - 1);
       }
-    } else if (pinController.text.length < 4) {
-      pinController.text = pinController.text + value;
-    }
-
-    if (pinController.text.length == 4) {
-      Get.to(() => const BottomBar());
+    } else if (_pinController.text.length < 4) {
+      _pinController.text = _pinController.text + value;
     }
   }
 
@@ -51,8 +57,7 @@ class _InputPinPageState extends State<InputPinPage> {
 
   @override
   void dispose() {
-    pinController.dispose();
-    focusNode.dispose();
+    _pinController.dispose();
     super.dispose();
   }
 
@@ -64,7 +69,22 @@ class _InputPinPageState extends State<InputPinPage> {
       textStyle: TextStyle(
         fontSize: 24.sp,
         fontWeight: FontWeight.w600,
+        color: primaryColor,
       ),
+      decoration: BoxDecoration(
+        color: Colors.grey[200],
+        borderRadius: BorderRadius.circular(12),
+      ),
+    );
+
+    final focusedPinTheme = defaultPinTheme.copyWith(
+      decoration: BoxDecoration(
+        color: Colors.grey[200],
+        borderRadius: BorderRadius.circular(12),
+      ),
+    );
+
+    final submittedPinTheme = defaultPinTheme.copyWith(
       decoration: BoxDecoration(
         color: Colors.grey[200],
         borderRadius: BorderRadius.circular(12),
@@ -93,27 +113,25 @@ class _InputPinPageState extends State<InputPinPage> {
         child: Column(
           children: [
             SizedBox(height: 16.h),
-            Center(
-              child: Container(
-                width: 80.w,
-                height: 80.w,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  image: DecorationImage(
-                    image: AssetImage('assets/images/avatar.png'),
-                    fit: BoxFit.cover,
-                  ),
-                ),
-              ),
-            ),
+            Obx(() => CircleAvatar(
+                  radius: 40.r,
+                  backgroundColor: Colors.grey[200],
+                  backgroundImage:
+                      _authController.tempUserImage.value.isNotEmpty
+                          ? NetworkImage(_authController.tempUserImage.value)
+                          : const AssetImage('assets/images/avatar.png')
+                              as ImageProvider,
+                )),
             SizedBox(height: 16.h),
-            Text(
-              'Hello, Joyce',
-              style: TextStyle(
-                fontSize: 16.sp,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
+            Obx(() => Text(
+                  _authController.tempUserName.value.isNotEmpty
+                      ? 'Hello, ${_authController.tempUserName.value}'
+                      : 'Welcome Back!',
+                  style: TextStyle(
+                    fontSize: 24.sp,
+                    fontWeight: FontWeight.w600,
+                  ),
+                )),
             SizedBox(height: 8.h),
             Text(
               'Please login to continue',
@@ -124,13 +142,42 @@ class _InputPinPageState extends State<InputPinPage> {
             ),
             SizedBox(height: 32.h),
             Pinput(
+              controller: _pinController,
               length: 4,
-              controller: pinController,
-              focusNode: focusNode,
               defaultPinTheme: defaultPinTheme,
+              focusedPinTheme: focusedPinTheme,
+              submittedPinTheme: submittedPinTheme,
               obscureText: true,
-              readOnly: true,
-              showCursor: false,
+              obscuringCharacter: '●',
+              showCursor: true,
+              cursor: Column(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  Container(
+                    width: 20,
+                    height: 2,
+                    margin: const EdgeInsets.only(bottom: 12),
+                    decoration: BoxDecoration(
+                      color: primaryColor,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                ],
+              ),
+              onCompleted: (pin) async {
+                final success = await _authController.verifyPin(pin);
+                if (success) {
+                  Get.offAll(() => const BottomBar());
+                } else {
+                  Get.snackbar(
+                    'Error',
+                    _authController.error.value ?? 'Invalid PIN',
+                    backgroundColor: Colors.red,
+                    colorText: Colors.white,
+                  );
+                  _pinController.clear();
+                }
+              },
             ),
             const Spacer(),
             Column(

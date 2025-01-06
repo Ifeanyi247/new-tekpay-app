@@ -2,7 +2,7 @@ import 'package:get_storage/get_storage.dart';
 
 class StorageService {
   static final _box = GetStorage();
-  static const _tokenKey = 'auth_token';
+  static const _tokenKey = 'token';
 
   static GetStorage get box => _box;
 
@@ -12,6 +12,7 @@ class StorageService {
 
   static Future<void> setToken(String token) async {
     await _box.write(_tokenKey, token);
+    await _box.save();
   }
 
   static String? getToken() {
@@ -19,6 +20,9 @@ class StorageService {
   }
 
   static Future<void> removeToken() async {
-    await _box.remove(_tokenKey);
+    _box.remove('token');
+    _box.remove('user_data');
+    _box.remove('balance_visibility');
+    await _box.save();
   }
 }

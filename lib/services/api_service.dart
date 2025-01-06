@@ -15,7 +15,12 @@ class ApiService {
 
   // Set auth token
   void setAuthToken(String token) {
+    print('Setting auth token: $token');
     _authToken = token;
+  }
+
+  void removeAuthToken() {
+    _authToken = null;
   }
 
   // Get common headers
