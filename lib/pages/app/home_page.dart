@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:shimmer/shimmer.dart';
 import 'package:tekpayapp/constants/colors.dart';
+import 'package:tekpayapp/controllers/user_controller.dart';
 import 'package:tekpayapp/pages/app/add_money.dart';
 import 'package:tekpayapp/pages/app/airtime/airtime_page.dart';
 import 'package:tekpayapp/pages/app/all_services_page.dart';
@@ -116,303 +118,551 @@ class HomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final userController = Get.find<UserController>();
+
     return Scaffold(
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            Container(
-              padding: EdgeInsets.fromLTRB(24.w, 60.h, 24.w, 32.h),
-              decoration: const BoxDecoration(
-                color: primaryColor,
-                borderRadius: BorderRadius.only(
-                  bottomLeft: Radius.circular(32),
-                  bottomRight: Radius.circular(32),
-                ),
-              ),
+      body: Stack(
+        children: [
+          RefreshIndicator(
+            onRefresh: () async {
+              await userController.getProfile();
+            },
+            color: primaryColor,
+            backgroundColor: Colors.white,
+            displacement: 20,
+            strokeWidth: 3,
+            triggerMode: RefreshIndicatorTriggerMode.onEdge,
+            child: SingleChildScrollView(
+              physics: const AlwaysScrollableScrollPhysics(),
               child: Column(
                 children: [
-                  Row(
-                    children: [
-                      CircleAvatar(
-                        radius: 24.r,
-                        backgroundImage: AssetImage(
-                          'assets/images/user.png',
-                        ),
+                  Container(
+                    padding: EdgeInsets.fromLTRB(24.w, 60.h, 24.w, 32.h),
+                    decoration: const BoxDecoration(
+                      color: primaryColor,
+                      borderRadius: BorderRadius.only(
+                        bottomLeft: Radius.circular(32),
+                        bottomRight: Radius.circular(32),
                       ),
-                      SizedBox(width: 12.w),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                    ),
+                    child: Obx(() {
+                      if (userController.isLoading.value) {
+                        return _buildShimmerHeader();
+                      }
+
+                      final user = userController.user.value;
+                      return Column(
+                        children: [
+                          Row(
+                            children: [
+                              CircleAvatar(
+                                radius: 24.r,
+                                backgroundImage: user != null
+                                    ? NetworkImage(user.profile.profileUrl)
+                                    : const AssetImage('assets/images/user.png')
+                                        as ImageProvider,
+                              ),
+                              SizedBox(width: 12.w),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      user != null
+                                          ? 'Hi, ${user.firstName}'
+                                          : 'Welcome',
+                                      style: TextStyle(
+                                        fontSize: 15.sp,
+                                        fontWeight: FontWeight.w600,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                    Text(
+                                      'Let\'s make some payments!',
+                                      style: TextStyle(
+                                        fontSize: 12.sp,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              Stack(
+                                children: [
+                                  const Icon(
+                                    Icons.notifications,
+                                    color: Colors.white,
+                                  ),
+                                  Positioned(
+                                    top: 0,
+                                    right: 0,
+                                    child: Container(
+                                      width: 8.w,
+                                      height: 8.w,
+                                      decoration: const BoxDecoration(
+                                        shape: BoxShape.circle,
+                                        color: Colors.red,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              SizedBox(width: 12.w),
+                              GestureDetector(
+                                onTap: () {},
+                                child: Image.asset(
+                                  'assets/images/support_agent.png',
+                                ),
+                              ),
+                            ],
+                          ),
+                          SizedBox(height: 32.h),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Wallet Balance',
+                                style: TextStyle(
+                                  fontSize: 14.sp,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              Row(
+                                children: [
+                                  Text(
+                                    user != null
+                                        ? userController.isBalanceVisible.value
+                                            ? '₦${user.profile.wallet.toStringAsFixed(2)}'
+                                            : '₦•••••'
+                                        : '₦0.00',
+                                    style: TextStyle(
+                                      fontSize: 32.sp,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                  const Spacer(),
+                                  IconButton(
+                                    icon: Obx(() => Icon(
+                                          userController.isBalanceVisible.value
+                                              ? Icons.visibility_outlined
+                                              : Icons.visibility_off_outlined,
+                                          color: Colors.white,
+                                        ),
+                                    ),
+                                    onPressed: () {
+                                      userController.toggleBalanceVisibility();
+                                    },
+                                  ),
+                                ],
+                              ),
+                              Row(
+                                children: [
+                                  Text(
+                                    'Referral Bonus: ₦1000',
+                                    style: TextStyle(
+                                      fontSize: 14.sp,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                  const Icon(
+                                    Icons.chevron_right,
+                                    color: Colors.white,
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                          SizedBox(height: 24.h),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: CustomIconButtonWidget(
+                                  icon: const Icon(Icons.add),
+                                  text: 'Add money',
+                                  onPressed: () {
+                                    Get.to(() => const AddMoneyPage());
+                                  },
+                                ),
+                              ),
+                              SizedBox(width: 16.w),
+                              Expanded(
+                                child: CustomIconButtonWidget(
+                                  icon: const Icon(Icons.send),
+                                  text: 'Transfer',
+                                  onPressed: () {},
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      );
+                    }),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.all(24.w),
+                    child: Column(
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Text(
-                              'Hi, Joyce',
-                              style: TextStyle(
-                                fontSize: 15.sp,
-                                fontWeight: FontWeight.w600,
-                                color: Colors.white,
+                            GestureDetector(
+                              onTap: () => Get.to(() => const AirtimePage()),
+                              child: _buildServiceItem(
+                                'Airtime',
+                                Image.asset(
+                                  'assets/images/phone_iphone.png',
+                                  scale: 2,
+                                ),
                               ),
                             ),
-                            Text(
-                              'Let\'s make some payments!',
-                              style: TextStyle(
-                                fontSize: 12.sp,
-                                color: Colors.white,
+                            GestureDetector(
+                              onTap: () => Get.to(() => const DataPage()),
+                              child: _buildServiceItem(
+                                'Data',
+                                Image.asset(
+                                  'assets/images/internet-network-signal-svgrepo-com.png',
+                                  scale: 2,
+                                ),
+                              ),
+                            ),
+                            GestureDetector(
+                              onTap: () => Get.to(() => const TvPage()),
+                              child: _buildServiceItem(
+                                'TV',
+                                Image.asset(
+                                  'assets/images/tv-03-svgrepo-com.png',
+                                  scale: 2,
+                                ),
                               ),
                             ),
                           ],
                         ),
-                      ),
-                      Stack(
-                        children: [
-                          const Icon(
-                            Icons.notifications,
-                            color: Colors.white,
-                          ),
-                          Positioned(
-                            top: 0,
-                            right: 0,
-                            child: Container(
-                              width: 8.w,
-                              height: 8.w,
-                              decoration: const BoxDecoration(
-                                shape: BoxShape.circle,
-                                color: Colors.red,
+                        SizedBox(height: 24.h),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            GestureDetector(
+                              onTap: () =>
+                                  Get.to(() => const ElectricityPage()),
+                              child: _buildServiceItem(
+                                'Electricity',
+                                Image.asset(
+                                  'assets/images/elec-svgrepo-com.png',
+                                  scale: 2,
+                                ),
                               ),
                             ),
-                          ),
-                        ],
-                      ),
-                      SizedBox(width: 12.w),
-                      GestureDetector(
-                        onTap: () {},
-                        child: Image.asset(
-                          'assets/images/support_agent.png',
-                        ),
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: 32.h),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Wallet Balance',
-                        style: TextStyle(
-                          fontSize: 14.sp,
-                          color: Colors.white,
-                        ),
-                      ),
-                      Row(
-                        children: [
-                          Text(
-                            '₦500,000',
-                            style: TextStyle(
-                              fontSize: 32.sp,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
+                            GestureDetector(
+                              onTap: () => Get.to(() => const InternetPage()),
+                              child: _buildServiceItem(
+                                'Internet',
+                                Image.asset(
+                                  'assets/images/transfer-data-svgrepo-com.png',
+                                  scale: 2,
+                                ),
+                              ),
                             ),
-                          ),
-                          const Spacer(),
-                          IconButton(
-                            icon: const Icon(Icons.visibility_outlined,
-                                color: Colors.white),
-                            onPressed: () {},
-                          ),
-                        ],
-                      ),
-                      Row(
-                        children: [
-                          Text(
-                            'Referral Bonus: ₦1000',
-                            style: TextStyle(
-                              fontSize: 14.sp,
-                              color: Colors.white,
+                            GestureDetector(
+                              onTap: () =>
+                                  Get.to(() => const AllServicesPage()),
+                              child: _buildServiceItem(
+                                'All Services',
+                                Image.asset(
+                                  'assets/images/widgets.png',
+                                  scale: 2,
+                                ),
+                              ),
                             ),
-                          ),
-                          const Icon(
-                            Icons.chevron_right,
-                            color: Colors.white,
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: 24.h),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: CustomIconButtonWidget(
-                          icon: const Icon(Icons.add),
-                          text: 'Add money',
-                          onPressed: () {
-                            Get.to(() => const AddMoneyPage());
-                          },
+                          ],
                         ),
-                      ),
-                      SizedBox(width: 16.w),
-                      Expanded(
-                        child: CustomIconButtonWidget(
-                          icon: const Icon(Icons.send),
-                          text: 'Transfer',
-                          onPressed: () {},
+                        SizedBox(height: 32.h),
+                        Container(
+                          padding: EdgeInsets.all(16.w),
+                          decoration: BoxDecoration(
+                            color: primaryColor.withOpacity(.1),
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          child: Row(
+                            children: [
+                              Image.asset(
+                                'assets/images/bulb.png',
+                                scale: 2,
+                              ),
+                              SizedBox(width: 12.w),
+                              Expanded(
+                                child: Text(
+                                  'Use Tekpay more to qualify for Buy now and pay later',
+                                  style: TextStyle(
+                                    fontSize: 12.sp,
+                                    color: primaryColor,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
-                      ),
-                    ],
+                        SizedBox(height: 32.h),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              'Recent Transactions',
+                              style: TextStyle(
+                                fontSize: 18.sp,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            TextButton(
+                              onPressed: () {},
+                              child: Text(
+                                'See all',
+                                style: TextStyle(
+                                  color: primaryColor,
+                                  fontSize: 14.sp,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        SizedBox(height: 16.h),
+                        _buildTransactionItem(
+                          title: 'Airtime Purchased (MTN)',
+                          date: '2024-03-23 05:13:53',
+                          amount: '-₦5000',
+                          isSuccess: true,
+                          icon: Icons.phone_android,
+                        ),
+                        _buildTransactionItem(
+                          title: 'Transfer to JOSEPHINE AYO',
+                          date: '2024-03-23 05:13:53',
+                          amount: '-₦2000',
+                          isSuccess: true,
+                          icon: Icons.swap_vert,
+                        ),
+                        _buildTransactionItem(
+                          title: 'Transfer to AYOBAMI JOYCE',
+                          date: '2024-03-23 05:13:53',
+                          amount: '₦2000',
+                          isSuccess: false,
+                          icon: Icons.swap_vert,
+                        ),
+                      ],
+                    ),
                   ),
                 ],
               ),
             ),
-            Padding(
-              padding: EdgeInsets.all(24.w),
-              child: Column(
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      GestureDetector(
-                        onTap: () => Get.to(() => const AirtimePage()),
-                        child: _buildServiceItem(
-                          'Airtime',
-                          Image.asset(
-                            'assets/images/phone_iphone.png',
-                            scale: 2,
-                          ),
-                        ),
-                      ),
-                      GestureDetector(
-                        onTap: () => Get.to(() => const DataPage()),
-                        child: _buildServiceItem(
-                          'Data',
-                          Image.asset(
-                            'assets/images/internet-network-signal-svgrepo-com.png',
-                            scale: 2,
-                          ),
-                        ),
-                      ),
-                      GestureDetector(
-                        onTap: () => Get.to(() => const TvPage()),
-                        child: _buildServiceItem(
-                          'TV',
-                          Image.asset(
-                            'assets/images/tv-03-svgrepo-com.png',
-                            scale: 2,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: 24.h),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      GestureDetector(
-                        onTap: () => Get.to(() => const ElectricityPage()),
-                        child: _buildServiceItem(
-                          'Electricity',
-                          Image.asset(
-                            'assets/images/elec-svgrepo-com.png',
-                            scale: 2,
-                          ),
-                        ),
-                      ),
-                      GestureDetector(
-                        onTap: () => Get.to(() => const InternetPage()),
-                        child: _buildServiceItem(
-                          'Internet',
-                          Image.asset(
-                            'assets/images/transfer-data-svgrepo-com.png',
-                            scale: 2,
-                          ),
-                        ),
-                      ),
-                      GestureDetector(
-                        onTap: () => Get.to(() => const AllServicesPage()),
-                        child: _buildServiceItem(
-                          'All Services',
-                          Image.asset(
-                            'assets/images/widgets.png',
-                            scale: 2,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: 32.h),
-                  Container(
+          ),
+          // Error Overlay
+          Obx(() {
+            final error = userController.error.value;
+            if (error != null) {
+              return Container(
+                color: Colors.black26,
+                child: Center(
+                  child: Container(
+                    margin: EdgeInsets.symmetric(horizontal: 32.w),
                     padding: EdgeInsets.all(16.w),
                     decoration: BoxDecoration(
-                      color: primaryColor.withOpacity(.1),
+                      color: Colors.white,
                       borderRadius: BorderRadius.circular(16),
                     ),
-                    child: Row(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
                       children: [
-                        Image.asset(
-                          'assets/images/bulb.png',
-                          scale: 2,
+                        Text(
+                          error,
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 14.sp,
+                            color: Colors.red,
+                          ),
                         ),
-                        SizedBox(width: 12.w),
-                        Expanded(
+                        SizedBox(height: 16.h),
+                        ElevatedButton(
+                          onPressed: () {
+                            userController.clearError();
+                            userController.getProfile();
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: primaryColor,
+                          ),
                           child: Text(
-                            'Use Tekpay more to qualify for Buy now and pay later',
+                            'Retry',
                             style: TextStyle(
-                              fontSize: 12.sp,
-                              color: primaryColor,
+                              fontSize: 14.sp,
+                              color: Colors.white,
                             ),
                           ),
                         ),
                       ],
                     ),
                   ),
-                  SizedBox(height: 32.h),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        'Recent Transactions',
-                        style: TextStyle(
-                          fontSize: 18.sp,
-                          fontWeight: FontWeight.w600,
-                        ),
+                ),
+              );
+            }
+            return const SizedBox.shrink();
+          }),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildShimmerHeader() {
+    return Shimmer.fromColors(
+      baseColor: Colors.white.withOpacity(0.3),
+      highlightColor: Colors.white.withOpacity(0.5),
+      enabled: true,
+      period: const Duration(milliseconds: 1500),
+      direction: ShimmerDirection.ltr,
+      child: Column(
+        children: [
+          Row(
+            children: [
+              // Profile picture shimmer
+              Container(
+                width: 48.r,
+                height: 48.r,
+                decoration: const BoxDecoration(
+                  color: Colors.white,
+                  shape: BoxShape.circle,
+                ),
+              ),
+              SizedBox(width: 12.w),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Name shimmer
+                    Container(
+                      width: 120.w,
+                      height: 16.h,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(8),
                       ),
-                      TextButton(
-                        onPressed: () {},
-                        child: Text(
-                          'See all',
-                          style: TextStyle(
-                            color: primaryColor,
-                            fontSize: 14.sp,
-                          ),
-                        ),
+                    ),
+                    SizedBox(height: 4.h),
+                    // Subtitle shimmer
+                    Container(
+                      width: 160.w,
+                      height: 12.h,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(8),
                       ),
-                    ],
+                    ),
+                  ],
+                ),
+              ),
+              // Notification and support icons shimmer
+              Container(
+                width: 24.w,
+                height: 24.w,
+                margin: EdgeInsets.only(right: 12.w),
+                decoration: const BoxDecoration(
+                  color: Colors.white,
+                  shape: BoxShape.circle,
+                ),
+              ),
+              Container(
+                width: 24.w,
+                height: 24.w,
+                decoration: const BoxDecoration(
+                  color: Colors.white,
+                  shape: BoxShape.circle,
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: 32.h),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Wallet Balance label shimmer
+              Container(
+                width: 100.w,
+                height: 14.h,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+              SizedBox(height: 8.h),
+              // Balance amount shimmer
+              Row(
+                children: [
+                  Container(
+                    width: 200.w,
+                    height: 32.h,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
                   ),
-                  SizedBox(height: 16.h),
-                  _buildTransactionItem(
-                    title: 'Airtime Purchased (MTN)',
-                    date: '2024-03-23 05:13:53',
-                    amount: '-₦5000',
-                    isSuccess: true,
-                    icon: Icons.phone_android,
-                  ),
-                  _buildTransactionItem(
-                    title: 'Transfer to JOSEPHINE AYO',
-                    date: '2024-03-23 05:13:53',
-                    amount: '-₦2000',
-                    isSuccess: true,
-                    icon: Icons.swap_vert,
-                  ),
-                  _buildTransactionItem(
-                    title: 'Transfer to AYOBAMI JOYCE',
-                    date: '2024-03-23 05:13:53',
-                    amount: '₦2000',
-                    isSuccess: false,
-                    icon: Icons.swap_vert,
+                  const Spacer(),
+                  Container(
+                    width: 24.w,
+                    height: 24.w,
+                    decoration: const BoxDecoration(
+                      color: Colors.white,
+                      shape: BoxShape.circle,
+                    ),
                   ),
                 ],
               ),
-            ),
-          ],
-        ),
+              SizedBox(height: 8.h),
+              // Referral bonus shimmer
+              Row(
+                children: [
+                  Container(
+                    width: 150.w,
+                    height: 14.h,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                  SizedBox(width: 4.w),
+                  Container(
+                    width: 24.w,
+                    height: 24.w,
+                    decoration: const BoxDecoration(
+                      color: Colors.white,
+                      shape: BoxShape.circle,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+          SizedBox(height: 24.h),
+          // Action buttons shimmer
+          Row(
+            children: [
+              Expanded(
+                child: Container(
+                  height: 40.h,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+              ),
+              SizedBox(width: 16.w),
+              Expanded(
+                child: Container(
+                  height: 40.h,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }

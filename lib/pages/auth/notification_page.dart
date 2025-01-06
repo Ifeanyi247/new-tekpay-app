@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-import 'package:tekpayapp/pages/app/home_page.dart';
 import 'package:tekpayapp/pages/widgets/bottom_bar.dart';
 import 'package:tekpayapp/pages/widgets/custom_button_widget.dart';
 

@@ -1,23 +1,35 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:tekpayapp/controllers/user_controller.dart';
 import 'package:tekpayapp/pages/splash_screen.dart';
+import 'package:tekpayapp/services/auth_service.dart';
+import 'package:tekpayapp/services/storage_service.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await StorageService.init();
+
+  // Initialize services and controllers
+  Get.put(AuthService());
+  Get.put(UserController());
+
   runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return ScreenUtilInit(
-      designSize: const Size(360, 884),
-      builder: (BuildContext context, Widget? child) {
+      designSize: const Size(375, 812),
+      minTextAdapt: true,
+      splitScreenMode: true,
+      builder: (context, child) {
         return GetMaterialApp(
-          title: 'Flutter Demo',
+          title: 'Tekpay',
+          debugShowCheckedModeBanner: false,
           theme: ThemeData(
             colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
             useMaterial3: true,

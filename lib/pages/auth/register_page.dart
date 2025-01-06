@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:tekpayapp/controllers/auth_controller.dart';
 import 'package:tekpayapp/pages/auth/otp_verification_page.dart';
 import 'package:tekpayapp/pages/widgets/custom_button_widget.dart';
 import 'package:tekpayapp/pages/widgets/custom_text_field.dart';
@@ -16,6 +17,29 @@ class _RegisterPageState extends State<RegisterPage> {
   final _formKey = GlobalKey<FormState>();
   bool _obscurePassword = true;
   bool _obscureConfirmPassword = true;
+  final _usernameController = TextEditingController();
+  final _firstNameController = TextEditingController();
+  final _lastNameController = TextEditingController();
+  final _emailController = TextEditingController();
+  final _phoneNumberController = TextEditingController();
+  final _passwordController = TextEditingController();
+  final _confirmPasswordController = TextEditingController();
+  final _referralCodeController = TextEditingController();
+
+  final _authController = Get.put(AuthController());
+
+  @override
+  void dispose() {
+    super.dispose();
+    _usernameController.dispose();
+    _firstNameController.dispose();
+    _lastNameController.dispose();
+    _emailController.dispose();
+    _phoneNumberController.dispose();
+    _passwordController.dispose();
+    _confirmPasswordController.dispose();
+    _referralCodeController.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -64,34 +88,40 @@ class _RegisterPageState extends State<RegisterPage> {
                 CustomTextFieldWidget(
                   icon: Icons.person_outline,
                   label: 'Username',
+                  controller: _usernameController,
                 ),
                 const SizedBox(height: 16),
                 CustomTextFieldWidget(
                   icon: Icons.person_outline,
                   label: 'First Name',
+                  controller: _firstNameController,
                 ),
                 const SizedBox(height: 16),
                 CustomTextFieldWidget(
                   icon: Icons.person_outline,
                   label: 'Last Name',
+                  controller: _lastNameController,
                 ),
                 const SizedBox(height: 16),
                 CustomTextFieldWidget(
                   icon: Icons.email_outlined,
                   label: 'Email',
                   keyboardType: TextInputType.emailAddress,
+                  controller: _emailController,
                 ),
                 const SizedBox(height: 16),
                 CustomTextFieldWidget(
                   icon: Icons.phone_outlined,
                   label: 'Phone Number',
                   keyboardType: TextInputType.phone,
+                  controller: _phoneNumberController,
                 ),
                 const SizedBox(height: 16),
                 CustomTextFieldWidget(
                   icon: Icons.lock_outline,
                   label: 'Password',
                   obscureText: _obscurePassword,
+                  controller: _passwordController,
                   suffixIcon: IconButton(
                     icon: Icon(
                       _obscurePassword
@@ -111,6 +141,7 @@ class _RegisterPageState extends State<RegisterPage> {
                   icon: Icons.lock_outline,
                   label: 'Confirm Password',
                   obscureText: _obscureConfirmPassword,
+                  controller: _confirmPasswordController,
                   suffixIcon: IconButton(
                     icon: Icon(
                       _obscureConfirmPassword
@@ -129,20 +160,28 @@ class _RegisterPageState extends State<RegisterPage> {
                 CustomTextFieldWidget(
                   icon: Icons.people_outline,
                   label: 'Referral (Optional)',
+                  controller: _referralCodeController,
                 ),
                 const SizedBox(height: 32),
-                CustomButtonWidget(
-                  text: 'Continue',
-                  onTap: () {
-                    Get.to(
-                      () => const OtpVerificationPage(
-                          email: 'Oladelep77@gmail.com'),
-                    );
-                    // if (_formKey.currentState!.validate()) {
-                    //   // Handle registration
-                    // }
-                  },
-                ),
+                Obx(() {
+                  return _authController.isLoading.value
+                      ? Center(child: const CircularProgressIndicator())
+                      : CustomButtonWidget(
+                          text: 'Continue',
+                          onTap: () async {
+                            await _authController.register(
+                              username: _usernameController.text.trim(),
+                              firstName: _firstNameController.text.trim(),
+                              lastName: _lastNameController.text.trim(),
+                              email: _emailController.text.trim(),
+                              phoneNumber: _phoneNumberController.text.trim(),
+                              password: _passwordController.text.trim(),
+                              confirmPassword:
+                                  _confirmPasswordController.text.trim(),
+                            );
+                          },
+                        );
+                }),
               ],
             ),
           ),

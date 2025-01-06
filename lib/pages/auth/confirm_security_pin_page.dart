@@ -1,205 +1,179 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-import 'package:pinput/pinput.dart';
 import 'package:tekpayapp/constants/colors.dart';
-import 'package:tekpayapp/pages/auth/biometric_page.dart';
-import 'package:tekpayapp/pages/widgets/custom_button_widget.dart';
+import 'package:tekpayapp/controllers/auth_controller.dart';
 
 class ConfirmSecurityPinPage extends StatefulWidget {
-  const ConfirmSecurityPinPage({super.key});
+  final String pinToken;
+  final String firstPin;
+  final String email;
+
+  const ConfirmSecurityPinPage({
+    Key? key,
+    required this.pinToken,
+    required this.firstPin,
+    required this.email,
+  }) : super(key: key);
 
   @override
   State<ConfirmSecurityPinPage> createState() => _ConfirmSecurityPinPageState();
 }
 
 class _ConfirmSecurityPinPageState extends State<ConfirmSecurityPinPage> {
-  final pinController = TextEditingController();
-  final focusNode = FocusNode();
+  final _authController = Get.find<AuthController>();
+  final _pin = ''.obs;
 
-  void _onKeyTap(String value) {
-    if (value == 'delete') {
-      if (pinController.text.isNotEmpty) {
-        pinController.text =
-            pinController.text.substring(0, pinController.text.length - 1);
+  void _onKeyPressed(String value) {
+    if (_pin.value.length < 4) {
+      _pin.value += value;
+      if (_pin.value.length == 4) {
+        _confirmPin();
       }
-    } else if (pinController.text.length < 4) {
-      pinController.text = pinController.text + value;
     }
   }
 
-  Widget _buildNumberButton(String number) {
+  void _onBackspacePressed() {
+    if (_pin.value.isNotEmpty) {
+      _pin.value = _pin.value.substring(0, _pin.value.length - 1);
+    }
+  }
+
+  void _confirmPin() {
+    if (_pin.value == widget.firstPin) {
+      _authController.createPin(
+        pinToken: widget.pinToken,
+        pinCode: _pin.value,
+        pinCodeConfirmation: _pin.value,
+      );
+    } else {
+      Get.snackbar(
+        'Error',
+        'PINs do not match. Please try again.',
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+      _pin.value = '';
+    }
+  }
+
+  Widget _buildKeyboardButton(String text, {bool isBackspace = false}) {
     return InkWell(
-      onTap: () => _onKeyTap(number),
-      borderRadius: BorderRadius.circular(50),
+      onTap: () {
+        if (isBackspace) {
+          _onBackspacePressed();
+        } else {
+          _onKeyPressed(text);
+        }
+      },
       child: Container(
-        width: 80.w,
-        height: 80.w,
-        alignment: Alignment.center,
-        child: Text(
-          number,
-          style: TextStyle(
-            fontSize: 24.sp,
-            fontWeight: FontWeight.w600,
-          ),
+        width: 60.w,
+        height: 60.w,
+        decoration: BoxDecoration(
+          color: Colors.grey[100],
+          borderRadius: BorderRadius.circular(12.r),
+        ),
+        child: Center(
+          child: isBackspace
+              ? Icon(
+                  Icons.backspace_outlined,
+                  color: Colors.grey[600],
+                  size: 24.sp,
+                )
+              : Text(
+                  text,
+                  style: TextStyle(
+                    fontSize: 24.sp,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
         ),
       ),
     );
-  }
-
-  @override
-  void dispose() {
-    pinController.dispose();
-    focusNode.dispose();
-    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    final defaultPinTheme = PinTheme(
-      width: 60.w,
-      height: 60.w,
-      textStyle: TextStyle(
-        fontSize: 20.sp,
-        fontWeight: FontWeight.w600,
-      ),
-      decoration: BoxDecoration(
-        color: Colors.grey[100],
-        borderRadius: BorderRadius.circular(12),
-      ),
-    );
-
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
-        backgroundColor: Colors.transparent,
         elevation: 0,
+        backgroundColor: Colors.white,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios, color: Colors.black),
           onPressed: () => Get.back(),
-        ),
-        title: Text(
-          'Security Pin',
-          style: TextStyle(
-            color: Colors.black,
-            fontSize: 18.sp,
-            fontWeight: FontWeight.w500,
+          icon: Icon(
+            Icons.arrow_back,
+            color: Colors.grey[800],
           ),
         ),
-        centerTitle: true,
       ),
-      body: Padding(
-        padding: EdgeInsets.all(24.w),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Confirm security pin',
-              style: TextStyle(
-                fontSize: 18.sp,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-            SizedBox(height: 8.h),
-            Text(
-              'Re-enter your pin to confirm',
-              style: TextStyle(
-                fontSize: 15.sp,
-                color: Colors.grey,
-              ),
-            ),
-            SizedBox(height: 32.h),
-            Center(
-              child: Pinput(
-                length: 4,
-                controller: pinController,
-                focusNode: focusNode,
-                defaultPinTheme: defaultPinTheme,
-                obscureText: true,
-                obscuringWidget: Container(
-                  width: 16.w,
-                  height: 16.w,
-                  decoration: const BoxDecoration(
-                    color: primaryColor,
-                    shape: BoxShape.circle,
-                  ),
-                ),
-                readOnly: true,
-                separatorBuilder: (index) => SizedBox(width: 16.w),
-                focusedPinTheme: defaultPinTheme.copyWith(
-                  decoration: defaultPinTheme.decoration!.copyWith(
-                    border: Border.all(color: primaryColor, width: 2),
-                  ),
+      body: SafeArea(
+        child: Padding(
+          padding: EdgeInsets.all(16.w),
+          child: Column(
+            children: [
+              SizedBox(height: 32.h),
+              Text(
+                'Confirm Security PIN',
+                style: TextStyle(
+                  fontSize: 24.sp,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
-            ),
-            Expanded(
-              child: LayoutBuilder(
-                builder: (context, constraints) {
-                  final buttonSize = (constraints.maxWidth - 48.w) / 3;
-                  return Column(
+              SizedBox(height: 16.h),
+              Text(
+                'Please re-enter your PIN to confirm',
+                style: TextStyle(
+                  fontSize: 16.sp,
+                  color: Colors.grey[600],
+                ),
+                textAlign: TextAlign.center,
+              ),
+              SizedBox(height: 48.h),
+              // PIN dots
+              Obx(() => Row(
                     mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: List.generate(4, (index) {
+                      bool isFilled = index < _pin.value.length;
+                      return Container(
+                        width: 16.w,
+                        height: 16.w,
+                        margin: EdgeInsets.symmetric(horizontal: 8.w),
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: isFilled ? primaryColor : Colors.grey[200],
+                        ),
+                      );
+                    }),
+                  )),
+              SizedBox(height: 48.h),
+              // Number pad
+              Expanded(
+                child: Obx(() => _authController.isLoading.value
+                    ? const Center(child: CircularProgressIndicator())
+                    : GridView.count(
+                        crossAxisCount: 3,
+                        mainAxisSpacing: 16.h,
+                        crossAxisSpacing: 16.w,
+                        childAspectRatio: 1.5,
                         children: [
-                          _buildNumberButton('1'),
-                          _buildNumberButton('2'),
-                          _buildNumberButton('3'),
+                          _buildKeyboardButton('1'),
+                          _buildKeyboardButton('2'),
+                          _buildKeyboardButton('3'),
+                          _buildKeyboardButton('4'),
+                          _buildKeyboardButton('5'),
+                          _buildKeyboardButton('6'),
+                          _buildKeyboardButton('7'),
+                          _buildKeyboardButton('8'),
+                          _buildKeyboardButton('9'),
+                          const SizedBox.shrink(),
+                          _buildKeyboardButton('0'),
+                          _buildKeyboardButton('', isBackspace: true),
                         ],
-                      ),
-                      SizedBox(height: 16.h),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          _buildNumberButton('4'),
-                          _buildNumberButton('5'),
-                          _buildNumberButton('6'),
-                        ],
-                      ),
-                      SizedBox(height: 16.h),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          _buildNumberButton('7'),
-                          _buildNumberButton('8'),
-                          _buildNumberButton('9'),
-                        ],
-                      ),
-                      SizedBox(height: 16.h),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          SizedBox(width: buttonSize),
-                          _buildNumberButton('0'),
-                          InkWell(
-                            onTap: () => _onKeyTap('delete'),
-                            borderRadius: BorderRadius.circular(50),
-                            child: Container(
-                              width: buttonSize,
-                              height: buttonSize,
-                              alignment: Alignment.center,
-                              child: Icon(
-                                Icons.backspace_outlined,
-                                size: 24.sp,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  );
-                },
+                      )),
               ),
-            ),
-            CustomButtonWidget(
-              text: 'Continue',
-              onTap: () {
-                if (pinController.text.length == 4) {
-                  Get.to(() => const BiometricPage());
-                }
-              },
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

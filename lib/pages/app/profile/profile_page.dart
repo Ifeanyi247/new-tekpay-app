@@ -27,12 +27,12 @@ class ProfilePage extends StatelessWidget {
               width: 40.w,
               height: 40.w,
               decoration: BoxDecoration(
-                color: const Color(0xFF8B3DFF).withOpacity(0.1),
+                color: primaryColor.withOpacity(0.1),
                 borderRadius: BorderRadius.circular(8.r),
               ),
               child: Icon(
                 icon,
-                color: const Color(0xFF8B3DFF),
+                color: primaryColor,
                 size: 20.sp,
               ),
             ),

@@ -2,16 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:pinput/pinput.dart';
-import 'package:tekpayapp/pages/auth/security_pin_page.dart';
+import 'package:tekpayapp/controllers/auth_controller.dart';
 import 'package:tekpayapp/pages/widgets/custom_button_widget.dart';
 
 class OtpVerificationPage extends StatefulWidget {
   final String email;
 
   const OtpVerificationPage({
-    super.key,
+    Key? key,
     required this.email,
-  });
+  }) : super(key: key);
 
   @override
   State<OtpVerificationPage> createState() => _OtpVerificationPageState();
@@ -20,6 +20,7 @@ class OtpVerificationPage extends StatefulWidget {
 class _OtpVerificationPageState extends State<OtpVerificationPage> {
   final pinController = TextEditingController();
   final focusNode = FocusNode();
+  final _authController = Get.find<AuthController>();
 
   @override
   void dispose() {
@@ -114,7 +115,7 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
                 ),
                 TextButton(
                   onPressed: () {
-                    // Handle resend code
+                    // TODO: Implement resend OTP
                   },
                   child: Text(
                     'Resend code',
@@ -128,16 +129,19 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
               ],
             ),
             const Spacer(),
-            CustomButtonWidget(
-              text: 'Continue',
-              onTap: () {
-                if (pinController.text.length == 4) {
-                  Get.to(
-                    () => const SecurityPinPage(),
-                  );
-                }
-              },
-            ),
+            Obx(() => _authController.isLoading.value
+                ? const Center(child: CircularProgressIndicator())
+                : CustomButtonWidget(
+                    text: 'Continue',
+                    onTap: () {
+                      if (pinController.text.length == 4) {
+                        _authController.verifyOtp(
+                          email: widget.email,
+                          otp: pinController.text,
+                        );
+                      }
+                    },
+                  )),
             SizedBox(height: 24.h),
           ],
         ),

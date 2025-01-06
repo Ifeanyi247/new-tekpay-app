@@ -2,7 +2,9 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:tekpayapp/constants/colors.dart';
-import 'package:tekpayapp/pages/onbaording/onboarding_page.dart';
+import 'package:tekpayapp/pages/auth/register_page.dart';
+import 'package:tekpayapp/pages/widgets/bottom_bar.dart';
+import 'package:tekpayapp/services/auth_service.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -15,9 +17,18 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    Timer(const Duration(seconds: 5), () {
-      Get.to(() => const OnboardingPage());
-    });
+    _checkAuth();
+  }
+
+  Future<void> _checkAuth() async {
+    await Future.delayed(const Duration(seconds: 2)); // Show splash for 2 seconds
+    
+    final authService = Get.find<AuthService>();
+    if (authService.isSignedIn.value) {
+      Get.offAll(() => const BottomBar());
+    } else {
+      Get.offAll(() => const RegisterPage());
+    }
   }
 
   @override
