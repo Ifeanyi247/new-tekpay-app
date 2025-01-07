@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:tekpayapp/constants/colors.dart';
 import 'package:tekpayapp/controllers/user_controller.dart';
@@ -232,23 +233,24 @@ class HomePage extends StatelessWidget {
                                   Text(
                                     user != null
                                         ? userController.isBalanceVisible.value
-                                            ? '₦${user.profile.wallet.toStringAsFixed(2)}'
+                                            ? '₦${NumberFormat('#,##0.00', 'en_US').format(user.profile.wallet)}'
                                             : '₦•••••'
                                         : '₦0.00',
                                     style: TextStyle(
-                                      fontSize: 32.sp,
+                                      fontSize: 28.sp,
                                       fontWeight: FontWeight.bold,
                                       color: Colors.white,
                                     ),
                                   ),
                                   const Spacer(),
                                   IconButton(
-                                    icon: Obx(() => Icon(
-                                          userController.isBalanceVisible.value
-                                              ? Icons.visibility_outlined
-                                              : Icons.visibility_off_outlined,
-                                          color: Colors.white,
-                                        ),
+                                    icon: Obx(
+                                      () => Icon(
+                                        userController.isBalanceVisible.value
+                                            ? Icons.visibility_outlined
+                                            : Icons.visibility_off_outlined,
+                                        color: Colors.white,
+                                      ),
                                     ),
                                     onPressed: () {
                                       userController.toggleBalanceVisibility();

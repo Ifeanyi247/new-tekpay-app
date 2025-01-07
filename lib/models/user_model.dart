@@ -27,17 +27,17 @@ class UserModel {
 
   factory UserModel.fromJson(Map<String, dynamic> json) {
     return UserModel(
-      id: json['id'],
-      username: json['username'],
-      firstName: json['first_name'],
-      lastName: json['last_name'],
-      email: json['email'],
-      phoneNumber: json['phone_number'],
-      referredBy: json['referred_by'],
-      emailVerifiedAt: json['email_verified_at'],
-      createdAt: json['created_at'],
-      updatedAt: json['updated_at'],
-      profile: UserProfile.fromJson(json['profile']),
+      id: json['id']?.toString() ?? '',
+      username: json['username']?.toString() ?? '',
+      firstName: json['first_name']?.toString() ?? '',
+      lastName: json['last_name']?.toString() ?? '',
+      email: json['email']?.toString() ?? '',
+      phoneNumber: json['phone_number']?.toString() ?? '',
+      referredBy: json['referred_by']?.toString(),
+      emailVerifiedAt: json['email_verified_at']?.toString(),
+      createdAt: json['created_at']?.toString() ?? '',
+      updatedAt: json['updated_at']?.toString() ?? '',
+      profile: UserProfile.fromJson(json['profile'] ?? {}),
     );
   }
 
@@ -79,13 +79,13 @@ class UserProfile {
 
   factory UserProfile.fromJson(Map<String, dynamic> json) {
     return UserProfile(
-      id: json['id'],
-      userId: json['user_id'],
-      profileUrl: json['profile_url'],
-      pinCode: json['pin_code'],
-      wallet: (json['wallet'] as num).toDouble(),
-      createdAt: json['created_at'],
-      updatedAt: json['updated_at'],
+      id: json['id'] ?? 0,
+      userId: json['user_id']?.toString() ?? '',
+      profileUrl: json['profile_url']?.toString() ?? '',
+      pinCode: json['pin_code'] ?? 0,
+      wallet: (json['wallet'] as num?)?.toDouble() ?? 0.0,
+      createdAt: json['created_at']?.toString() ?? '',
+      updatedAt: json['updated_at']?.toString() ?? '',
     );
   }
 

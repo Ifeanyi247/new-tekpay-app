@@ -25,7 +25,7 @@ class UserController extends GetxController {
     _authController = Get.find<AuthController>();
     _apiService = _authController.api;
     _loadBalanceVisibility();
-    
+
     final token = StorageService.getToken();
     if (token != null) {
       _apiService.setAuthToken(token);
@@ -34,7 +34,8 @@ class UserController extends GetxController {
   }
 
   void _loadBalanceVisibility() {
-    final visibility = StorageService.box.read<bool>('balance_visibility') ?? true;
+    final visibility =
+        StorageService.box.read<bool>('balance_visibility') ?? true;
     isBalanceVisible.value = visibility;
   }
 
@@ -70,14 +71,39 @@ class UserController extends GetxController {
       error.value = null;
 
       final response = await _apiService.get('user');
-      print('Profile Response: $response');
+      print('Full Profile Response: $response');
 
-      if (response['data'] != null) {
-        print("data: ${response['data']}");
-        final userData = response['data'];
-        user.value = UserModel.fromJson(userData);
-        return response;
+      if (response['status'] == true && response['data'] != null) {
+        final responseData = response['data'];
+        print('Full User Data Structure: $responseData');
+
+        // Log the type of userData
+        print('User Data Type: ${responseData.runtimeType}');
+
+        // Log all keys in userData
+        if (responseData is Map) {
+          print(
+              'Available keys in responseData: ${responseData.keys.toList()}');
+        }
+
+        // Extract user data from nested structure
+        final userData = responseData['user'] as Map<String, dynamic>;
+        // The profile is already in the correct place
+        userData['profile'] = responseData['profile'];
+
+        print('Processed User Data: $userData');
+
+        try {
+          user.value = UserModel.fromJson(userData);
+          return response;
+        } catch (e, stackTrace) {
+          print('Error parsing user data: $e');
+          print('Stack trace: $stackTrace');
+          throw 'Error parsing user data: $e';
+        }
       } else {
+        print(
+            'Invalid response structure. Status: ${response['status']}, Has data: ${response['data'] != null}');
         clearUserData();
         error.value = 'Invalid response format';
       }

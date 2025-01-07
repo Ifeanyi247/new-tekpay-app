@@ -41,6 +41,7 @@ dependencies:
   pinput: ^3.0.1
   persistent_bottom_nav_bar: ^6.0.2
   intl: ^0.20.1
+  image_picker: ^1.1.2
 
 dev_dependencies:
   flutter_test:

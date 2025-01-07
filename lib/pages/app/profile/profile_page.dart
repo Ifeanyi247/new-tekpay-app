@@ -4,8 +4,7 @@ import 'package:get/get.dart';
 import 'package:tekpayapp/constants/colors.dart';
 import 'package:tekpayapp/controllers/auth_controller.dart';
 import 'package:tekpayapp/controllers/user_controller.dart';
-import 'package:tekpayapp/pages/auth/login_page.dart';
-import 'package:tekpayapp/services/storage_service.dart';
+import 'package:tekpayapp/pages/app/profile/edit_profile_page.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -162,7 +161,9 @@ class _ProfilePageState extends State<ProfilePage> {
                           title: 'Personal Information',
                           subtitle: 'Edit your informatioon',
                           icon: Icons.person_outline,
-                          onTap: () {},
+                          onTap: () {
+                            Get.to(() => EditProfilePage());
+                          },
                         ),
                         _buildProfileOption(
                           title: 'Settings',
