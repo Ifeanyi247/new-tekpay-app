@@ -2,14 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:tekpayapp/constants/colors.dart';
+import 'package:tekpayapp/controllers/bills/data_controller.dart';
+import 'package:tekpayapp/controllers/user_controller.dart';
 import 'package:tekpayapp/pages/widgets/custom_button_widget.dart';
 import 'package:tekpayapp/pages/widgets/custom_text_field.dart';
 import 'package:tekpayapp/pages/app/data/data_list.dart';
 import 'package:tekpayapp/pages/app/airtime/transaction_status_page.dart';
 import 'package:tekpayapp/pages/app/widgets/transaction_widget.dart';
+import 'package:intl/intl.dart';
 
 class PinEntrySheet extends StatefulWidget {
-  final VoidCallback onPinComplete;
+  final Function(String pin) onPinComplete;
 
   const PinEntrySheet({
     super.key,
@@ -22,10 +25,12 @@ class PinEntrySheet extends StatefulWidget {
 
 class _PinEntrySheetState extends State<PinEntrySheet> {
   final _pinNotifier = ValueNotifier<String>('');
+  final _isLoading = ValueNotifier<bool>(false);
 
   @override
   void dispose() {
     _pinNotifier.dispose();
+    _isLoading.dispose();
     super.dispose();
   }
 
@@ -107,6 +112,17 @@ class _PinEntrySheetState extends State<PinEntrySheet> {
             },
           ),
           SizedBox(height: 24.h),
+          ValueListenableBuilder<bool>(
+            valueListenable: _isLoading,
+            builder: (context, isLoading, child) {
+              return isLoading
+                  ? const Padding(
+                      padding: EdgeInsets.all(16.0),
+                      child: CircularProgressIndicator(),
+                    )
+                  : const SizedBox(height: 48);
+            },
+          ),
           TextButton(
             onPressed: () {
               // Handle forgot PIN
@@ -122,69 +138,81 @@ class _PinEntrySheetState extends State<PinEntrySheet> {
           SizedBox(height: 16.h),
           Padding(
             padding: EdgeInsets.symmetric(horizontal: 24.w),
-            child: GridView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 3,
-                childAspectRatio: 1.5,
-                crossAxisSpacing: 16.w,
-                mainAxisSpacing: 16.h,
-              ),
-              itemCount: 12,
-              itemBuilder: (context, index) {
-                if (index == 9) {
-                  return const SizedBox.shrink();
-                }
-                if (index == 10) {
-                  index = 0;
-                }
-                if (index == 11) {
-                  return GestureDetector(
-                    onTap: () {
-                      if (_pinNotifier.value.isNotEmpty) {
-                        _pinNotifier.value = _pinNotifier.value
-                            .substring(0, _pinNotifier.value.length - 1);
-                      }
-                    },
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: Colors.grey[100],
-                        borderRadius: BorderRadius.circular(8.r),
+            child: ValueListenableBuilder<bool>(
+              valueListenable: _isLoading,
+              builder: (context, isLoading, child) {
+                return IgnorePointer(
+                  ignoring: isLoading,
+                  child: Opacity(
+                    opacity: isLoading ? 0.5 : 1.0,
+                    child: GridView.builder(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 3,
+                        childAspectRatio: 1.5,
+                        crossAxisSpacing: 16.w,
+                        mainAxisSpacing: 16.h,
                       ),
-                      child: Center(
-                        child: Icon(
-                          Icons.backspace_outlined,
-                          color: Colors.grey[600],
-                        ),
-                      ),
-                    ),
-                  );
-                }
-                return GestureDetector(
-                  onTap: () {
-                    if (_pinNotifier.value.length < 4) {
-                      _pinNotifier.value =
-                          _pinNotifier.value + index.toString();
-                      if (_pinNotifier.value.length == 4) {
-                        Get.back();
-                        widget.onPinComplete();
-                      }
-                    }
-                  },
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: Colors.grey[100],
-                      borderRadius: BorderRadius.circular(8.r),
-                    ),
-                    child: Center(
-                      child: Text(
-                        index.toString(),
-                        style: TextStyle(
-                          fontSize: 24.sp,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
+                      itemCount: 12,
+                      itemBuilder: (context, index) {
+                        if (index == 9) {
+                          return const SizedBox.shrink();
+                        }
+                        if (index == 10) {
+                          index = 0;
+                        }
+                        if (index == 11) {
+                          return GestureDetector(
+                            onTap: () {
+                              if (_pinNotifier.value.isNotEmpty) {
+                                _pinNotifier.value = _pinNotifier.value
+                                    .substring(
+                                        0, _pinNotifier.value.length - 1);
+                              }
+                            },
+                            child: Container(
+                              decoration: BoxDecoration(
+                                color: Colors.grey[100],
+                                borderRadius: BorderRadius.circular(8.r),
+                              ),
+                              child: Center(
+                                child: Icon(
+                                  Icons.backspace_outlined,
+                                  color: Colors.grey[600],
+                                ),
+                              ),
+                            ),
+                          );
+                        }
+                        return GestureDetector(
+                          onTap: () {
+                            if (_pinNotifier.value.length < 4) {
+                              _pinNotifier.value =
+                                  _pinNotifier.value + index.toString();
+                              if (_pinNotifier.value.length == 4) {
+                                _isLoading.value = true;
+                                widget.onPinComplete(_pinNotifier.value);
+                              }
+                            }
+                          },
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: Colors.grey[100],
+                              borderRadius: BorderRadius.circular(8.r),
+                            ),
+                            child: Center(
+                              child: Text(
+                                index.toString(),
+                                style: TextStyle(
+                                  fontSize: 24.sp,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ),
+                          ),
+                        );
+                      },
                     ),
                   ),
                 );
@@ -208,9 +236,11 @@ class DataPage extends StatefulWidget {
 class _DataPageState extends State<DataPage> {
   final TextEditingController _mobileNumberController = TextEditingController();
   final TextEditingController _amountController = TextEditingController();
+  final _userController = Get.find<UserController>();
   String? _selectedDataType;
   String? _selectedPlan;
   int _selectedNetwork = 0;
+  DataController? _dataController;
 
   final _networks = [
     {
@@ -235,7 +265,7 @@ class _DataPageState extends State<DataPage> {
       'name': '9Mobile',
       'logo': 'assets/images/9mobile.png',
       'color': Colors.white,
-      'serviceId': '9mobile-data',
+      'serviceId': 'etisalat-data',
     },
   ];
 
@@ -251,34 +281,190 @@ class _DataPageState extends State<DataPage> {
         ));
     if (result != null) {
       setState(() {
-        _selectedPlan = result['name'] as String;
+        _selectedPlan = result['code'] as String;
         _amountController.text = result['price'].toString();
       });
+      _dataController = Get.put(
+          DataController(_networks[_selectedNetwork]['serviceId']!.toString()));
     }
   }
 
   void _showTransactionConfirmation() {
+    if (_mobileNumberController.text.isEmpty) {
+      Get.snackbar(
+        'Error',
+        'Please enter a phone number',
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+      return;
+    }
+
+    if (_selectedPlan == null) {
+      Get.snackbar(
+        'Error',
+        'Please select a data plan',
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+      return;
+    }
+
     Get.bottomSheet(
-      TransactionConfirmationSheet(
-        amount: _amountController.text,
-        recipientId: _mobileNumberController.text,
-        network: _networks[_selectedNetwork]['name']!.toString(),
-        transactionType: 'Data',
-        onProceed: () {
-          Get.back();
-          _showPinEntry();
-        },
+      Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(
+            top: Radius.circular(20.r),
+          ),
+        ),
+        padding: EdgeInsets.all(16.w),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  '₦${_amountController.text}.00',
+                  style: TextStyle(
+                    fontSize: 24.sp,
+                    fontWeight: FontWeight.w600,
+                    color: primaryColor,
+                  ),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.close),
+                  onPressed: () => Get.back(),
+                ),
+              ],
+            ),
+            SizedBox(height: 24.h),
+            _buildInfoRow('Recipient ID', _mobileNumberController.text),
+            _buildInfoRow('Transaction Type', 'Data'),
+            _buildInfoRow(
+                'Network', _networks[_selectedNetwork]['name']!.toString()),
+            _buildInfoRow('Paying', '₦ ${_amountController.text}.00'),
+            _buildInfoRow('Date',
+                DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime.now())),
+            SizedBox(height: 24.h),
+            Text(
+              'Payment Method',
+              style: TextStyle(
+                fontSize: 16.sp,
+                fontWeight: FontWeight.w500,
+                color: Colors.black87,
+              ),
+            ),
+            SizedBox(height: 12.h),
+            Obx(() {
+              final user = _userController.user.value;
+              return Container(
+                padding: EdgeInsets.all(12.w),
+                decoration: BoxDecoration(
+                  color: Colors.grey[50],
+                  borderRadius: BorderRadius.circular(8.r),
+                ),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 40.w,
+                      height: 40.w,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(8.r),
+                      ),
+                      child: Icon(
+                        Icons.account_balance_wallet,
+                        color: primaryColor,
+                        size: 24.sp,
+                      ),
+                    ),
+                    SizedBox(width: 12.w),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Balance',
+                            style: TextStyle(
+                              fontSize: 14.sp,
+                              color: Colors.black87,
+                            ),
+                          ),
+                          Text(
+                            '₦${user?.profile.wallet ?? '0.00'}',
+                            style: TextStyle(
+                              fontSize: 16.sp,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.black,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Icon(
+                      Icons.check_circle,
+                      color: primaryColor,
+                      size: 24.sp,
+                    ),
+                  ],
+                ),
+              );
+            }),
+            SizedBox(height: 24.h),
+            CustomButtonWidget(
+              text: 'Pay',
+              onTap: () {
+                Get.back();
+                _showPinEntry();
+              },
+            ),
+          ],
+        ),
       ),
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
     );
   }
 
+  Widget _buildInfoRow(String label, String value) {
+    return Padding(
+      padding: EdgeInsets.symmetric(vertical: 8.h),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 14.sp,
+              color: Colors.grey[600],
+            ),
+          ),
+          Text(
+            value,
+            style: TextStyle(
+              fontSize: 14.sp,
+              fontWeight: FontWeight.w500,
+              color: Colors.black,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   void _showPinEntry() {
     Get.bottomSheet(
       PinEntrySheet(
-        onPinComplete: () {
-          // Get.to(() => const TransactionStatusPage());
+        onPinComplete: (pin) async {
+          await _dataController?.purchaseData(
+            phone: _mobileNumberController.text,
+            amount: _amountController.text,
+            variationCode: _selectedPlan!,
+            pin: pin,
+          );
         },
       ),
       isScrollControlled: true,
@@ -360,47 +546,47 @@ class _DataPageState extends State<DataPage> {
               ),
             ),
             SizedBox(height: 32.h),
-            Text(
-              'Data Type*',
-              style: TextStyle(
-                fontSize: 16.sp,
-                color: primaryColor,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-            SizedBox(height: 8.h),
-            Container(
-              padding: EdgeInsets.symmetric(horizontal: 16.w),
-              decoration: BoxDecoration(
-                border: Border.all(color: Colors.grey.shade300),
-                borderRadius: BorderRadius.circular(8.r),
-              ),
-              child: DropdownButtonHideUnderline(
-                child: DropdownButton<String>(
-                  isExpanded: true,
-                  hint: Text(
-                    'Select Plan Type SME, GIFTING or CORPORATE GIFTING',
-                    style: TextStyle(
-                      fontSize: 14.sp,
-                      color: Colors.grey,
-                    ),
-                  ),
-                  value: _selectedDataType,
-                  items: _dataTypes.map((String type) {
-                    return DropdownMenuItem<String>(
-                      value: type,
-                      child: Text(type),
-                    );
-                  }).toList(),
-                  onChanged: (String? value) {
-                    setState(() {
-                      _selectedDataType = value;
-                    });
-                  },
-                ),
-              ),
-            ),
-            SizedBox(height: 24.h),
+            // Text(
+            //   'Data Type*',
+            //   style: TextStyle(
+            //     fontSize: 16.sp,
+            //     color: primaryColor,
+            //     fontWeight: FontWeight.w500,
+            //   ),
+            // ),
+            // SizedBox(height: 8.h),
+            // Container(
+            //   padding: EdgeInsets.symmetric(horizontal: 16.w),
+            //   decoration: BoxDecoration(
+            //     border: Border.all(color: Colors.grey.shade300),
+            //     borderRadius: BorderRadius.circular(8.r),
+            //   ),
+            //   child: DropdownButtonHideUnderline(
+            //     child: DropdownButton<String>(
+            //       isExpanded: true,
+            //       hint: Text(
+            //         'Select Plan Type SME, GIFTING or CORPORATE GIFTING',
+            //         style: TextStyle(
+            //           fontSize: 14.sp,
+            //           color: Colors.grey,
+            //         ),
+            //       ),
+            //       value: _selectedDataType,
+            //       items: _dataTypes.map((String type) {
+            //         return DropdownMenuItem<String>(
+            //           value: type,
+            //           child: Text(type),
+            //         );
+            //       }).toList(),
+            //       onChanged: (String? value) {
+            //         setState(() {
+            //           _selectedDataType = value;
+            //         });
+            //       },
+            //     ),
+            //   ),
+            // ),
+            // SizedBox(height: 24.h),
             Text(
               'Mobile Number*',
               style: TextStyle(

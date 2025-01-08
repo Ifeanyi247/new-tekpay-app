@@ -102,14 +102,13 @@ class _DataListPageState extends State<DataListPage> {
                 itemCount: plans.length,
                 itemBuilder: (context, index) {
                   final plan = plans[index];
-                  final discountedPrice = _controller.getDiscountedPrice(plan.amount);
-                  final originalPrice = double.tryParse(plan.amount) ?? 0.0;
+                  final price = double.tryParse(plan.amount) ?? 0.0;
 
                   return GestureDetector(
                     onTap: () {
                       Get.back(result: {
                         'name': plan.name,
-                        'price': discountedPrice,
+                        'price': price,
                         'code': plan.code,
                       });
                     },
@@ -123,33 +122,24 @@ class _DataListPageState extends State<DataListPage> {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text(
-                            plan.name,
-                            style: TextStyle(
-                              fontSize: 14.sp,
-                              color: Colors.black87,
+                          Expanded(
+                            child: Text(
+                              plan.name,
+                              style: TextStyle(
+                                fontSize: 14.sp,
+                                color: Colors.black87,
+                              ),
+                              overflow: TextOverflow.ellipsis,
                             ),
                           ),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.end,
-                            children: [
-                              Text(
-                                '₦${originalPrice.toStringAsFixed(2)}',
-                                style: TextStyle(
-                                  fontSize: 12.sp,
-                                  color: Colors.grey,
-                                  decoration: TextDecoration.lineThrough,
-                                ),
-                              ),
-                              Text(
-                                '₦${discountedPrice.toStringAsFixed(2)}',
-                                style: TextStyle(
-                                  fontSize: 14.sp,
-                                  color: Colors.green,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                            ],
+                          SizedBox(width: 16.w),
+                          Text(
+                            '₦${price.toStringAsFixed(2)}',
+                            style: TextStyle(
+                              fontSize: 14.sp,
+                              color: Colors.green,
+                              fontWeight: FontWeight.w500,
+                            ),
                           ),
                         ],
                       ),

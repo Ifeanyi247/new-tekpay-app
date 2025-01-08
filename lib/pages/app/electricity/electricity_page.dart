@@ -246,7 +246,7 @@ class _ElectricityPageState extends State<ElectricityPage> {
   void _showPinEntry() {
     Get.bottomSheet(
       PinEntrySheet(
-        onPinComplete: () {
+        onPinComplete: (pin) {
           // Get.to(() => const TransactionStatusPage());
         },
       ),

@@ -232,7 +232,7 @@ class _TvPageState extends State<TvPage> {
   void _showPinEntry() {
     Get.bottomSheet(
       PinEntrySheet(
-        onPinComplete: () {
+        onPinComplete: (pin) {
           // Get.to(() => const TransactionStatusPage());
         },
       ),
