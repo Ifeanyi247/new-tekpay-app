@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:tekpayapp/constants/colors.dart';
+import 'package:tekpayapp/controllers/bills/airtime_controller.dart';
+import 'package:tekpayapp/controllers/user_controller.dart';
 import 'package:tekpayapp/pages/app/airtime/transaction_status_page.dart';
 import 'package:tekpayapp/pages/widgets/custom_button_widget.dart';
 import 'package:tekpayapp/pages/widgets/custom_text_field.dart';
@@ -19,12 +21,71 @@ class _AirtimePageState extends State<AirtimePage> {
   final TextEditingController _amountController = TextEditingController();
   final TextEditingController _phoneNumberController = TextEditingController();
   final AirtimeController _controller = Get.put(AirtimeController());
+  final AirtimeWorkingController _a_controller =
+      Get.put(AirtimeWorkingController());
+  final _userController = Get.find<UserController>();
   final _pinNotifier = ValueNotifier<String>('');
   int _selectedNetwork = 0;
   bool _saveBeneficiary = false;
   bool _showSaveOption = false;
 
   void _showTransactionConfirmation() {
+    // Validate phone number
+    if (_phoneNumberController.text.isEmpty) {
+      Get.snackbar(
+        'Error',
+        'Please enter a phone number',
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+      return;
+    }
+
+    // Validate phone number format (must be 11 digits)
+    if (_phoneNumberController.text.length != 11) {
+      Get.snackbar(
+        'Error',
+        'Phone number must be 11 digits',
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+      return;
+    }
+
+    // Validate amount
+    if (_amountController.text.isEmpty) {
+      Get.snackbar(
+        'Error',
+        'Please enter an amount',
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+      return;
+    }
+
+    // Validate amount is a number
+    final amount = double.tryParse(_amountController.text);
+    if (amount == null) {
+      Get.snackbar(
+        'Error',
+        'Please enter a valid amount',
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+      return;
+    }
+
+    // Validate minimum amount (e.g., 50 Naira)
+    if (amount < 50) {
+      Get.snackbar(
+        'Error',
+        'Minimum amount is ₦50',
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+      return;
+    }
+
     Get.bottomSheet(
       Container(
         decoration: BoxDecoration(
@@ -73,58 +134,61 @@ class _AirtimePageState extends State<AirtimePage> {
               ),
             ),
             SizedBox(height: 12.h),
-            Container(
-              padding: EdgeInsets.all(12.w),
-              decoration: BoxDecoration(
-                color: Colors.grey[50],
-                borderRadius: BorderRadius.circular(8.r),
-              ),
-              child: Row(
-                children: [
-                  Container(
-                    width: 40.w,
-                    height: 40.w,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(8.r),
+            Obx(() {
+              final user = _userController.user.value;
+              return Container(
+                padding: EdgeInsets.all(12.w),
+                decoration: BoxDecoration(
+                  color: Colors.grey[50],
+                  borderRadius: BorderRadius.circular(8.r),
+                ),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 40.w,
+                      height: 40.w,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(8.r),
+                      ),
+                      child: Icon(
+                        Icons.account_balance_wallet,
+                        color: primaryColor,
+                        size: 24.sp,
+                      ),
                     ),
-                    child: Icon(
-                      Icons.account_balance_wallet,
+                    SizedBox(width: 12.w),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Balance',
+                            style: TextStyle(
+                              fontSize: 14.sp,
+                              color: Colors.black87,
+                            ),
+                          ),
+                          Text(
+                            '₦${user?.profile.wallet ?? '0.00'}',
+                            style: TextStyle(
+                              fontSize: 16.sp,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.black,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Icon(
+                      Icons.check_circle,
                       color: primaryColor,
                       size: 24.sp,
                     ),
-                  ),
-                  SizedBox(width: 12.w),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Balance',
-                          style: TextStyle(
-                            fontSize: 14.sp,
-                            color: Colors.black87,
-                          ),
-                        ),
-                        Text(
-                          '₦5,000.00',
-                          style: TextStyle(
-                            fontSize: 16.sp,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.black,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Icon(
-                    Icons.check_circle,
-                    color: primaryColor,
-                    size: 24.sp,
-                  ),
-                ],
-              ),
-            ),
+                  ],
+                ),
+              );
+            }),
             SizedBox(height: 24.h),
             CustomButtonWidget(
               text: 'Pay',
@@ -251,6 +315,13 @@ class _AirtimePageState extends State<AirtimePage> {
                   },
                 ),
                 SizedBox(height: 24.h),
+                // Loading indicator
+                Obx(() => _a_controller.isLoading.value
+                    ? const Padding(
+                        padding: EdgeInsets.all(16.0),
+                        child: CircularProgressIndicator(),
+                      )
+                    : const SizedBox()),
                 // Forgot PIN text
                 TextButton(
                   onPressed: () {
@@ -314,8 +385,13 @@ class _AirtimePageState extends State<AirtimePage> {
                                 _pinNotifier.value + index.toString();
                             if (_pinNotifier.value.length == 4) {
                               // PIN is complete, process the transaction
-                              Get.back();
-                              Get.to(() => const TransactionStatusPage());
+                              _a_controller.purchaseAirtime(
+                                phone: _phoneNumberController.text,
+                                amount: _amountController.text,
+                                network: _networks[_selectedNetwork]['name']!
+                                    .toString(),
+                                pin: _pinNotifier.value,
+                              );
                             }
                           }
                         },

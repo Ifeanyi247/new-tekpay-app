@@ -6,7 +6,50 @@ import 'package:tekpayapp/pages/widgets/bottom_bar.dart';
 import 'package:tekpayapp/pages/widgets/custom_button_widget.dart';
 
 class TransactionStatusPage extends StatelessWidget {
-  const TransactionStatusPage({super.key});
+  final bool success;
+  final String amount;
+  final String reference;
+  final String date;
+  final String recipient;
+  final String network;
+  final String productName;
+
+  const TransactionStatusPage({
+    super.key,
+    required this.success,
+    required this.amount,
+    required this.reference,
+    required this.date,
+    required this.recipient,
+    required this.network,
+    required this.productName,
+  });
+
+  Widget _buildInfoRow(String label, String value) {
+    return Padding(
+      padding: EdgeInsets.symmetric(vertical: 8.h),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 14.sp,
+              color: Colors.grey[600],
+            ),
+          ),
+          Text(
+            value,
+            style: TextStyle(
+              fontSize: 14.sp,
+              fontWeight: FontWeight.w500,
+              color: Colors.black,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -24,18 +67,18 @@ class TransactionStatusPage extends StatelessWidget {
                 height: 80.w,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: Colors.green.withOpacity(0.1),
+                  color: (success ? Colors.green : Colors.red).withOpacity(0.1),
                 ),
                 child: Icon(
-                  Icons.check_circle_outline,
-                  color: Colors.green,
+                  success ? Icons.check_circle_outline : Icons.error_outline,
+                  color: success ? Colors.green : Colors.red,
                   size: 40.sp,
                 ),
               ),
               SizedBox(height: 24.h),
-              // Transaction Completed Text
+              // Transaction Status Text
               Text(
-                'Transaction Completed',
+                success ? 'Transaction Completed' : 'Transaction Failed',
                 style: TextStyle(
                   fontSize: 24.sp,
                   fontWeight: FontWeight.w600,
@@ -43,22 +86,40 @@ class TransactionStatusPage extends StatelessWidget {
                 ),
               ),
               SizedBox(height: 8.h),
-              // Success Message
+              // Status Message
               Text(
-                'Airtime topup was successful',
+                success ? 'Airtime topup was successful' : 'Airtime topup failed',
                 style: TextStyle(
                   fontSize: 16.sp,
                   color: Colors.grey,
                 ),
               ),
               SizedBox(height: 32.h),
+              // Transaction Details
+              Container(
+                width: double.infinity,
+                padding: EdgeInsets.all(16.w),
+                decoration: BoxDecoration(
+                  color: Colors.grey[50],
+                  borderRadius: BorderRadius.circular(12.r),
+                ),
+                child: Column(
+                  children: [
+                    _buildInfoRow('Amount', '₦$amount'),
+                    _buildInfoRow('Reference', reference),
+                    _buildInfoRow('Date', date),
+                    _buildInfoRow('Recipient', recipient),
+                    _buildInfoRow('Network', network.toUpperCase()),
+                    _buildInfoRow('Product', productName),
+                  ],
+                ),
+              ),
+              SizedBox(height: 32.h),
               // Transactions Button
               CustomButtonWidget(
-                text: 'Transactions',
+                text: 'Done',
                 onTap: () {
-                  // Navigate to transactions page
                   Get.offAll(() => const BottomBar());
-                  // You might want to navigate to a specific tab in your bottom navigation
                 },
               ),
               SizedBox(height: 16.h),

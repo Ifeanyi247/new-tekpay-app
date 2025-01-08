@@ -273,7 +273,7 @@ class _DataPageState extends State<DataPage> {
     Get.bottomSheet(
       PinEntrySheet(
         onPinComplete: () {
-          Get.to(() => const TransactionStatusPage());
+          // Get.to(() => const TransactionStatusPage());
         },
       ),
       isScrollControlled: true,

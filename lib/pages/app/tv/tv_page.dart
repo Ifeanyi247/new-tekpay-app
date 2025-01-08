@@ -233,7 +233,7 @@ class _TvPageState extends State<TvPage> {
     Get.bottomSheet(
       PinEntrySheet(
         onPinComplete: () {
-          Get.to(() => const TransactionStatusPage());
+          // Get.to(() => const TransactionStatusPage());
         },
       ),
       isScrollControlled: true,

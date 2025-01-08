@@ -203,7 +203,7 @@ class _InternetPageState extends State<InternetPage> {
     Get.bottomSheet(
       PinEntrySheet(
         onPinComplete: () {
-          Get.to(() => const TransactionStatusPage());
+          // Get.to(() => const TransactionStatusPage());
         },
       ),
       isScrollControlled: true,
