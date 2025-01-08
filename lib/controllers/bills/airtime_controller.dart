@@ -17,6 +17,20 @@ class AirtimeWorkingController extends GetxController {
     '9Mobile': '9mobile',
   };
 
+  TransactionStatus _getTransactionStatus(String status) {
+    switch (status) {
+      case 'delivered':
+        return TransactionStatus.success;
+      case 'initiated':
+      case 'pending':
+        return TransactionStatus.pending;
+      case 'failed':
+        return TransactionStatus.failed;
+      default:
+        return TransactionStatus.failed;
+    }
+  }
+
   Future<void> purchaseAirtime({
     required String phone,
     required String amount,
@@ -25,9 +39,9 @@ class AirtimeWorkingController extends GetxController {
   }) async {
     try {
       // Validate phone number
-      if (phone.isEmpty || phone.length != 11) {
-        throw 'Invalid phone number';
-      }
+      // if (phone.isEmpty || phone.length != 11) {
+      //   throw 'Invalid phone number';
+      // }
 
       // Validate amount
       final amountValue = double.tryParse(amount);
@@ -47,31 +61,54 @@ class AirtimeWorkingController extends GetxController {
 
       isLoading.value = true;
 
-      final response = await _api.post('bills/airtime', body: {
-        'phone': phone,
-        'amount': amount,
-        'serviceID': serviceIds[network],
-        'pin': pin,
-      });
+      try {
+        final response = await _api.post('bills/airtime', body: {
+          'phone': phone,
+          'amount': amount,
+          'serviceID': serviceIds[network],
+          'pin': pin,
+        });
 
-      if (response['status'] == true) {
-        final transactionData = response['data'];
+        if (response['status'] == true) {
+          final transactionData = response['data'];
 
-        // Refresh user profile to get updated balance
-        await _userController.getProfile();
+          // Refresh user profile to get updated balance
+          await _userController.getProfile();
 
-        Get.off(() => TransactionStatusPage(
-              success: true,
-              amount: transactionData['amount'],
-              reference: transactionData['reference'],
-              date: transactionData['transaction_date']['date'],
-              recipient: transactionData['phone'],
-              network: transactionData['network'],
-              productName: transactionData['product_name'],
-            ));
-      } else {
-        Get.back(); // Close pin dialog
-        throw response['message'] ?? 'Failed to purchase airtime';
+          Get.off(() => TransactionStatusPage(
+                status: _getTransactionStatus(transactionData['status']),
+                amount: transactionData['amount'],
+                reference: transactionData['reference'],
+                date: transactionData['transaction_date']['date'],
+                recipient: transactionData['phone'],
+                network: transactionData['network'],
+                productName: transactionData['product_name'],
+              ));
+        } else {
+          throw response['message'] ?? 'Failed to purchase airtime';
+        }
+      } catch (e) {
+        // If it's a 400 error, try to get the transaction details
+        if (e.toString().contains('400')) {
+          final response = await _api.get('bills/airtime/status/$phone');
+          if (response['status'] == true && response['data'] != null) {
+            final transactionData = response['data'];
+            Get.off(() => TransactionStatusPage(
+                  status: TransactionStatus.failed,
+                  amount: amount,
+                  reference: transactionData['reference'] ?? '',
+                  date: transactionData['transaction_date']?['date'] ??
+                      DateTime.now().toString(),
+                  recipient: phone,
+                  network: network,
+                  productName: 'Airtime Purchase',
+                ));
+          } else {
+            rethrow;
+          }
+        } else {
+          rethrow;
+        }
       }
     } catch (e) {
       print('Error purchasing airtime: $e');

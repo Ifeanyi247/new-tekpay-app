@@ -42,15 +42,15 @@ class _AirtimePageState extends State<AirtimePage> {
     }
 
     // Validate phone number format (must be 11 digits)
-    if (_phoneNumberController.text.length != 11) {
-      Get.snackbar(
-        'Error',
-        'Phone number must be 11 digits',
-        backgroundColor: Colors.red,
-        colorText: Colors.white,
-      );
-      return;
-    }
+    // if (_phoneNumberController.text.length != 11) {
+    //   Get.snackbar(
+    //     'Error',
+    //     'Phone number must be 11 digits',
+    //     backgroundColor: Colors.red,
+    //     colorText: Colors.white,
+    //   );
+    //   return;
+    // }
 
     // Validate amount
     if (_amountController.text.isEmpty) {
