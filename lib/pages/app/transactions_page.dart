@@ -4,11 +4,17 @@ import 'package:get/get.dart';
 import 'package:tekpayapp/constants/colors.dart';
 import 'package:tekpayapp/controllers/transactions_controller.dart';
 import 'package:tekpayapp/models/transaction_model.dart';
+import 'package:tekpayapp/pages/app/status_page.dart';
 
-class TransactionsPage extends StatelessWidget {
+class TransactionsPage extends StatefulWidget {
   TransactionsPage({super.key});
 
-  final _controller = Get.put(TransactionsController());
+  @override
+  State<TransactionsPage> createState() => _TransactionsPageState();
+}
+
+class _TransactionsPageState extends State<TransactionsPage> {
+  final TransactionsController _controller = Get.put(TransactionsController());
 
   @override
   Widget build(BuildContext context) {
@@ -100,7 +106,10 @@ class TransactionsPage extends StatelessWidget {
             itemCount: _controller.filteredTransactions.length,
             itemBuilder: (context, index) {
               final transaction = _controller.filteredTransactions[index];
-              return _TransactionItem(transaction: transaction);
+              return _TransactionItem(
+                transaction: transaction,
+                controller: _controller,
+              );
             },
           );
         }),
@@ -111,9 +120,11 @@ class TransactionsPage extends StatelessWidget {
 
 class _TransactionItem extends StatelessWidget {
   final Transaction transaction;
+  final TransactionsController controller;
 
   const _TransactionItem({
     required this.transaction,
+    required this.controller,
   });
 
   @override
@@ -208,8 +219,26 @@ class _TransactionItem extends StatelessWidget {
           ),
           SizedBox(height: 8.h),
           InkWell(
-            onTap: () {
-              // TODO: Implement view receipt
+            onTap: () async {
+              try {
+                final statusData = await controller.checkTransactionStatus(
+                  transaction.requestId,
+                );
+
+                Get.to(() => StatusPage(
+                      amount: statusData['amount'],
+                      status: statusData['status'],
+                      date: DateTime.parse(
+                          statusData['transaction_date']['date']),
+                      recipientId: statusData['phone'],
+                      transactionType: statusData['product_name'],
+                      method: statusData['method'],
+                      transactionId: statusData['transactionId'],
+                      transactionDate: statusData['transaction_date']['date'],
+                    ));
+              } catch (e) {
+                // Error is already handled in the controller
+              }
             },
             child: Text(
               'View Receipt',

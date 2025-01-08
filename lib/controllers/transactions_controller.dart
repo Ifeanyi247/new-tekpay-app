@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:tekpayapp/models/transaction_model.dart';
 import 'package:tekpayapp/services/api_service.dart';
+import 'package:tekpayapp/services/api_exception.dart';
 
 class TransactionsController extends GetxController {
   final _api = ApiService();
@@ -26,8 +27,19 @@ class TransactionsController extends GetxController {
         transactions.value =
             transactionData.map((json) => Transaction.fromJson(json)).toList();
       } else {
-        throw response['message'] ?? 'Failed to fetch transactions';
+        throw ApiException(
+          statusCode: 0,
+          message: response['message'] ?? 'Failed to fetch transactions',
+        );
       }
+    } on ApiException catch (e) {
+      print('API Error fetching transactions: ${e.message}');
+      Get.snackbar(
+        'Error',
+        e.message,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
     } catch (e) {
       print('Error fetching transactions: $e');
       Get.snackbar(
@@ -68,5 +80,40 @@ class TransactionsController extends GetxController {
 
   Future<void> refreshTransactions() async {
     await fetchTransactions();
+  }
+
+  Future<Map<String, dynamic>> checkTransactionStatus(String requestId) async {
+    try {
+      final response = await _api.post('bills/status', body: {
+        'request_id': requestId,
+      });
+
+      if (response['status'] == true) {
+        return response['data'];
+      } else {
+        throw ApiException(
+          statusCode: 0,
+          message: response['message'] ?? 'Failed to check transaction status',
+        );
+      }
+    } on ApiException catch (e) {
+      print('API Error checking transaction status: ${e.message}');
+      Get.snackbar(
+        'Error',
+        e.message,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+      rethrow;
+    } catch (e) {
+      print('Error checking transaction status: $e');
+      Get.snackbar(
+        'Error',
+        'Failed to check transaction status',
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+      rethrow;
+    }
   }
 }
