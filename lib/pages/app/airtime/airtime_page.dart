@@ -388,8 +388,7 @@ class _AirtimePageState extends State<AirtimePage> {
                               _a_controller.purchaseAirtime(
                                 phone: _phoneNumberController.text,
                                 amount: _amountController.text,
-                                network: _networks[_selectedNetwork]
-                                        ['serviceID']!
+                                network: _networks[_selectedNetwork]['name']!
                                     .toString(),
                                 pin: _pinNotifier.value,
                               );

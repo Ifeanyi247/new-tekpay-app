@@ -217,21 +217,25 @@ class _DataPageState extends State<DataPage> {
       'name': 'MTN',
       'logo': 'assets/images/MTN.png',
       'color': const Color(0xFFFFF4E6),
+      'serviceId': 'mtn-data',
     },
     {
       'name': 'GLO',
       'logo': 'assets/images/glo.png',
       'color': Colors.white,
+      'serviceId': 'glo-data',
     },
     {
       'name': 'Airtel',
       'logo': 'assets/images/airtel.png',
       'color': Colors.white,
+      'serviceId': 'airtel-data',
     },
     {
       'name': '9Mobile',
       'logo': 'assets/images/9mobile.png',
       'color': Colors.white,
+      'serviceId': '9mobile-data',
     },
   ];
 
@@ -242,8 +246,9 @@ class _DataPageState extends State<DataPage> {
   ];
 
   Future<void> _showDataPlans() async {
-    final result =
-        await Get.to<Map<String, dynamic>>(() => const DataListPage());
+    final result = await Get.to<Map<String, dynamic>>(() => DataListPage(
+          serviceId: _networks[_selectedNetwork]['serviceId']!.toString(),
+        ));
     if (result != null) {
       setState(() {
         _selectedPlan = result['name'] as String;
