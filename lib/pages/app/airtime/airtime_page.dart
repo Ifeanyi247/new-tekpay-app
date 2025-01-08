@@ -388,7 +388,8 @@ class _AirtimePageState extends State<AirtimePage> {
                               _a_controller.purchaseAirtime(
                                 phone: _phoneNumberController.text,
                                 amount: _amountController.text,
-                                network: _networks[_selectedNetwork]['name']!
+                                network: _networks[_selectedNetwork]
+                                        ['serviceID']!
                                     .toString(),
                                 pin: _pinNotifier.value,
                               );
@@ -553,21 +554,25 @@ class _AirtimePageState extends State<AirtimePage> {
       'name': 'MTN',
       'logo': 'assets/images/MTN.png',
       'color': const Color(0xFFFFF4E6),
+      'serviceID': 'mtn',
     },
     {
       'name': 'GLO',
       'logo': 'assets/images/glo.png',
       'color': Colors.white,
+      'serviceID': 'glo',
     },
     {
       'name': 'Airtel',
       'logo': 'assets/images/airtel.png',
       'color': Colors.white,
+      'serviceID': 'airtel',
     },
     {
       'name': '9Mobile',
       'logo': 'assets/images/9mobile.png',
       'color': Colors.white,
+      'serviceID': 'etisalat',
     },
   ];
 

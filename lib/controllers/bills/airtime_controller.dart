@@ -17,20 +17,6 @@ class AirtimeWorkingController extends GetxController {
     '9Mobile': '9mobile',
   };
 
-  TransactionStatus _getTransactionStatus(String status) {
-    switch (status) {
-      case 'delivered':
-        return TransactionStatus.success;
-      case 'initiated':
-      case 'pending':
-        return TransactionStatus.pending;
-      case 'failed':
-        return TransactionStatus.failed;
-      default:
-        return TransactionStatus.failed;
-    }
-  }
-
   Future<void> purchaseAirtime({
     required String phone,
     required String amount,
@@ -38,11 +24,6 @@ class AirtimeWorkingController extends GetxController {
     required String pin,
   }) async {
     try {
-      // Validate phone number
-      // if (phone.isEmpty || phone.length != 11) {
-      //   throw 'Invalid phone number';
-      // }
-
       // Validate amount
       final amountValue = double.tryParse(amount);
       if (amountValue == null || amountValue < 50) {
@@ -121,6 +102,20 @@ class AirtimeWorkingController extends GetxController {
       );
     } finally {
       isLoading.value = false;
+    }
+  }
+
+  TransactionStatus _getTransactionStatus(String status) {
+    switch (status) {
+      case 'delivered':
+        return TransactionStatus.success;
+      case 'initiated':
+      case 'pending':
+        return TransactionStatus.pending;
+      case 'failed':
+        return TransactionStatus.failed;
+      default:
+        return TransactionStatus.failed;
     }
   }
 

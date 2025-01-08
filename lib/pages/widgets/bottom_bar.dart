@@ -4,6 +4,7 @@ import 'package:tekpayapp/constants/colors.dart';
 import 'package:tekpayapp/pages/app/all_services_page.dart';
 import 'package:tekpayapp/pages/app/home_page.dart';
 import 'package:tekpayapp/pages/app/profile/profile_page.dart';
+import 'package:tekpayapp/pages/app/transactions_page.dart';
 
 class BottomBar extends StatefulWidget {
   const BottomBar({super.key});
@@ -16,17 +17,7 @@ class _BottomBarState extends State<BottomBar> {
   final _pages = [
     HomePage(),
     AllServicesPage(),
-    Container(
-      child: Center(
-        child: Text(
-          'Transactions',
-          style: TextStyle(
-            fontSize: 24.sp,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-      ),
-    ),
+    TransactionsPage(),
     ProfilePage(),
   ];
 
