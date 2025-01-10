@@ -7,6 +7,7 @@ class CustomTextFieldWidget extends StatelessWidget {
   final Widget? suffixIcon;
   final TextInputType? keyboardType;
   final TextEditingController? controller;
+  final Function(String)? onChanged;
 
   const CustomTextFieldWidget({
     super.key,
@@ -16,6 +17,7 @@ class CustomTextFieldWidget extends StatelessWidget {
     this.suffixIcon,
     this.keyboardType,
     this.controller,
+    this.onChanged,
   });
 
   @override
@@ -24,6 +26,7 @@ class CustomTextFieldWidget extends StatelessWidget {
       controller: controller,
       obscureText: obscureText,
       keyboardType: keyboardType,
+      onChanged: onChanged,
       decoration: InputDecoration(
         prefixIcon: Icon(icon, color: Colors.grey),
         suffixIcon: suffixIcon,

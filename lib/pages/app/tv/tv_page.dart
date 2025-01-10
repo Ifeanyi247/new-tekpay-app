@@ -1,22 +1,15 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:tekpayapp/constants/colors.dart';
+import 'package:tekpayapp/controllers/bills/tv_controller.dart';
 import 'package:tekpayapp/pages/app/data/data_page.dart';
 import 'package:tekpayapp/pages/widgets/custom_button_widget.dart';
 import 'package:tekpayapp/pages/widgets/custom_text_field.dart';
 import 'package:tekpayapp/pages/app/widgets/transaction_widget.dart';
 import 'package:tekpayapp/pages/app/airtime/transaction_status_page.dart';
-
-class TvPlan {
-  final String name;
-  final double price;
-
-  TvPlan({
-    required this.name,
-    required this.price,
-  });
-}
 
 class TvPackageListPage extends StatefulWidget {
   final String provider;
@@ -28,47 +21,26 @@ class TvPackageListPage extends StatefulWidget {
 
 class _TvPackageListPageState extends State<TvPackageListPage> {
   final TextEditingController _searchController = TextEditingController();
-  List<TvPlan> _filteredPlans = [];
-
-  final Map<String, List<TvPlan>> _providerPlans = {
-    'Gotv': [
-      TvPlan(name: 'Compact', price: 12500.00),
-      TvPlan(name: 'Compact Plus', price: 19800.00),
-      TvPlan(name: 'Padi', price: 2950.00),
-      TvPlan(name: 'Premium Asia', price: 29500.00),
-      TvPlan(name: 'Yanga', price: 4200.00),
-      TvPlan(name: 'Premium French', price: 45600.00),
-      TvPlan(name: 'Confam', price: 7400.00),
-      TvPlan(name: 'Asia', price: 9900.00),
-    ],
-    'Dstv': [
-      TvPlan(name: 'Premium', price: 24500.00),
-      TvPlan(name: 'Compact Plus', price: 18500.00),
-      TvPlan(name: 'Compact', price: 10500.00),
-      TvPlan(name: 'Family', price: 7500.00),
-      TvPlan(name: 'Access', price: 4500.00),
-    ],
-    'Startime': [
-      TvPlan(name: 'Nova', price: 1200.00),
-      TvPlan(name: 'Basic', price: 2400.00),
-      TvPlan(name: 'Smart', price: 3200.00),
-      TvPlan(name: 'Classic', price: 4200.00),
-      TvPlan(name: 'Super', price: 6200.00),
-    ],
-  };
+  final TvController _tvController = Get.find<TvController>();
+  List<Map<String, dynamic>> _filteredPlans = [];
 
   @override
   void initState() {
     super.initState();
-    _filteredPlans = List.from(_providerPlans[widget.provider] ?? []);
+    _fetchPlans();
     _searchController.addListener(_filterPlans);
+  }
+
+  Future<void> _fetchPlans() async {
+    await _tvController.fetchTvPlans(widget.provider.toLowerCase());
+    _filteredPlans = List.from(_tvController.tvPlans);
   }
 
   void _filterPlans() {
     final query = _searchController.text.toLowerCase();
     setState(() {
-      _filteredPlans = (_providerPlans[widget.provider] ?? []).where((plan) {
-        return plan.name.toLowerCase().contains(query);
+      _filteredPlans = _tvController.tvPlans.where((plan) {
+        return plan['name'].toString().toLowerCase().contains(query);
       }).toList();
     });
   }
@@ -103,57 +75,62 @@ class _TvPackageListPageState extends State<TvPackageListPage> {
                   borderRadius: BorderRadius.circular(8.r),
                   borderSide: BorderSide.none,
                 ),
-                contentPadding: EdgeInsets.symmetric(
-                  horizontal: 16.w,
-                  vertical: 12.h,
-                ),
+                prefixIcon: const Icon(Icons.search),
               ),
             ),
           ),
           Expanded(
-            child: ListView.builder(
-              padding: EdgeInsets.symmetric(horizontal: 16.w),
-              itemCount: _filteredPlans.length,
-              itemBuilder: (context, index) {
-                final plan = _filteredPlans[index];
-                return GestureDetector(
-                  onTap: () {
-                    Get.back(result: {
-                      'name': plan.name,
-                      'price': plan.price,
-                    });
-                  },
-                  child: Container(
-                    margin: EdgeInsets.only(bottom: 8.h),
-                    padding: EdgeInsets.all(16.w),
-                    decoration: BoxDecoration(
-                      color: Colors.grey[50],
-                      borderRadius: BorderRadius.circular(8.r),
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          plan.name,
-                          style: TextStyle(
-                            fontSize: 14.sp,
-                            color: Colors.black87,
+            child: Obx(() {
+              if (_tvController.isLoading.value) {
+                return const Center(child: CircularProgressIndicator());
+              }
+
+              if (_tvController.error.value.isNotEmpty) {
+                return Center(child: Text(_tvController.error.value));
+              }
+
+              return ListView.builder(
+                padding: EdgeInsets.symmetric(horizontal: 16.w),
+                itemCount: _filteredPlans.length,
+                itemBuilder: (context, index) {
+                  final plan = _filteredPlans[index];
+                  return GestureDetector(
+                    onTap: () {
+                      _tvController.selectPlan(plan);
+                      Get.back(result: plan);
+                    },
+                    child: Container(
+                      margin: EdgeInsets.only(bottom: 8.h),
+                      padding: EdgeInsets.all(16.w),
+                      decoration: BoxDecoration(
+                        color: Colors.grey[50],
+                        borderRadius: BorderRadius.circular(8.r),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            plan['name'],
+                            style: TextStyle(
+                              fontSize: 14.sp,
+                              color: Colors.black87,
+                            ),
                           ),
-                        ),
-                        Text(
-                          '₦ ${plan.price.toStringAsFixed(2)}',
-                          style: TextStyle(
-                            fontSize: 14.sp,
-                            color: Colors.green,
-                            fontWeight: FontWeight.w500,
+                          Text(
+                            '₦${plan['variation_amount']}',
+                            style: TextStyle(
+                              fontSize: 14.sp,
+                              color: Colors.green,
+                              fontWeight: FontWeight.w500,
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
-                  ),
-                );
-              },
-            ),
+                  );
+                },
+              );
+            }),
           ),
         ],
       ),
@@ -179,6 +156,7 @@ class _TvPageState extends State<TvPage> {
   final TextEditingController _amountController = TextEditingController();
   String? _selectedPackage;
   int _selectedProvider = 0;
+  Timer? _debounceTimer;
 
   final _providers = [
     {
@@ -192,11 +170,17 @@ class _TvPageState extends State<TvPage> {
       'color': Colors.white,
     },
     {
-      'name': 'Startime',
+      'name': 'Startimes',
       'logo': 'assets/images/startime.png',
       'color': Colors.white,
     },
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    Get.put(TvController());
+  }
 
   Future<void> _showPackages() async {
     final result = await Get.to<Map<String, dynamic>>(
@@ -207,7 +191,7 @@ class _TvPageState extends State<TvPage> {
     if (result != null) {
       setState(() {
         _selectedPackage = result['name'] as String;
-        _amountController.text = result['price'].toString();
+        _amountController.text = result['variation_amount'];
       });
     }
   }
@@ -280,6 +264,7 @@ class _TvPageState extends State<TvPage> {
                         _selectedPackage = null;
                         _amountController.clear();
                       });
+                      Get.find<TvController>().clearSelection();
                     },
                     child: Container(
                       width: 100.w,
@@ -368,7 +353,84 @@ class _TvPageState extends State<TvPage> {
               controller: _smartCardController,
               label: '1234********',
               icon: Icons.credit_card,
+              onChanged: (value) {
+                if (_debounceTimer?.isActive ?? false) _debounceTimer?.cancel();
+                _debounceTimer =
+                    Timer(const Duration(milliseconds: 500), () async {
+                  if (value.length >= 10) {
+                    final controller = Get.find<TvController>();
+                    await controller.verifySmartCard(
+                      value,
+                      _providers[_selectedProvider]['name']!
+                          .toString()
+                          .toLowerCase(),
+                    );
+                  }
+                });
+              },
             ),
+            Obx(() {
+              final controller = Get.find<TvController>();
+              if (controller.isVerifying.value) {
+                return Padding(
+                  padding: EdgeInsets.only(top: 8.h),
+                  child: const Center(
+                    child: SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    ),
+                  ),
+                );
+              }
+              if (controller.verificationError.value.isNotEmpty) {
+                return Padding(
+                  padding: EdgeInsets.only(top: 8.h),
+                  child: Text(
+                    controller.verificationError.value,
+                    style: TextStyle(
+                      color: Colors.red,
+                      fontSize: 12.sp,
+                    ),
+                  ),
+                );
+              }
+              if (controller.customerInfo.isNotEmpty) {
+                final info = controller.customerInfo;
+                return Container(
+                  margin: EdgeInsets.only(top: 8.h),
+                  padding: EdgeInsets.all(12.w),
+                  decoration: BoxDecoration(
+                    color: Colors.grey[50],
+                    borderRadius: BorderRadius.circular(8.r),
+                    border: Border.all(color: Colors.grey.shade200),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Customer Details',
+                        style: TextStyle(
+                          fontSize: 14.sp,
+                          fontWeight: FontWeight.w600,
+                          color: primaryColor,
+                        ),
+                      ),
+                      SizedBox(height: 8.h),
+                      _buildInfoRow('Name', info['Customer_Name'] ?? ''),
+                      _buildInfoRow('Status', info['Status'] ?? ''),
+                      _buildInfoRow('Due Date', info['Due_Date'] ?? ''),
+                      _buildInfoRow(
+                          'Current Plan', info['Current_Bouquet'] ?? ''),
+                      if (info['Renewal_Amount'] != null)
+                        _buildInfoRow(
+                            'Renewal Amount', '₦${info['Renewal_Amount']}'),
+                    ],
+                  ),
+                );
+              }
+              return const SizedBox.shrink();
+            }),
             SizedBox(height: 24.h),
             Text(
               'Amount',
@@ -387,10 +449,47 @@ class _TvPageState extends State<TvPage> {
             SizedBox(height: 40.h),
             CustomButtonWidget(
               text: 'Proceed',
-              onTap: _showTransactionConfirmation,
+              onTap: () {
+                if (_selectedPackage != null &&
+                    _smartCardController.text.isNotEmpty &&
+                    _amountController.text.isNotEmpty) {
+                  _showTransactionConfirmation();
+                }
+              },
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildInfoRow(String label, String value) {
+    return Padding(
+      padding: EdgeInsets.only(bottom: 4.h),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            width: 100.w,
+            child: Text(
+              label,
+              style: TextStyle(
+                fontSize: 12.sp,
+                color: Colors.grey[600],
+              ),
+            ),
+          ),
+          Expanded(
+            child: Text(
+              value,
+              style: TextStyle(
+                fontSize: 12.sp,
+                color: Colors.black87,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -399,6 +498,7 @@ class _TvPageState extends State<TvPage> {
   void dispose() {
     _smartCardController.dispose();
     _amountController.dispose();
+    _debounceTimer?.cancel();
     super.dispose();
   }
 }

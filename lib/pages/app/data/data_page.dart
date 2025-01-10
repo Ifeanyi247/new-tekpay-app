@@ -7,8 +7,6 @@ import 'package:tekpayapp/controllers/user_controller.dart';
 import 'package:tekpayapp/pages/widgets/custom_button_widget.dart';
 import 'package:tekpayapp/pages/widgets/custom_text_field.dart';
 import 'package:tekpayapp/pages/app/data/data_list.dart';
-import 'package:tekpayapp/pages/app/airtime/transaction_status_page.dart';
-import 'package:tekpayapp/pages/app/widgets/transaction_widget.dart';
 import 'package:intl/intl.dart';
 
 class PinEntrySheet extends StatefulWidget {
@@ -267,13 +265,25 @@ class _DataPageState extends State<DataPage> {
       'color': Colors.white,
       'serviceId': 'etisalat-data',
     },
+    {
+      'name': 'GLO SME',
+      'logo': 'assets/images/glo.png',
+      'color': Colors.white,
+      'serviceId': 'glo-sme-data',
+    },
+    {
+      'name': '9mobile SME',
+      'logo': 'assets/images/9mobile.png',
+      'color': Colors.white,
+      'serviceId': '9mobile-sme-data',
+    },
   ];
 
-  final _dataTypes = [
-    'SME',
-    'GIFTING',
-    'CORPORATE GIFTING',
-  ];
+  // final _dataTypes = [
+  //   'SME',
+  //   'GIFTING',
+  //   'CORPORATE GIFTING',
+  // ];
 
   Future<void> _showDataPlans() async {
     final result = await Get.to<Map<String, dynamic>>(() => DataListPage(

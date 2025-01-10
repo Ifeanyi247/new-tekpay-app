@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:tekpayapp/constants/colors.dart';
+import 'package:tekpayapp/controllers/user_controller.dart';
 import 'package:tekpayapp/pages/widgets/custom_button_widget.dart';
 import 'package:intl/intl.dart';
 
@@ -132,14 +133,22 @@ class TransactionConfirmationSheet extends StatelessWidget {
                           color: Colors.black87,
                         ),
                       ),
-                      Text(
-                        '₦5,000.00',
-                        style: TextStyle(
-                          fontSize: 16.sp,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.black,
-                        ),
-                      ),
+                      Obx(() {
+                        final userController = Get.find<UserController>();
+                        final balance =
+                            userController.user.value?.profile.wallet ?? 0.0;
+                        final formatter = NumberFormat("#,##0.00", "en_US");
+                        return Text(
+                          userController.isBalanceVisible.value
+                              ? '₦${formatter.format(balance)}'
+                              : '₦****',
+                          style: TextStyle(
+                            fontSize: 16.sp,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.black,
+                          ),
+                        );
+                      }),
                     ],
                   ),
                 ),
