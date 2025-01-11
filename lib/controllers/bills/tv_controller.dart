@@ -18,7 +18,6 @@ class TvController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    ever(customerInfo, (_) => update());
   }
 
   Future<Map<String, dynamic>?> fetchTvPlans(String serviceID) async {

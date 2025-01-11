@@ -158,24 +158,24 @@ class _TvPageState extends State<TvPage> {
   final TextEditingController _amountController = TextEditingController();
   String? _selectedPackage;
   String? _selectedVariationCode;
-  int _selectedProvider = 0;
+  int _selectedProvider = 0; // Set DStv as default (index 0)
   Timer? _debounceTimer;
   String? _customerName;
   String? _customerBalance;
 
   final _providers = [
     {
-      'name': 'Gotv',
-      'logo': 'assets/images/gotv.png',
-      'color': const Color(0xFFF3E5F5),
-    },
-    {
-      'name': 'Dstv',
+      'name': 'DStv',
       'logo': 'assets/images/dstv.png',
       'color': Colors.white,
     },
     {
-      'name': 'Startimes',
+      'name': 'GOtv',
+      'logo': 'assets/images/gotv.png',
+      'color': const Color(0xFFF3E5F5),
+    },
+    {
+      'name': 'StarTimes',
       'logo': 'assets/images/startime.png',
       'color': Colors.white,
     },
@@ -185,6 +185,8 @@ class _TvPageState extends State<TvPage> {
   void initState() {
     super.initState();
     Get.put(TvController());
+    // Set DStv as default provider
+    _selectedProvider = 0;
   }
 
   Future<void> _showPackages() async {
@@ -427,7 +429,12 @@ class _TvPageState extends State<TvPage> {
             ),
             SizedBox(height: 8.h),
             GestureDetector(
-              onTap: _showPackages,
+              onTap: () async {
+                final controller = Get.find<TvController>();
+                final provider = _providers[_selectedProvider]['name']!.toString();
+                await controller.fetchTvPlans(provider.toLowerCase());
+                _showPackages();
+              },
               child: Container(
                 padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
                 decoration: BoxDecoration(
@@ -478,90 +485,90 @@ class _TvPageState extends State<TvPage> {
                 });
               },
             ),
-            Obx(() {
-              final controller = Get.find<TvController>();
-              print(
-                  'Is Verifying: ${controller.isVerifying.value}'); // Debug print
-              print('Customer Info: ${controller.customerInfo}'); // Debug print
-
-              if (controller.isVerifying.value) {
-                return Padding(
-                  padding: EdgeInsets.only(top: 8.h),
-                  child: const Center(
-                    child: SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    ),
-                  ),
-                );
-              }
-
-              if (controller.error.value.isNotEmpty) {
-                return Padding(
-                  padding: EdgeInsets.only(top: 8.h),
-                  child: Text(
-                    controller.error.value,
-                    style: TextStyle(
-                      color: Colors.red,
-                      fontSize: 12.sp,
-                    ),
-                  ),
-                );
-              }
-
-              final info = controller.customerInfo;
-              if (info.isNotEmpty) {
-                print('Displaying Info: $info'); // Debug print
-                final providerName = _providers[_selectedProvider]['name']!
-                    .toString()
-                    .toLowerCase();
-                return Container(
-                  margin: EdgeInsets.only(top: 8.h),
-                  padding: EdgeInsets.all(12.w),
-                  decoration: BoxDecoration(
-                    color: Colors.grey[50],
-                    borderRadius: BorderRadius.circular(8.r),
-                    border: Border.all(color: Colors.grey.shade200),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Customer Details',
-                        style: TextStyle(
-                          fontSize: 14.sp,
-                          fontWeight: FontWeight.w600,
-                          color: primaryColor,
-                        ),
+            GetX<TvController>(
+              builder: (controller) {
+                print('Is Verifying: ${controller.isVerifying.value}'); // Debug print
+                print('Customer Info: ${controller.customerInfo}'); // Debug print
+                
+                if (controller.isVerifying.value) {
+                  return Padding(
+                    padding: EdgeInsets.only(top: 8.h),
+                    child: const Center(
+                      child: SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(strokeWidth: 2),
                       ),
-                      SizedBox(height: 8.h),
-                      if (providerName == 'startimes') ...[
-                        _buildInfoRow('Name', info['Customer_Name'] ?? ''),
-                        _buildInfoRow(
-                            'Balance', '₦${info['Balance'] ?? '0.00'}'),
-                        _buildInfoRow(
-                            'Smart Card', info['Smartcard_Number'] ?? ''),
-                      ] else ...[
-                        _buildInfoRow('Name', info['Customer_Name'] ?? ''),
-                        _buildInfoRow('Status', info['Status'] ?? ''),
-                        _buildInfoRow('Due Date', info['Due_Date'] ?? ''),
-                        _buildInfoRow('Customer Number',
-                            info['Customer_Number']?.toString() ?? ''),
-                        _buildInfoRow(
-                            'Customer Type', info['Customer_Type'] ?? ''),
-                        _buildInfoRow(
-                            'Current Plan', info['Current_Bouquet'] ?? ''),
-                        if (info['Renewal_Amount'] != null)
+                    ),
+                  );
+                }
+                
+                if (controller.error.value.isNotEmpty) {
+                  return Padding(
+                    padding: EdgeInsets.only(top: 8.h),
+                    child: Text(
+                      controller.error.value,
+                      style: TextStyle(
+                        color: Colors.red,
+                        fontSize: 12.sp,
+                      ),
+                    ),
+                  );
+                }
+
+                final info = controller.customerInfo;
+                if (info.isNotEmpty) {
+                  print('Displaying Info: $info'); // Debug print
+                  final providerName = _providers[_selectedProvider]['name']!
+                      .toString()
+                      .toLowerCase();
+                  return Container(
+                    margin: EdgeInsets.only(top: 8.h),
+                    padding: EdgeInsets.all(12.w),
+                    decoration: BoxDecoration(
+                      color: Colors.grey[50],
+                      borderRadius: BorderRadius.circular(8.r),
+                      border: Border.all(color: Colors.grey.shade200),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Customer Details',
+                          style: TextStyle(
+                            fontSize: 14.sp,
+                            fontWeight: FontWeight.w600,
+                            color: primaryColor,
+                          ),
+                        ),
+                        SizedBox(height: 8.h),
+                        if (providerName == 'startimes') ...[
+                          _buildInfoRow('Name', info['Customer_Name'] ?? ''),
                           _buildInfoRow(
-                              'Renewal Amount', '₦${info['Renewal_Amount']}'),
+                              'Balance', '₦${info['Balance'] ?? '0.00'}'),
+                          _buildInfoRow(
+                              'Smart Card', info['Smartcard_Number'] ?? ''),
+                        ] else ...[
+                          _buildInfoRow('Name', info['Customer_Name'] ?? ''),
+                          _buildInfoRow('Status', info['Status'] ?? ''),
+                          _buildInfoRow('Due Date', info['Due_Date'] ?? ''),
+                          _buildInfoRow('Customer Number',
+                              info['Customer_Number']?.toString() ?? ''),
+                          _buildInfoRow(
+                              'Customer Type', info['Customer_Type'] ?? ''),
+                          _buildInfoRow(
+                              'Current Plan', info['Current_Bouquet'] ?? ''),
+                          if (info['Renewal_Amount'] != null)
+                            _buildInfoRow(
+                                'Renewal Amount', '₦${info['Renewal_Amount']}'),
+                        ],
                       ],
-                    ],
-                  ),
-                );
-              }
-              return const SizedBox.shrink();
-            }),
+                    ),
+                  );
+                }
+                return const SizedBox.shrink();
+              },
+            ),
             SizedBox(height: 24.h),
             Text(
               'Amount',
