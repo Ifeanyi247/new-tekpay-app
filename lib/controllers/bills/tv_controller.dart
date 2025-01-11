@@ -2,7 +2,7 @@ import 'package:get/get.dart';
 import 'package:tekpayapp/services/api_service.dart';
 
 class TvController extends GetxController {
-  final ApiService _apiService = ApiService();
+  final _apiService = Get.find<ApiService>();
 
   final RxBool isLoading = false.obs;
   final RxString error = ''.obs;
@@ -12,6 +12,14 @@ class TvController extends GetxController {
   final RxBool isVerifying = false.obs;
   final RxString verificationError = ''.obs;
   final RxMap<String, dynamic> customerInfo = <String, dynamic>{}.obs;
+  final RxBool isSubscribing = false.obs;
+  final RxString subscriptionError = ''.obs;
+
+  @override
+  void onInit() {
+    super.onInit();
+    ever(customerInfo, (_) => update());
+  }
 
   Future<Map<String, dynamic>?> fetchTvPlans(String serviceID) async {
     try {
@@ -37,30 +45,34 @@ class TvController extends GetxController {
     }
   }
 
-  Future<bool> verifySmartCard(String billersCode, String serviceID) async {
+  Future<bool> verifySmartCard(String cardNumber, String provider) async {
     try {
       isVerifying.value = true;
-      verificationError.value = '';
+      error.value = '';
       customerInfo.clear();
 
       final response = await _apiService.post(
         'bills/tv/verify-smartcard',
         body: {
-          'billersCode': billersCode,
-          'serviceID': serviceID,
+          'billersCode': cardNumber,
+          'serviceID': provider.toLowerCase(),
         },
       );
 
+      print('Verification Response: $response'); // Debug print
+
       if (response['status'] == true) {
-        customerInfo.assignAll(response['data'] ?? {});
+        final data = response['data'];
+        print('Customer Info: $data'); // Debug print
+        customerInfo.value = Map<String, dynamic>.from(data);
         return true;
       } else {
-        verificationError.value =
-            response['message'] ?? 'Failed to verify smart card';
+        error.value = response['message'] ?? 'Failed to verify smart card';
         return false;
       }
     } catch (e) {
-      verificationError.value = e.toString();
+      print('Verification Error: $e'); // Debug print
+      error.value = 'Failed to verify smart card';
       return false;
     } finally {
       isVerifying.value = false;
@@ -78,5 +90,43 @@ class TvController extends GetxController {
     error.value = '';
     verificationError.value = '';
     customerInfo.clear();
+  }
+
+  Future<bool> subscribeTv({
+    required String billersCode,
+    required String serviceID,
+    required String amount,
+    required String phone,
+    required String subscriptionType,
+    required String variationCode,
+  }) async {
+    try {
+      isSubscribing.value = true;
+      subscriptionError.value = '';
+
+      final response = await _apiService.post(
+        'bills/tv/subscribe',
+        body: {
+          'billersCode': billersCode,
+          'serviceID': serviceID,
+          'amount': amount,
+          'phone': phone,
+          'subscription_type': subscriptionType,
+          'variation_code': variationCode,
+        },
+      );
+
+      if (response['status'] == true) {
+        return true;
+      } else {
+        subscriptionError.value = response['message'] ?? 'Failed to subscribe';
+        return false;
+      }
+    } catch (e) {
+      subscriptionError.value = 'An error occurred while subscribing';
+      return false;
+    } finally {
+      isSubscribing.value = false;
+    }
   }
 }

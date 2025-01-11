@@ -4,7 +4,7 @@ import 'package:get/get.dart';
 import 'package:tekpayapp/constants/colors.dart';
 
 class PinEntrySheet extends StatefulWidget {
-  final VoidCallback onPinComplete;
+  final Function(String pin) onPinComplete;
 
   const PinEntrySheet({
     super.key,
@@ -163,7 +163,7 @@ class _PinEntrySheetState extends State<PinEntrySheet> {
                           _pinNotifier.value + index.toString();
                       if (_pinNotifier.value.length == 4) {
                         Get.back();
-                        widget.onPinComplete();
+                        widget.onPinComplete(_pinNotifier.value);
                       }
                     }
                   },

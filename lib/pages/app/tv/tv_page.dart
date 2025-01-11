@@ -5,11 +5,13 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:tekpayapp/constants/colors.dart';
 import 'package:tekpayapp/controllers/bills/tv_controller.dart';
-import 'package:tekpayapp/pages/app/data/data_page.dart';
+import 'package:tekpayapp/controllers/user_controller.dart';
+import 'package:tekpayapp/pages/widgets/bottom_bar.dart';
 import 'package:tekpayapp/pages/widgets/custom_button_widget.dart';
 import 'package:tekpayapp/pages/widgets/custom_text_field.dart';
 import 'package:tekpayapp/pages/app/widgets/transaction_widget.dart';
 import 'package:tekpayapp/pages/app/airtime/transaction_status_page.dart';
+import 'package:tekpayapp/pages/app/data/data_page.dart';
 
 class TvPackageListPage extends StatefulWidget {
   final String provider;
@@ -155,8 +157,11 @@ class _TvPageState extends State<TvPage> {
   final TextEditingController _smartCardController = TextEditingController();
   final TextEditingController _amountController = TextEditingController();
   String? _selectedPackage;
+  String? _selectedVariationCode;
   int _selectedProvider = 0;
   Timer? _debounceTimer;
+  String? _customerName;
+  String? _customerBalance;
 
   final _providers = [
     {
@@ -191,6 +196,7 @@ class _TvPageState extends State<TvPage> {
     if (result != null) {
       setState(() {
         _selectedPackage = result['name'] as String;
+        _selectedVariationCode = result['variation_code'] as String;
         _amountController.text = result['variation_amount'];
       });
     }
@@ -217,12 +223,121 @@ class _TvPageState extends State<TvPage> {
     Get.bottomSheet(
       PinEntrySheet(
         onPinComplete: (pin) {
-          // Get.to(() => const TransactionStatusPage());
+          Get.back();
+          final providerName =
+              _providers[_selectedProvider]['name']!.toString().toLowerCase();
+          if (providerName == 'dstv' || providerName == 'gotv') {
+            _showSubscriptionTypeDialog();
+          } else {
+            // For StarTimes, directly process as renewal
+            _processSubscription('renew');
+          }
         },
       ),
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
     );
+  }
+
+  void _showSubscriptionTypeDialog() {
+    Get.dialog(
+      Dialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12.r),
+        ),
+        child: Padding(
+          padding: EdgeInsets.all(16.w),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                'Subscription Type',
+                style: TextStyle(
+                  fontSize: 18.sp,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              SizedBox(height: 24.h),
+              CustomButtonWidget(
+                text: 'Change Plan',
+                onTap: () {
+                  Get.back();
+                  _processSubscription('change');
+                },
+              ),
+              SizedBox(height: 12.h),
+              CustomButtonWidget(
+                text: 'Renew Plan',
+                onTap: () {
+                  Get.back();
+                  _processSubscription('renew');
+                },
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _processSubscription(String subscriptionType) async {
+    final controller = Get.find<TvController>();
+    final userController = Get.find<UserController>();
+    final phone = userController.user.value?.phoneNumber ?? '';
+
+    final success = await controller.subscribeTv(
+      billersCode: _smartCardController.text,
+      serviceID:
+          _providers[_selectedProvider]['name']!.toString().toLowerCase(),
+      amount: _amountController.text,
+      phone: phone,
+      subscriptionType: subscriptionType,
+      variationCode: _selectedVariationCode ?? '',
+    );
+
+    if (success) {
+      await userController.getProfile();
+      Get.to(() => TransactionStatusPage(
+            status: TransactionStatus.success,
+            amount: _amountController.text,
+            reference: DateTime.now().millisecondsSinceEpoch.toString(),
+            date: DateTime.now().toString(),
+            recipient: _smartCardController.text,
+            network: _providers[_selectedProvider]['name']!.toString(),
+            productName: 'TV Subscription',
+          ));
+    } else {
+      Get.snackbar(
+        'Error',
+        controller.subscriptionError.value,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+    }
+  }
+
+  Future<void> _verifySmartCard() async {
+    if (_smartCardController.text.isEmpty) {
+      Get.snackbar(
+        'Error',
+        'Please enter a smart card number',
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+      return;
+    }
+
+    final controller = Get.find<TvController>();
+    final provider = _providers[_selectedProvider]['name']!.toString();
+
+    final success = await controller.verifySmartCard(
+      _smartCardController.text,
+      provider,
+    );
+
+    if (success && _selectedPackage == null) {
+      _showPackages();
+    }
   }
 
   @override
@@ -358,19 +473,17 @@ class _TvPageState extends State<TvPage> {
                 _debounceTimer =
                     Timer(const Duration(milliseconds: 500), () async {
                   if (value.length >= 10) {
-                    final controller = Get.find<TvController>();
-                    await controller.verifySmartCard(
-                      value,
-                      _providers[_selectedProvider]['name']!
-                          .toString()
-                          .toLowerCase(),
-                    );
+                    await _verifySmartCard();
                   }
                 });
               },
             ),
             Obx(() {
               final controller = Get.find<TvController>();
+              print(
+                  'Is Verifying: ${controller.isVerifying.value}'); // Debug print
+              print('Customer Info: ${controller.customerInfo}'); // Debug print
+
               if (controller.isVerifying.value) {
                 return Padding(
                   padding: EdgeInsets.only(top: 8.h),
@@ -383,11 +496,12 @@ class _TvPageState extends State<TvPage> {
                   ),
                 );
               }
-              if (controller.verificationError.value.isNotEmpty) {
+
+              if (controller.error.value.isNotEmpty) {
                 return Padding(
                   padding: EdgeInsets.only(top: 8.h),
                   child: Text(
-                    controller.verificationError.value,
+                    controller.error.value,
                     style: TextStyle(
                       color: Colors.red,
                       fontSize: 12.sp,
@@ -395,8 +509,13 @@ class _TvPageState extends State<TvPage> {
                   ),
                 );
               }
-              if (controller.customerInfo.isNotEmpty) {
-                final info = controller.customerInfo;
+
+              final info = controller.customerInfo;
+              if (info.isNotEmpty) {
+                print('Displaying Info: $info'); // Debug print
+                final providerName = _providers[_selectedProvider]['name']!
+                    .toString()
+                    .toLowerCase();
                 return Container(
                   margin: EdgeInsets.only(top: 8.h),
                   padding: EdgeInsets.all(12.w),
@@ -417,14 +536,26 @@ class _TvPageState extends State<TvPage> {
                         ),
                       ),
                       SizedBox(height: 8.h),
-                      _buildInfoRow('Name', info['Customer_Name'] ?? ''),
-                      _buildInfoRow('Status', info['Status'] ?? ''),
-                      _buildInfoRow('Due Date', info['Due_Date'] ?? ''),
-                      _buildInfoRow(
-                          'Current Plan', info['Current_Bouquet'] ?? ''),
-                      if (info['Renewal_Amount'] != null)
+                      if (providerName == 'startimes') ...[
+                        _buildInfoRow('Name', info['Customer_Name'] ?? ''),
                         _buildInfoRow(
-                            'Renewal Amount', '₦${info['Renewal_Amount']}'),
+                            'Balance', '₦${info['Balance'] ?? '0.00'}'),
+                        _buildInfoRow(
+                            'Smart Card', info['Smartcard_Number'] ?? ''),
+                      ] else ...[
+                        _buildInfoRow('Name', info['Customer_Name'] ?? ''),
+                        _buildInfoRow('Status', info['Status'] ?? ''),
+                        _buildInfoRow('Due Date', info['Due_Date'] ?? ''),
+                        _buildInfoRow('Customer Number',
+                            info['Customer_Number']?.toString() ?? ''),
+                        _buildInfoRow(
+                            'Customer Type', info['Customer_Type'] ?? ''),
+                        _buildInfoRow(
+                            'Current Plan', info['Current_Bouquet'] ?? ''),
+                        if (info['Renewal_Amount'] != null)
+                          _buildInfoRow(
+                              'Renewal Amount', '₦${info['Renewal_Amount']}'),
+                      ],
                     ],
                   ),
                 );
