@@ -11,12 +11,12 @@ import 'package:tekpayapp/pages/app/airtime/transaction_status_page.dart';
 class ElectricityProvider {
   final String name;
   final String type;
-  final String logo;
+  final String serviceID;
 
   ElectricityProvider({
     required this.name,
     required this.type,
-    required this.logo,
+    required this.serviceID,
   });
 }
 
@@ -33,49 +33,64 @@ class _ProviderListPageState extends State<ProviderListPage> {
 
   final List<ElectricityProvider> _providers = [
     ElectricityProvider(
-      name: 'Abuja Electricity Distribution Company',
-      type: 'Prepaid',
-      logo: 'assets/images/aedc.png',
-    ),
-    ElectricityProvider(
-      name: 'Abuja Electricity Distribution Company',
-      type: 'Postpaid',
-      logo: 'assets/images/aedc.png',
-    ),
-    ElectricityProvider(
-      name: 'Benin Electricity Distribution Company',
-      type: 'Prepaid',
-      logo: 'assets/images/bedc.png',
-    ),
-    ElectricityProvider(
-      name: 'Benin Electricity Distribution Company',
-      type: 'Postpaid',
-      logo: 'assets/images/bedc.png',
-    ),
-    ElectricityProvider(
-      name: 'Enugu Electricity Distribution Company',
-      type: 'Prepaid',
-      logo: 'assets/images/eedc.png',
-    ),
-    ElectricityProvider(
-      name: 'Enugu Electricity Distribution Company',
-      type: 'Postpaid',
-      logo: 'assets/images/eedc.png',
+      name: 'IKEJA Electricity Distribution Company',
+      type: 'IKEDC',
+      serviceID: 'ikeja-electric',
     ),
     ElectricityProvider(
       name: 'Eko Electricity Distribution Company',
-      type: 'Prepaid',
-      logo: 'assets/images/ekedc.png',
+      type: 'EKEDC',
+      serviceID: 'eko-electric',
     ),
     ElectricityProvider(
-      name: 'Eko Electricity Distribution Company',
-      type: 'Postpaid',
-      logo: 'assets/images/ekedc.png',
+      name: 'Kano Electricity Distribution Company',
+      type: 'KEDCO',
+      serviceID: 'kano-electric',
+    ),
+    ElectricityProvider(
+      name: 'Port Harcourt Electricity Distribution Company',
+      type: 'PHED',
+      serviceID: 'portharcourt-electric',
+    ),
+    ElectricityProvider(
+      name: 'Joss’s Electricity Distribution Company',
+      type: 'JED',
+      serviceID: 'jos-electric',
     ),
     ElectricityProvider(
       name: 'Ibadan Electricity Distribution Company',
-      type: 'Prepaid',
-      logo: 'assets/images/ibedc.png',
+      type: 'IBEDC',
+      serviceID: 'ibadan-electric',
+    ),
+    ElectricityProvider(
+      name: 'Kaduna Electric',
+      type: 'KAEDCO',
+      serviceID: 'kaduna-electric',
+    ),
+    ElectricityProvider(
+      name: 'Abuja Electricity Distribution Company',
+      type: 'AEDC',
+      serviceID: 'abuja-electric',
+    ),
+    ElectricityProvider(
+      name: 'Enugu Electric',
+      type: 'EEDC',
+      serviceID: 'enugu-electric',
+    ),
+    ElectricityProvider(
+      name: 'Benin Electricity Distribution Company',
+      type: 'BEDC',
+      serviceID: 'benin-electric',
+    ),
+    ElectricityProvider(
+      name: 'ABA  Electricity Distribution Company',
+      type: 'ABA',
+      serviceID: 'aba-electric',
+    ),
+    ElectricityProvider(
+      name: 'YOLA Electricity Distribution Company',
+      type: 'YEDC',
+      serviceID: 'yola-electric',
     ),
   ];
 
@@ -155,19 +170,6 @@ class _ProviderListPageState extends State<ProviderListPage> {
                     ),
                     child: Row(
                       children: [
-                        Container(
-                          width: 40.w,
-                          height: 40.h,
-                          decoration: BoxDecoration(
-                            color: Colors.grey[200],
-                            borderRadius: BorderRadius.circular(8.r),
-                          ),
-                          child: Icon(
-                            Icons.image,
-                            color: Colors.grey[400],
-                          ),
-                        ),
-                        SizedBox(width: 12.w),
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -213,6 +215,22 @@ class _ElectricityPageState extends State<ElectricityPage> {
   final TextEditingController _amountController = TextEditingController();
   String? _selectedProvider;
   String? _selectedType;
+  String _selectedTypeValue = 'prepaid'; // Default to prepaid
+
+  final _providers = [
+    {
+      'name': 'AEDC',
+      'color': Colors.white,
+    },
+    {
+      'name': 'IKEDC',
+      'color': const Color(0xFFF3E5F5),
+    },
+    {
+      'name': 'EKEDC',
+      'color': Colors.white,
+    },
+  ];
 
   Future<void> _showProviders() async {
     final result = await Get.to<Map<String, dynamic>>(
@@ -321,6 +339,87 @@ class _ElectricityPageState extends State<ElectricityPage> {
                   ],
                 ),
               ),
+            ),
+            SizedBox(height: 24.h),
+            Text(
+              'Select Type',
+              style: TextStyle(
+                fontSize: 16.sp,
+                color: primaryColor,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            SizedBox(height: 8.h),
+            Row(
+              children: [
+                Expanded(
+                  child: GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        _selectedTypeValue = 'prepaid';
+                      });
+                    },
+                    child: Container(
+                      padding: EdgeInsets.symmetric(vertical: 12.h),
+                      decoration: BoxDecoration(
+                        color: _selectedTypeValue == 'prepaid'
+                            ? const Color(0xFFF3E5F5)
+                            : Colors.white,
+                        borderRadius: BorderRadius.circular(8.r),
+                        border: Border.all(
+                          color: Colors.grey.shade200,
+                        ),
+                      ),
+                      child: Center(
+                        child: Text(
+                          'Prepaid',
+                          style: TextStyle(
+                            fontSize: 14.sp,
+                            color: Colors.black,
+                            fontWeight: _selectedTypeValue == 'prepaid'
+                                ? FontWeight.w600
+                                : FontWeight.normal,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                SizedBox(width: 12.w),
+                Expanded(
+                  child: GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        _selectedTypeValue = 'postpaid';
+                      });
+                    },
+                    child: Container(
+                      padding: EdgeInsets.symmetric(vertical: 12.h),
+                      decoration: BoxDecoration(
+                        color: _selectedTypeValue == 'postpaid'
+                            ? const Color(0xFFF3E5F5)
+                            : Colors.white,
+                        borderRadius: BorderRadius.circular(8.r),
+                        border: Border.all(
+                          color: Colors.grey.shade200,
+                        ),
+                      ),
+                      child: Center(
+                        child: Text(
+                          'Postpaid',
+                          style: TextStyle(
+                            fontSize: 14.sp,
+                            color: Colors.black,
+                            fontWeight: _selectedTypeValue == 'postpaid'
+                                ? FontWeight.w600
+                                : FontWeight.normal,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
             ),
             SizedBox(height: 24.h),
             Text(
