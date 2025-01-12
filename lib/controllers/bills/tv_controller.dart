@@ -1,9 +1,11 @@
 import 'package:get/get.dart';
+import 'package:flutter/material.dart';
+import 'package:tekpayapp/controllers/user_controller.dart';
+import 'package:tekpayapp/pages/app/airtime/transaction_status_page.dart';
 import 'package:tekpayapp/services/api_service.dart';
 
 class TvController extends GetxController {
   final _apiService = Get.find<ApiService>();
-
   final RxBool isLoading = false.obs;
   final RxString error = ''.obs;
   final RxList<Map<String, dynamic>> tvPlans = <Map<String, dynamic>>[].obs;
@@ -14,6 +16,8 @@ class TvController extends GetxController {
   final RxMap<String, dynamic> customerInfo = <String, dynamic>{}.obs;
   final RxBool isSubscribing = false.obs;
   final RxString subscriptionError = ''.obs;
+  final Rx<Map<String, dynamic>> transactionDetails =
+      Rx<Map<String, dynamic>>({});
 
   @override
   void onInit() {
@@ -44,35 +48,32 @@ class TvController extends GetxController {
     }
   }
 
-  Future<bool> verifySmartCard(String cardNumber, String provider) async {
+  Future<void> verifySmartCard(String cardNumber, String provider) async {
     try {
       isVerifying.value = true;
-      error.value = '';
+      verificationError.value = '';
       customerInfo.clear();
 
       final response = await _apiService.post(
         'bills/tv/verify-smartcard',
         body: {
           'billersCode': cardNumber,
-          'serviceID': provider.toLowerCase(),
+          'serviceID': provider,
         },
       );
 
-      print('Verification Response: $response'); // Debug print
-
       if (response['status'] == true) {
         final data = response['data'];
-        print('Customer Info: $data'); // Debug print
-        customerInfo.value = Map<String, dynamic>.from(data);
-        return true;
+        if (data is Map<String, dynamic> && data.containsKey('error')) {
+          verificationError.value = data['error'];
+        } else {
+          customerInfo.value = Map<String, dynamic>.from(data);
+        }
       } else {
-        error.value = response['message'] ?? 'Failed to verify smart card';
-        return false;
+        verificationError.value = response['message'] ?? 'Verification failed';
       }
     } catch (e) {
-      print('Verification Error: $e'); // Debug print
-      error.value = 'Failed to verify smart card';
-      return false;
+      verificationError.value = 'An error occurred during verification';
     } finally {
       isVerifying.value = false;
     }
@@ -89,15 +90,17 @@ class TvController extends GetxController {
     error.value = '';
     verificationError.value = '';
     customerInfo.clear();
+    transactionDetails.value = {};
   }
 
-  Future<bool> subscribeTv({
+  Future<void> subscribeTv({
     required String billersCode,
     required String serviceID,
     required String amount,
     required String phone,
     required String subscriptionType,
     required String variationCode,
+    required String pin,
   }) async {
     try {
       isSubscribing.value = true;
@@ -112,20 +115,56 @@ class TvController extends GetxController {
           'phone': phone,
           'subscription_type': subscriptionType,
           'variation_code': variationCode,
+          'pin': pin,
         },
       );
 
+      print('API Response: $response'); // Debug print
+
       if (response['status'] == true) {
-        return true;
+        final transactionData = response['data'];
+        transactionDetails.value = Map<String, dynamic>.from(transactionData);
+
+        // Refresh user profile to get updated balance
+        final userController = Get.find<UserController>();
+        await userController.getProfile();
+
+        Get.off(() => TransactionStatusPage(
+              status:
+                  _getTransactionStatus(transactionData['status'] ?? 'failed'),
+              amount: transactionData['amount']?.toString() ?? amount,
+              reference: transactionData['transactionId'] ?? '',
+              recipient: billersCode,
+              network: serviceID.split('-')[0].toUpperCase(),
+              productName: transactionData['product_name'] ?? 'TV Subscription',
+              date: DateTime.now().toString(),
+            ));
       } else {
-        subscriptionError.value = response['message'] ?? 'Failed to subscribe';
-        return false;
+        throw response['message'] ?? 'Failed to subscribe';
       }
     } catch (e) {
-      subscriptionError.value = 'An error occurred while subscribing';
-      return false;
+      print('Error subscribing to TV: $e');
+      Get.back(); // Close pin dialog
+      Get.snackbar(
+        'Error',
+        e.toString(),
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
     } finally {
       isSubscribing.value = false;
+    }
+  }
+
+  TransactionStatus _getTransactionStatus(String status) {
+    switch (status.toLowerCase()) {
+      case 'delivered':
+      case 'successful':
+        return TransactionStatus.success;
+      case 'failed':
+        return TransactionStatus.failed;
+      default:
+        return TransactionStatus.pending;
     }
   }
 }

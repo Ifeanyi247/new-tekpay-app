@@ -163,10 +163,12 @@ class TransactionStatusPage extends StatelessWidget {
               SizedBox(height: 32.h),
               // Action Button
               CustomButtonWidget(
-                text: status == TransactionStatus.pending ? 'Check Status' : 'Done',
+                text: status == TransactionStatus.pending
+                    ? 'Check Status'
+                    : 'Done',
                 onTap: () {
                   if (status == TransactionStatus.pending) {
-                    // TODO: Implement check status
+                    Get.offAll(() => const BottomBar());
                   } else {
                     Get.offAll(() => const BottomBar());
                   }

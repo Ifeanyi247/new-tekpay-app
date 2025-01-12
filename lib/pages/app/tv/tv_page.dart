@@ -162,6 +162,7 @@ class _TvPageState extends State<TvPage> {
   Timer? _debounceTimer;
   String? _customerName;
   String? _customerBalance;
+  String? _enteredPin;
 
   final _providers = [
     {
@@ -226,6 +227,7 @@ class _TvPageState extends State<TvPage> {
       PinEntrySheet(
         onPinComplete: (pin) {
           Get.back();
+          _enteredPin = pin;
           final providerName =
               _providers[_selectedProvider]['name']!.toString().toLowerCase();
           if (providerName == 'dstv' || providerName == 'gotv') {
@@ -283,46 +285,10 @@ class _TvPageState extends State<TvPage> {
   }
 
   void _processSubscription(String subscriptionType) async {
-    final controller = Get.find<TvController>();
-    final userController = Get.find<UserController>();
-    final phone = userController.user.value?.phoneNumber ?? '';
-
-    final success = await controller.subscribeTv(
-      billersCode: _smartCardController.text,
-      serviceID:
-          _providers[_selectedProvider]['name']!.toString().toLowerCase(),
-      amount: _amountController.text,
-      phone: phone,
-      subscriptionType: subscriptionType,
-      variationCode: _selectedVariationCode ?? '',
-    );
-
-    if (success) {
-      await userController.getProfile();
-      Get.to(() => TransactionStatusPage(
-            status: TransactionStatus.success,
-            amount: _amountController.text,
-            reference: DateTime.now().millisecondsSinceEpoch.toString(),
-            date: DateTime.now().toString(),
-            recipient: _smartCardController.text,
-            network: _providers[_selectedProvider]['name']!.toString(),
-            productName: 'TV Subscription',
-          ));
-    } else {
+    if (_enteredPin == null) {
       Get.snackbar(
         'Error',
-        controller.subscriptionError.value,
-        backgroundColor: Colors.red,
-        colorText: Colors.white,
-      );
-    }
-  }
-
-  Future<void> _verifySmartCard() async {
-    if (_smartCardController.text.isEmpty) {
-      Get.snackbar(
-        'Error',
-        'Please enter a smart card number',
+        'Please enter your PIN',
         backgroundColor: Colors.red,
         colorText: Colors.white,
       );
@@ -330,16 +296,30 @@ class _TvPageState extends State<TvPage> {
     }
 
     final controller = Get.find<TvController>();
-    final provider = _providers[_selectedProvider]['name']!.toString();
+    final userController = Get.find<UserController>();
+    final phone = userController.user.value?.phoneNumber ?? '';
 
-    final success = await controller.verifySmartCard(
-      _smartCardController.text,
-      provider,
+    await controller.subscribeTv(
+      billersCode: _smartCardController.text,
+      serviceID:
+          _providers[_selectedProvider]['name']!.toString().toLowerCase(),
+      amount: _amountController.text,
+      phone: phone,
+      subscriptionType: subscriptionType,
+      variationCode: _selectedVariationCode ?? '',
+      pin: _enteredPin!,
     );
 
-    if (success && _selectedPackage == null) {
-      _showPackages();
-    }
+    // Clear the stored PIN after use
+    _enteredPin = null;
+  }
+
+  Future<void> _verifySmartCard() async {
+    final controller = Get.find<TvController>();
+    await controller.verifySmartCard(
+      _smartCardController.text,
+      _providers[_selectedProvider]['name']!.toString().toLowerCase(),
+    );
   }
 
   @override
@@ -431,7 +411,8 @@ class _TvPageState extends State<TvPage> {
             GestureDetector(
               onTap: () async {
                 final controller = Get.find<TvController>();
-                final provider = _providers[_selectedProvider]['name']!.toString();
+                final provider =
+                    _providers[_selectedProvider]['name']!.toString();
                 await controller.fetchTvPlans(provider.toLowerCase());
                 _showPackages();
               },
@@ -487,9 +468,6 @@ class _TvPageState extends State<TvPage> {
             ),
             GetX<TvController>(
               builder: (controller) {
-                print('Is Verifying: ${controller.isVerifying.value}'); // Debug print
-                print('Customer Info: ${controller.customerInfo}'); // Debug print
-                
                 if (controller.isVerifying.value) {
                   return Padding(
                     padding: EdgeInsets.only(top: 8.h),
@@ -502,12 +480,12 @@ class _TvPageState extends State<TvPage> {
                     ),
                   );
                 }
-                
-                if (controller.error.value.isNotEmpty) {
+
+                if (controller.verificationError.value.isNotEmpty) {
                   return Padding(
                     padding: EdgeInsets.only(top: 8.h),
                     child: Text(
-                      controller.error.value,
+                      controller.verificationError.value,
                       style: TextStyle(
                         color: Colors.red,
                         fontSize: 12.sp,
