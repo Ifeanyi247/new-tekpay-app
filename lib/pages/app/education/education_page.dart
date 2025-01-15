@@ -417,18 +417,25 @@ class _EducationPageState extends State<EducationPage> {
                         builder: (context) => PinEntrySheet(
                           onPinComplete: () async {
                             Get.back();
+                            Get.dialog(
+                              const Center(
+                                child: CircularProgressIndicator(
+                                  valueColor: AlwaysStoppedAnimation<Color>(primaryColor),
+                                ),
+                              ),
+                              barrierDismissible: false,
+                            );
                             if (_selectedProvider.toLowerCase() == 'waec') {
-                              final success =
-                                  await _educationController.purchaseWaec(
+                              final success = await _educationController.purchaseWaec(
                                 variationCode: _selectedVariation!,
                                 phone: _mobileController.text,
                               );
 
+                              Get.back();
+
                               if (success) {
                                 final transaction = _educationController
                                     .transactionDetails.value['transaction'];
-                                final cards = _educationController
-                                    .transactionDetails.value['cards'];
                                 final status = transaction['status']
                                     .toString()
                                     .toLowerCase();
@@ -452,6 +459,8 @@ class _EducationPageState extends State<EducationPage> {
                                       productName: transaction['product_name'],
                                     ));
 
+                                final cards = _educationController
+                                    .transactionDetails.value['cards'];
                                 if (cards != null && cards.isNotEmpty) {
                                   final pinDetails = cards
                                       .map((card) =>
@@ -461,6 +470,49 @@ class _EducationPageState extends State<EducationPage> {
                                   Get.snackbar(
                                     'PIN Details',
                                     pinDetails,
+                                    duration: const Duration(seconds: 30),
+                                    snackPosition: SnackPosition.TOP,
+                                    backgroundColor: Colors.white,
+                                    colorText: Colors.black,
+                                  );
+                                }
+                              } else {
+                                Get.snackbar(
+                                  'Error',
+                                  _educationController.purchaseError.value,
+                                  snackPosition: SnackPosition.BOTTOM,
+                                );
+                              }
+                            } else if (_selectedProvider.toLowerCase() == 'jamb') {
+                              final success = await _educationController.purchaseJamb(
+                                variationCode: _selectedVariation!,
+                                phone: _mobileController.text,
+                                billersCode: _profileIdController.text,
+                              );
+
+                              Get.back();
+
+                              if (success) {
+                                final transaction = _educationController
+                                    .transactionDetails.value['transaction'];
+                                final pin = _educationController
+                                    .transactionDetails.value['pin'];
+
+                                Get.to(() => TransactionStatusPage(
+                                      status: TransactionStatus.success,
+                                      amount: transaction['amount'].toString(),
+                                      reference: transaction['transactionId'],
+                                      date: transaction['transaction_date'] ??
+                                          DateTime.now().toString(),
+                                      recipient: transaction['phone'],
+                                      network: '',
+                                      productName: transaction['product_name'],
+                                    ));
+
+                                if (pin != null) {
+                                  Get.snackbar(
+                                    'PIN Details',
+                                    pin,
                                     duration: const Duration(seconds: 30),
                                     snackPosition: SnackPosition.TOP,
                                     backgroundColor: Colors.white,

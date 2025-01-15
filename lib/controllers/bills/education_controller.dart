@@ -110,4 +110,39 @@ class EducationController extends GetxController {
       isPurchasing.value = false;
     }
   }
+
+  Future<bool> purchaseJamb({
+    required String variationCode,
+    required String phone,
+    required String billersCode,
+  }) async {
+    try {
+      isLoading.value = true;
+      final response = await _apiService.post(
+        'bills/education/jamb/purchase',
+        body: {
+          'variation_code': variationCode,
+          'billersCode': billersCode,
+          'phone': phone,
+        },
+      );
+
+      if (response['status'] == true) {
+        transactionDetails.value = response['data'];
+
+        final userController = Get.find<UserController>();
+        await userController.getProfile();
+
+        return true;
+      } else {
+        purchaseError.value = response['message'] ?? 'Transaction failed';
+        return false;
+      }
+    } catch (e) {
+      purchaseError.value = e.toString();
+      return false;
+    } finally {
+      isLoading.value = false;
+    }
+  }
 }
