@@ -372,6 +372,7 @@ class _InternetPageState extends State<InternetPage> {
             SizedBox(height: 8.h),
             CustomTextFieldWidget(
               controller: _amountController,
+              readOnly: true,
               label: '₦',
               icon: Icons.monetization_on_outlined,
             ),

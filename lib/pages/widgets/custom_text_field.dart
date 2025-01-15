@@ -8,6 +8,7 @@ class CustomTextFieldWidget extends StatelessWidget {
   final TextInputType? keyboardType;
   final TextEditingController? controller;
   final Function(String)? onChanged;
+  final bool readOnly;
 
   const CustomTextFieldWidget({
     super.key,
@@ -18,6 +19,7 @@ class CustomTextFieldWidget extends StatelessWidget {
     this.keyboardType,
     this.controller,
     this.onChanged,
+    this.readOnly = false,
   });
 
   @override
@@ -25,6 +27,7 @@ class CustomTextFieldWidget extends StatelessWidget {
     return TextFormField(
       controller: controller,
       obscureText: obscureText,
+      readOnly: readOnly,
       keyboardType: keyboardType,
       onChanged: onChanged,
       decoration: InputDecoration(

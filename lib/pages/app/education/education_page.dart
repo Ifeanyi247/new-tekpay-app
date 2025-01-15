@@ -363,6 +363,7 @@ class _EducationPageState extends State<EducationPage> {
             SizedBox(height: 16.h),
             CustomTextFieldWidget(
               controller: _amountController,
+              readOnly: true,
               label: '₦',
               icon: Icons.monetization_on_outlined,
             ),

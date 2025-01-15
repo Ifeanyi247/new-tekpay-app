@@ -561,6 +561,7 @@ class _TvPageState extends State<TvPage> {
               controller: _amountController,
               label: '₦',
               icon: Icons.monetization_on_outlined,
+              readOnly: true,
             ),
             SizedBox(height: 40.h),
             CustomButtonWidget(

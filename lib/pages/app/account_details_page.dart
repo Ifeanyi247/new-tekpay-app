@@ -65,6 +65,7 @@ class _AccountDetailsPageState extends State<AccountDetailsPage> {
               Expanded(
                 child: TextFormField(
                   controller: _amountController,
+                  readOnly: true,
                   keyboardType: TextInputType.number,
                   style: TextStyle(
                     fontSize: 16.sp,

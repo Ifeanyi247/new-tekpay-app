@@ -705,6 +705,7 @@ class _AirtimePageState extends State<AirtimePage> {
               label: 'Amount',
               icon: Icons.card_giftcard_outlined,
               controller: _amountController,
+              readOnly: false,
             ),
             SizedBox(height: 40.h),
             CustomButtonWidget(

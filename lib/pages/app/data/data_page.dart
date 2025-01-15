@@ -356,7 +356,8 @@ class _DataPageState extends State<DataPage> {
             _buildInfoRow(
                 'Network', _networks[_selectedNetwork]['name']!.toString()),
             _buildInfoRow('Paying', '₦ ${_amountController.text}.00'),
-            _buildInfoRow('Date',
+            _buildInfoRow(
+                'Date',
                 DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime.now())),
             SizedBox(height: 24.h),
             Text(
@@ -660,6 +661,7 @@ class _DataPageState extends State<DataPage> {
             SizedBox(height: 8.h),
             CustomTextFieldWidget(
               controller: _amountController,
+              readOnly: true,
               label: '₦',
               icon: Icons.monetization_on_outlined,
             ),
