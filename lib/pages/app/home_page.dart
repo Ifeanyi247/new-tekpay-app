@@ -5,8 +5,10 @@ import 'package:intl/intl.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:tekpayapp/constants/colors.dart';
 import 'package:tekpayapp/controllers/user_controller.dart';
+import 'package:tekpayapp/controllers/transactions_controller.dart';
 import 'package:tekpayapp/pages/app/add_money.dart';
 import 'package:tekpayapp/pages/app/airtime/airtime_page.dart';
+import 'package:tekpayapp/pages/app/airtime/transaction_status_page.dart';
 import 'package:tekpayapp/pages/app/all_services_page.dart';
 import 'package:tekpayapp/pages/app/data/data_page.dart';
 import 'package:tekpayapp/pages/app/electricity/electricity_page.dart';
@@ -15,7 +17,9 @@ import 'package:tekpayapp/pages/app/tv/tv_page.dart';
 import 'package:tekpayapp/pages/app/widgets/custom_icon_widget.dart';
 
 class HomePage extends StatelessWidget {
-  const HomePage({super.key});
+  HomePage({super.key}) {
+    Get.put(TransactionsController());
+  }
 
   Widget _buildServiceItem(String title, Widget icon) {
     return Column(
@@ -47,79 +51,129 @@ class HomePage extends StatelessWidget {
     required String amount,
     required bool isSuccess,
     required IconData icon,
+    required VoidCallback onTap,
+    String? pin,
+    List<dynamic>? cards,
   }) {
-    return Container(
-      margin: EdgeInsets.only(bottom: 16.h),
-      child: Row(
-        children: [
-          Container(
-            width: 40.w,
-            height: 40.w,
-            decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Icon(icon, color: primaryColor),
-          ),
-          SizedBox(width: 12.w),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+    return Column(
+      children: [
+        GestureDetector(
+          onTap: onTap,
+          child: Container(
+            margin: EdgeInsets.only(
+                bottom: isSuccess && (pin != null || cards != null) ? 0 : 16.h),
+            child: Row(
               children: [
-                Text(
-                  title,
-                  style: TextStyle(
-                    fontSize: 13.sp,
-                    fontWeight: FontWeight.w500,
+                Container(
+                  width: 40.w,
+                  height: 40.w,
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Icon(icon, color: primaryColor),
+                ),
+                SizedBox(width: 12.w),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        title,
+                        style: TextStyle(
+                          fontSize: 13.sp,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      Text(
+                        date,
+                        style: TextStyle(
+                          fontSize: 12.sp,
+                          color: Colors.grey,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-                Text(
-                  date,
-                  style: TextStyle(
-                    fontSize: 12.sp,
-                    color: Colors.grey,
-                  ),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Text(
+                      amount,
+                      style: TextStyle(
+                        fontSize: 13.sp,
+                        fontWeight: FontWeight.w500,
+                        color:
+                            amount.startsWith('-') ? Colors.red : Colors.green,
+                      ),
+                    ),
+                    Container(
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
+                      decoration: BoxDecoration(
+                        color: isSuccess
+                            ? Colors.green.withOpacity(0.2)
+                            : Colors.red.withOpacity(0.2),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Text(
+                        isSuccess ? 'Successful' : 'Failed',
+                        style: TextStyle(
+                          fontSize: 10.sp,
+                          color: isSuccess ? Colors.green : Colors.red,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
           ),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Text(
-                amount,
-                style: TextStyle(
-                  fontSize: 13.sp,
-                  fontWeight: FontWeight.w500,
-                  color: amount.startsWith('-') ? Colors.red : Colors.green,
-                ),
-              ),
-              Container(
-                padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
-                decoration: BoxDecoration(
-                  color: isSuccess
-                      ? Colors.green.withOpacity(0.2)
-                      : Colors.red.withOpacity(0.2),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Text(
-                  isSuccess ? 'Successful' : 'Failed',
-                  style: TextStyle(
-                    fontSize: 10.sp,
-                    color: isSuccess ? Colors.green : Colors.red,
+        ),
+        if (isSuccess && (pin != null || cards != null))
+          Container(
+            width: double.infinity,
+            margin: EdgeInsets.only(left: 16.w, right: 16.w, bottom: 16.h),
+            padding: EdgeInsets.all(12.w),
+            decoration: BoxDecoration(
+              color: Colors.grey[100],
+              borderRadius: BorderRadius.circular(8.r),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (pin != null)
+                  Text(
+                    'PIN: $pin',
+                    style: TextStyle(
+                      fontSize: 14.sp,
+                      color: Colors.black87,
+                      fontWeight: FontWeight.w500,
+                    ),
                   ),
-                ),
-              ),
-            ],
+                if (cards != null)
+                  ...cards.map((card) => Padding(
+                        padding: EdgeInsets.only(bottom: 4.h),
+                        child: Text(
+                          'Serial: ${card.serial}, PIN: ${card.pin}',
+                          style: TextStyle(
+                            fontSize: 14.sp,
+                            color: Colors.black87,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      )),
+              ],
+            ),
           ),
-        ],
-      ),
+      ],
     );
   }
 
   @override
   Widget build(BuildContext context) {
     final userController = Get.find<UserController>();
+    final transactionsController = Get.find<TransactionsController>();
 
     return Scaffold(
       body: Stack(
@@ -428,27 +482,83 @@ class HomePage extends StatelessWidget {
                           ],
                         ),
                         SizedBox(height: 16.h),
-                        _buildTransactionItem(
-                          title: 'Airtime Purchased (MTN)',
-                          date: '2024-03-23 05:13:53',
-                          amount: '-₦5000',
-                          isSuccess: true,
-                          icon: Icons.phone_android,
-                        ),
-                        _buildTransactionItem(
-                          title: 'Transfer to JOSEPHINE AYO',
-                          date: '2024-03-23 05:13:53',
-                          amount: '-₦2000',
-                          isSuccess: true,
-                          icon: Icons.swap_vert,
-                        ),
-                        _buildTransactionItem(
-                          title: 'Transfer to AYOBAMI JOYCE',
-                          date: '2024-03-23 05:13:53',
-                          amount: '₦2000',
-                          isSuccess: false,
-                          icon: Icons.swap_vert,
-                        ),
+                        Obx(() {
+                          if (transactionsController.isLoading.value) {
+                            return const Center(
+                                child: CircularProgressIndicator());
+                          }
+
+                          final recentTransactions = transactionsController
+                              .transactions
+                              .take(3)
+                              .toList();
+
+                          if (recentTransactions.isEmpty) {
+                            return Center(
+                              child: Text(
+                                'No recent transactions',
+                                style: TextStyle(
+                                  fontSize: 14.sp,
+                                  color: Colors.grey,
+                                ),
+                              ),
+                            );
+                          }
+
+                          return Column(
+                            children: recentTransactions.map((transaction) {
+                              return _buildTransactionItem(
+                                title: transaction.title,
+                                date: DateFormat('MMM dd, yyyy').format(
+                                  DateTime.parse(
+                                      transaction.transactionDate.toString()),
+                                ),
+                                amount: transaction.formattedAmount,
+                                isSuccess: ['delivered', 'success']
+                                    .contains(transaction.status.toLowerCase()),
+                                icon: transaction.icon,
+                                onTap: () {
+                                  Get.to(() => TransactionStatusPage(
+                                        status: ['delivered', 'success']
+                                                .contains(transaction.status
+                                                    .toLowerCase())
+                                            ? TransactionStatus.success
+                                            : transaction.status
+                                                        .toLowerCase() ==
+                                                    'failed'
+                                                ? TransactionStatus.failed
+                                                : TransactionStatus.pending,
+                                        amount: transaction.amount.toString(),
+                                        reference: transaction.transactionId,
+                                        date: transaction.transactionDate
+                                            .toString(),
+                                        recipient: transaction.phone,
+                                        network: transaction.serviceId,
+                                        productName: transaction.title,
+                                      ));
+                                },
+                                pin: transaction.type?.toLowerCase() ==
+                                            'education' &&
+                                        transaction.title
+                                            .toLowerCase()
+                                            .contains('jamb') &&
+                                        ['delivered', 'success'].contains(
+                                            transaction.status.toLowerCase())
+                                    ? transaction.pin
+                                    : null,
+                                cards: transaction.type?.toLowerCase() ==
+                                            'education' &&
+                                        transaction.title
+                                            .toLowerCase()
+                                            .contains('waec') &&
+                                        ['delivered', 'success'].contains(
+                                            transaction.status.toLowerCase())
+                                    ? transaction.cards
+                                    : null,
+                              );
+                            }).toList(),
+                          );
+                        }),
                       ],
                     ),
                   ),
