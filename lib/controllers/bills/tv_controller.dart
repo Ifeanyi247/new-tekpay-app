@@ -29,7 +29,7 @@ class TvController extends GetxController {
       isLoading.value = true;
       error.value = '';
 
-      final response = await _apiService.get('bills/tv/plans/$serviceID');
+      final response = await _apiService.get('bills/tv/variations/$serviceID');
 
       if (response['status'] == true) {
         final variations =

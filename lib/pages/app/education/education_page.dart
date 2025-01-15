@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:tekpayapp/constants/colors.dart';
+import 'package:tekpayapp/controllers/bills/education_controller.dart';
 import 'package:tekpayapp/pages/app/data/data_page.dart';
 import 'package:tekpayapp/pages/app/education/education_success_page.dart';
 import 'package:tekpayapp/pages/widgets/custom_button_widget.dart';
@@ -207,24 +208,22 @@ class EducationPage extends StatefulWidget {
 }
 
 class _EducationPageState extends State<EducationPage> {
-  final TextEditingController _pinController = TextEditingController();
   final TextEditingController _amountController = TextEditingController();
   final TextEditingController _mobileController = TextEditingController();
+  final EducationController _educationController =
+      Get.put(EducationController());
   String? _selectedNetwork;
   String _selectedProvider = 'WAEC';
+  String? _selectedVariation;
 
   @override
   void initState() {
     super.initState();
-    _amountController.text = '3,400.00';
+    _fetchVariations();
   }
 
-  @override
-  void dispose() {
-    _pinController.dispose();
-    _amountController.dispose();
-    _mobileController.dispose();
-    super.dispose();
+  void _fetchVariations() {
+    _educationController.fetchVariations(_selectedProvider.toLowerCase());
   }
 
   Widget _buildProviderOption(String name, String imagePath) {
@@ -233,11 +232,8 @@ class _EducationPageState extends State<EducationPage> {
       onTap: () {
         setState(() {
           _selectedProvider = name;
-          if (name == 'WAEC') {
-            _amountController.text = '3,400.00';
-          } else {
-            _amountController.text = '4,700.00';
-          }
+          _selectedVariation = null;
+          _fetchVariations();
         });
       },
       child: Container(
@@ -312,14 +308,49 @@ class _EducationPageState extends State<EducationPage> {
               ],
             ),
             SizedBox(height: 24.h),
-            CustomTextFieldWidget(
-              controller: _pinController,
-              label: 'WAEC Result PIN',
-              icon: Icons.pin,
-              suffixIcon: Icon(
-                Icons.keyboard_arrow_down,
-              ),
-            ),
+            Obx(() {
+              final variations = _educationController.variations.value;
+              if (_educationController.isLoading.value) {
+                return const Center(child: CircularProgressIndicator());
+              }
+              if (variations == null) {
+                return Container();
+              }
+              return Container(
+                padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 4.h),
+                decoration: BoxDecoration(
+                  border: Border.all(color: Colors.grey.shade300),
+                  borderRadius: BorderRadius.circular(8.r),
+                ),
+                child: DropdownButtonHideUnderline(
+                  child: DropdownButton<String>(
+                    isExpanded: true,
+                    value: _selectedVariation,
+                    hint: Text(
+                      'Select ${_selectedProvider} Type',
+                      style: TextStyle(
+                        fontSize: 14.sp,
+                        color: Colors.grey,
+                      ),
+                    ),
+                    items: variations.variations
+                        .map((variation) => DropdownMenuItem(
+                              value: variation.variationCode,
+                              child: Text(variation.name),
+                            ))
+                        .toList(),
+                    onChanged: (value) {
+                      setState(() {
+                        _selectedVariation = value;
+                        final selectedVar = variations.variations
+                            .firstWhere((v) => v.variationCode == value);
+                        _amountController.text = selectedVar.variationAmount;
+                      });
+                    },
+                  ),
+                ),
+              );
+            }),
             SizedBox(height: 16.h),
             CustomTextFieldWidget(
               controller: _amountController,
@@ -332,38 +363,6 @@ class _EducationPageState extends State<EducationPage> {
               label: 'Mobile Number',
               icon: Icons.phone_android,
               keyboardType: TextInputType.phone,
-            ),
-            SizedBox(height: 16.h),
-            Container(
-              padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 4.h),
-              decoration: BoxDecoration(
-                border: Border.all(color: Colors.grey.shade300),
-                borderRadius: BorderRadius.circular(8.r),
-              ),
-              child: DropdownButtonHideUnderline(
-                child: DropdownButton<String>(
-                  isExpanded: true,
-                  value: _selectedNetwork,
-                  hint: Text(
-                    'GLO',
-                    style: TextStyle(
-                      fontSize: 14.sp,
-                      color: Colors.grey,
-                    ),
-                  ),
-                  items: ['MTN', 'GLO', 'Airtel', '9mobile']
-                      .map((network) => DropdownMenuItem(
-                            value: network,
-                            child: Text(network),
-                          ))
-                      .toList(),
-                  onChanged: (value) {
-                    setState(() {
-                      _selectedNetwork = value;
-                    });
-                  },
-                ),
-              ),
             ),
             SizedBox(height: 40.h),
             CustomButtonWidget(
