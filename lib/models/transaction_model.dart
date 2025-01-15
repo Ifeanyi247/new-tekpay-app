@@ -1,5 +1,22 @@
 import 'package:flutter/material.dart';
 
+class WaecCard {
+  final String serial;
+  final String pin;
+
+  WaecCard({
+    required this.serial,
+    required this.pin,
+  });
+
+  factory WaecCard.fromJson(Map<String, dynamic> json) {
+    return WaecCard(
+      serial: json['Serial'],
+      pin: json['Pin'],
+    );
+  }
+}
+
 class Transaction {
   final int id;
   final String userId;
@@ -19,6 +36,9 @@ class Transaction {
   final String method;
   final String responseCode;
   final String responseMessage;
+  final String? purchasedCode;
+  final String? pin;
+  final List<WaecCard>? cards;
   final DateTime transactionDate;
   final DateTime createdAt;
   final DateTime updatedAt;
@@ -42,6 +62,9 @@ class Transaction {
     required this.method,
     required this.responseCode,
     required this.responseMessage,
+    this.purchasedCode,
+    this.pin,
+    this.cards,
     required this.transactionDate,
     required this.createdAt,
     required this.updatedAt,
@@ -67,6 +90,13 @@ class Transaction {
       method: json['method'],
       responseCode: json['response_code'],
       responseMessage: json['response_message'],
+      purchasedCode: json['purchased_code'],
+      pin: json['pin'],
+      cards: json['cards'] != null
+          ? (json['cards'] as List)
+              .map((card) => WaecCard.fromJson(card))
+              .toList()
+          : null,
       transactionDate: DateTime.parse(json['transaction_date']),
       createdAt: DateTime.parse(json['created_at']),
       updatedAt: DateTime.parse(json['updated_at']),
@@ -75,19 +105,23 @@ class Transaction {
 
   // Helper method to get transaction icon based on type
   IconData get icon {
-    switch (type) {
-      case 'airtime_purchase':
+    switch (type.toLowerCase()) {
+      case 'airtime':
         return Icons.phone_android;
-      case 'data_purchase':
+      case 'data':
         return Icons.wifi;
-      case 'electricity_purchase':
+      case 'electricity':
         return Icons.flash_on;
-      case 'tv_subscription':
+      case 'tv subscription':
         return Icons.tv;
       case 'transfer':
         return Icons.arrow_upward;
       case 'add_money':
         return Icons.add;
+      case 'waec result checker':
+        return Icons.school;
+      case 'jamb result checker':
+        return Icons.school;
       default:
         return Icons.receipt;
     }
@@ -95,25 +129,46 @@ class Transaction {
 
   // Helper method to get formatted amount with sign
   String get formattedAmount {
-    final isDebit = type.contains('purchase') || type == 'transfer';
+    final isDebit = type.toLowerCase().contains('purchase') ||
+        type.toLowerCase() == 'transfer' ||
+        type.toLowerCase().contains('checker');
     return '${isDebit ? "-" : ""}₦$amount';
+  }
+
+  // Helper method to check if transaction is education related
+  bool get isEducation {
+    final lowerType = type.toLowerCase();
+    return lowerType.contains('waec') || lowerType.contains('jamb');
+  }
+
+  // Helper method to get education pin/serial details
+  String? get educationDetails {
+    if (!isEducation) return null;
+    return purchasedCode ??
+        (cards?.isNotEmpty == true
+            ? 'Serial: ${cards![0].serial}, PIN: ${cards![0].pin}'
+            : pin);
   }
 
   // Helper method to get transaction title
   String get title {
-    switch (type) {
-      case 'airtime_purchase':
-        return 'Airtime Purchased ($serviceId)'.toUpperCase();
-      case 'data_purchase':
-        return 'Data Purchased ($serviceId)'.toUpperCase();
-      case 'electricity_purchase':
-        return 'Electricity Purchased ($serviceId)'.toUpperCase();
-      case 'tv_subscription':
+    switch (type.toLowerCase()) {
+      case 'airtime':
+        return 'Airtime Purchase ($serviceId)'.toUpperCase();
+      case 'data':
+        return 'Data Purchase ($serviceId)'.toUpperCase();
+      case 'electricity':
+        return 'Electricity Purchase ($serviceId)'.toUpperCase();
+      case 'tv subscription':
         return 'TV Subscription ($serviceId)'.toUpperCase();
       case 'transfer':
         return 'Transfer to $productName';
       case 'add_money':
         return 'Add Money';
+      case 'waec result checker':
+        return 'WAEC Result Checker';
+      case 'jamb result checker':
+        return 'JAMB Result Checker';
       default:
         return type.replaceAll('_', ' ').toUpperCase();
     }
@@ -121,10 +176,12 @@ class Transaction {
 
   // Helper method to get transaction subtitle
   String get subtitle {
-    if (type.contains('purchase')) {
-      return 'Phone No: $phone';
-    } else {
-      return 'TrnxRef: $reference';
+    if (isEducation) {
+      return educationDetails ?? 'Phone: $phone';
     }
+    if (type.toLowerCase().contains('purchase')) {
+      return 'Phone: $phone';
+    }
+    return 'TrnxRef: $reference';
   }
 }

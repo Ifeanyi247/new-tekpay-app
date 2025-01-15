@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:tekpayapp/constants/colors.dart';
+import 'package:tekpayapp/controllers/user_controller.dart';
 import 'package:tekpayapp/pages/widgets/custom_button_widget.dart';
 import 'package:intl/intl.dart';
 
@@ -53,6 +54,9 @@ class EducationTransactionSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final userController = Get.find<UserController>();
+    final currencyFormat = NumberFormat("#,##0.00", "en_US");
+
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
@@ -65,6 +69,14 @@ class EducationTransactionSheet extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          Container(
+            width: 40.w,
+            height: 4.h,
+            decoration: BoxDecoration(
+              color: Colors.grey[300],
+              borderRadius: BorderRadius.circular(2.r),
+            ),
+          ),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -132,14 +144,21 @@ class EducationTransactionSheet extends StatelessWidget {
                           color: Colors.black87,
                         ),
                       ),
-                      Text(
-                        '₦5,000.00',
-                        style: TextStyle(
-                          fontSize: 16.sp,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.black,
-                        ),
-                      ),
+                      Obx(() {
+                        final balance =
+                            userController.user.value?.profile.wallet ?? 0.0;
+                        final isVisible = userController.isBalanceVisible.value;
+                        return Text(
+                          isVisible
+                              ? '₦${currencyFormat.format(balance)}'
+                              : '₦*****',
+                          style: TextStyle(
+                            fontSize: 16.sp,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.black,
+                          ),
+                        );
+                      }),
                     ],
                   ),
                 ),

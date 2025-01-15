@@ -4,11 +4,11 @@ import 'package:get/get.dart';
 import 'package:tekpayapp/constants/colors.dart';
 import 'package:tekpayapp/controllers/bills/education_controller.dart';
 import 'package:tekpayapp/pages/app/data/data_page.dart';
-import 'package:tekpayapp/pages/app/education/education_success_page.dart';
 import 'package:tekpayapp/pages/widgets/custom_button_widget.dart';
 import 'package:tekpayapp/pages/widgets/custom_text_field.dart';
 import 'package:tekpayapp/pages/app/widgets/transaction_widget.dart';
 import 'package:tekpayapp/pages/app/education/widgets/education_transaction_widget.dart';
+import 'package:tekpayapp/pages/app/airtime/transaction_status_page.dart';
 
 class PinEntrySheet extends StatefulWidget {
   final VoidCallback onPinComplete;
@@ -210,6 +210,7 @@ class EducationPage extends StatefulWidget {
 class _EducationPageState extends State<EducationPage> {
   final TextEditingController _amountController = TextEditingController();
   final TextEditingController _mobileController = TextEditingController();
+  final TextEditingController _profileIdController = TextEditingController();
   final EducationController _educationController =
       Get.put(EducationController());
   String? _selectedNetwork;
@@ -220,6 +221,14 @@ class _EducationPageState extends State<EducationPage> {
   void initState() {
     super.initState();
     _fetchVariations();
+  }
+
+  @override
+  void dispose() {
+    _amountController.dispose();
+    _mobileController.dispose();
+    _profileIdController.dispose();
+    super.dispose();
   }
 
   void _fetchVariations() {
@@ -357,17 +366,39 @@ class _EducationPageState extends State<EducationPage> {
               label: '₦',
               icon: Icons.monetization_on_outlined,
             ),
-            SizedBox(height: 16.h),
-            CustomTextFieldWidget(
-              controller: _mobileController,
-              label: 'Mobile Number',
-              icon: Icons.phone_android,
-              keyboardType: TextInputType.phone,
-            ),
-            SizedBox(height: 40.h),
+            if (_selectedProvider == 'JAMB') ...[
+              SizedBox(height: 16.h),
+              CustomTextFieldWidget(
+                controller: _profileIdController,
+                keyboardType: TextInputType.number,
+                label: 'Enter Profile ID',
+                icon: Icons.person,
+              ),
+            ],
+            SizedBox(height: 30.h),
             CustomButtonWidget(
               text: 'Proceed',
-              onTap: () {
+              onTap: () async {
+                if (_selectedVariation == null) {
+                  Get.snackbar(
+                    'Error',
+                    'Please select an exam type',
+                    snackPosition: SnackPosition.BOTTOM,
+                  );
+                  return;
+                }
+
+                if (_selectedProvider == 'JAMB' &&
+                    _profileIdController.text.isEmpty) {
+                  Get.snackbar(
+                    'Error',
+                    'Please enter Profile ID',
+                    backgroundColor: Colors.red,
+                    colorText: Colors.white,
+                  );
+                  return;
+                }
+
                 showModalBottomSheet(
                   context: context,
                   isScrollControlled: true,
@@ -377,20 +408,73 @@ class _EducationPageState extends State<EducationPage> {
                     description: 'Result PIN Purchase',
                     amount: _amountController.text,
                     mobileNumber: _mobileController.text,
-                    onProceed: () {
+                    onProceed: () async {
                       Get.back();
                       showModalBottomSheet(
                         context: context,
                         isScrollControlled: true,
                         backgroundColor: Colors.transparent,
                         builder: (context) => PinEntrySheet(
-                          onPinComplete: () {
-                            Get.to(() => EducationSuccessPage(
-                                  transactionType: 'WAEC Result PIN',
-                                  amount: '2,500',
-                                  reference:
-                                      'EDU${DateTime.now().millisecondsSinceEpoch}',
-                                ));
+                          onPinComplete: () async {
+                            Get.back();
+                            if (_selectedProvider.toLowerCase() == 'waec') {
+                              final success =
+                                  await _educationController.purchaseWaec(
+                                variationCode: _selectedVariation!,
+                                phone: _mobileController.text,
+                              );
+
+                              if (success) {
+                                final transaction = _educationController
+                                    .transactionDetails.value['transaction'];
+                                final cards = _educationController
+                                    .transactionDetails.value['cards'];
+                                final status = transaction['status']
+                                    .toString()
+                                    .toLowerCase();
+                                TransactionStatus transactionStatus;
+                                if (status == 'delivered') {
+                                  transactionStatus = TransactionStatus.success;
+                                } else if (status == 'failed') {
+                                  transactionStatus = TransactionStatus.failed;
+                                } else {
+                                  transactionStatus = TransactionStatus.pending;
+                                }
+
+                                Get.to(() => TransactionStatusPage(
+                                      status: transactionStatus,
+                                      amount: transaction['amount'].toString(),
+                                      reference: transaction['transactionId'],
+                                      date: transaction['transaction_date'] ??
+                                          DateTime.now().toString(),
+                                      recipient: transaction['phone'],
+                                      network: '',
+                                      productName: transaction['product_name'],
+                                    ));
+
+                                if (cards != null && cards.isNotEmpty) {
+                                  final pinDetails = cards
+                                      .map((card) =>
+                                          'Serial: ${card['Serial']}, PIN: ${card['Pin']}')
+                                      .join('\n');
+
+                                  Get.snackbar(
+                                    'PIN Details',
+                                    pinDetails,
+                                    duration: const Duration(seconds: 30),
+                                    snackPosition: SnackPosition.TOP,
+                                    backgroundColor: Colors.white,
+                                    colorText: Colors.black,
+                                  );
+                                }
+                              } else {
+                                Get.snackbar(
+                                  'Error',
+                                  _educationController.purchaseError.value,
+                                  snackPosition: SnackPosition.BOTTOM,
+                                );
+                              }
+                            }
                           },
                         ),
                       );

@@ -2,6 +2,7 @@ import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:tekpayapp/services/api_service.dart';
+import 'package:tekpayapp/controllers/user_controller.dart';
 
 class EducationVariation {
   final String variationCode;
@@ -56,6 +57,10 @@ class EducationController extends GetxController {
   final _apiService = Get.find<ApiService>();
   final variations = Rxn<EducationVariationsResponse>();
   final isLoading = false.obs;
+  final isPurchasing = false.obs;
+  final purchaseError = ''.obs;
+  final Rx<Map<String, dynamic>> transactionDetails =
+      Rx<Map<String, dynamic>>({});
 
   Future<void> fetchVariations(String serviceId) async {
     try {
@@ -67,6 +72,42 @@ class EducationController extends GetxController {
       print('Error fetching variations: $e');
     } finally {
       isLoading.value = false;
+    }
+  }
+
+  Future<bool> purchaseWaec({
+    required String variationCode,
+    required String phone,
+  }) async {
+    try {
+      isPurchasing.value = true;
+      purchaseError.value = '';
+
+      final response = await _apiService.post(
+        'bills/education/waec/purchase',
+        body: {
+          'variation_code': variationCode,
+          'phone': phone,
+        },
+      );
+
+      if (response['status'] == true) {
+        transactionDetails.value = response['data'];
+
+        // Refresh user profile to get updated balance
+        final userController = Get.find<UserController>();
+        await userController.getProfile();
+
+        return true;
+      } else {
+        purchaseError.value = response['message'] ?? 'Purchase failed';
+        return false;
+      }
+    } catch (e) {
+      purchaseError.value = e.toString();
+      return false;
+    } finally {
+      isPurchasing.value = false;
     }
   }
 }
