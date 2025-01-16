@@ -13,6 +13,7 @@ import 'package:tekpayapp/pages/app/all_services_page.dart';
 import 'package:tekpayapp/pages/app/data/data_page.dart';
 import 'package:tekpayapp/pages/app/electricity/electricity_page.dart';
 import 'package:tekpayapp/pages/app/internet/internet_page.dart';
+import 'package:tekpayapp/pages/app/profile/profile_page.dart';
 import 'package:tekpayapp/pages/app/tv/tv_page.dart';
 import 'package:tekpayapp/pages/app/widgets/custom_icon_widget.dart';
 
@@ -210,12 +211,16 @@ class HomePage extends StatelessWidget {
                         children: [
                           Row(
                             children: [
-                              CircleAvatar(
-                                radius: 24.r,
-                                backgroundImage: user != null
-                                    ? NetworkImage(user.profile.profileUrl)
-                                    : const AssetImage('assets/images/user.png')
-                                        as ImageProvider,
+                              GestureDetector(
+                                onTap: () => Get.to(() => const ProfilePage()),
+                                child: CircleAvatar(
+                                  radius: 24.r,
+                                  backgroundImage: user != null
+                                      ? NetworkImage(user.profile.profileUrl)
+                                      : const AssetImage(
+                                              'assets/images/user.png')
+                                          as ImageProvider,
+                                ),
                               ),
                               SizedBox(width: 12.w),
                               Expanded(

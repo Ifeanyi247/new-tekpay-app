@@ -5,6 +5,7 @@ import 'package:tekpayapp/constants/colors.dart';
 import 'package:tekpayapp/controllers/auth_controller.dart';
 import 'package:tekpayapp/controllers/user_controller.dart';
 import 'package:tekpayapp/pages/app/profile/edit_profile_page.dart';
+import 'package:tekpayapp/pages/app/referral_page.dart';
 import 'package:tekpayapp/pages/app/settings_page.dart';
 
 class ProfilePage extends StatefulWidget {
@@ -178,7 +179,9 @@ class _ProfilePageState extends State<ProfilePage> {
                           title: 'My Referral',
                           subtitle: 'Referral bonuses',
                           icon: Icons.attach_money_outlined,
-                          onTap: () {},
+                          onTap: () {
+                            Get.to(() => const ReferralPage());
+                          },
                         ),
                         _buildProfileOption(
                           title: 'KYC',
