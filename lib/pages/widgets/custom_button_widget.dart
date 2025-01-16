@@ -6,12 +6,14 @@ class CustomButtonWidget extends StatelessWidget {
   final String text;
   final VoidCallback? onTap;
   final Color? bgColor;
+  final Color? textColor;
 
   const CustomButtonWidget({
     super.key,
     required this.text,
     this.onTap,
     this.bgColor = primaryColor,
+    this.textColor = Colors.white,
   });
 
   @override
@@ -24,7 +26,7 @@ class CustomButtonWidget extends StatelessWidget {
         child: Text(
           text,
           style: TextStyle(
-            color: bgColor != primaryColor ? primaryColor : Colors.white,
+            color: textColor ?? bgColor,
             fontSize: 17.sp,
           ),
         ),

@@ -1,21 +1,30 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:http/http.dart' as http;
+import 'package:http/io_client.dart';
 import 'package:tekpayapp/services/api_exception.dart';
 
 class ApiService {
   static const String baseUrl = 'http://172.20.10.2:8000/api';
+  // static const String baseUrl = 'https://api.usetekpay.com/api';
 
   // Singleton pattern
   static final ApiService _instance = ApiService._internal();
   factory ApiService() => _instance;
-  ApiService._internal();
 
-  final _client = http.Client();
+  late http.Client _client;
   String? _authToken;
+
+  ApiService._internal() {
+    HttpClient client = HttpClient()
+      ..badCertificateCallback =
+          (X509Certificate cert, String host, int port) => true;
+
+    _client = IOClient(client);
+  }
 
   // Set auth token
   void setAuthToken(String token) {
-    print('Setting auth token: $token');
     _authToken = token;
   }
 

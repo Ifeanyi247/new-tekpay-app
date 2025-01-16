@@ -5,6 +5,7 @@ import 'package:tekpayapp/constants/colors.dart';
 import 'package:tekpayapp/controllers/auth_controller.dart';
 import 'package:tekpayapp/controllers/user_controller.dart';
 import 'package:tekpayapp/pages/app/profile/edit_profile_page.dart';
+import 'package:tekpayapp/pages/app/settings_page.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -169,7 +170,9 @@ class _ProfilePageState extends State<ProfilePage> {
                           title: 'Settings',
                           subtitle: 'Account, notification, security',
                           icon: Icons.settings_outlined,
-                          onTap: () {},
+                          onTap: () {
+                            Get.to(() => const SettingsPage());
+                          },
                         ),
                         _buildProfileOption(
                           title: 'My Referral',
