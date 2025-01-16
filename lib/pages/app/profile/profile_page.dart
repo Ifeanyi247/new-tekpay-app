@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:tekpayapp/constants/colors.dart';
 import 'package:tekpayapp/controllers/auth_controller.dart';
 import 'package:tekpayapp/controllers/user_controller.dart';
+import 'package:tekpayapp/pages/app/kyc_page.dart';
 import 'package:tekpayapp/pages/app/profile/edit_profile_page.dart';
 import 'package:tekpayapp/pages/app/referral_page.dart';
 import 'package:tekpayapp/pages/app/settings_page.dart';
@@ -185,9 +186,11 @@ class _ProfilePageState extends State<ProfilePage> {
                         ),
                         _buildProfileOption(
                           title: 'KYC',
-                          subtitle: 'Submit details to verify your account',
+                          subtitle: 'Identity verification',
                           icon: Icons.verified_user_outlined,
-                          onTap: () {},
+                          onTap: () {
+                            Get.to(() => const KYCPage());
+                          },
                         ),
                         _buildProfileOption(
                           title: 'Help & Support',
