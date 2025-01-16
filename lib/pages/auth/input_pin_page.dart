@@ -165,7 +165,7 @@ class _InputPinPageState extends State<InputPinPage> {
                 ],
               ),
               onCompleted: (pin) async {
-                final success = await _authController.verifyPin(pin);
+                final success = await _authController.verifyPin(pin.toString());
                 if (success) {
                   Get.offAll(() => const BottomBar());
                 } else {

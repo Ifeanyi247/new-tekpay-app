@@ -212,7 +212,10 @@ class HomePage extends StatelessWidget {
                           Row(
                             children: [
                               GestureDetector(
-                                onTap: () => Get.to(() => const ProfilePage()),
+                                onTap: () {
+                                  Get.to(() => const ProfilePage(),
+                                      transition: Transition.noTransition);
+                                },
                                 child: CircleAvatar(
                                   radius: 24.r,
                                   backgroundImage: user != null

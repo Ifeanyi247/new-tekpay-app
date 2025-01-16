@@ -136,7 +136,32 @@ class _PinEntrySheetState extends State<PinEntrySheet> {
               itemCount: 12,
               itemBuilder: (context, index) {
                 if (index == 9) {
-                  return const SizedBox.shrink();
+                  return GestureDetector(
+                    onTap: () {
+                      if (_pinNotifier.value.length < 4) {
+                        _pinNotifier.value = _pinNotifier.value + '9';
+                        if (_pinNotifier.value.length == 4) {
+                          Get.back();
+                          widget.onPinComplete();
+                        }
+                      }
+                    },
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.grey[100],
+                        borderRadius: BorderRadius.circular(8.r),
+                      ),
+                      child: Center(
+                        child: Text(
+                          '9',
+                          style: TextStyle(
+                            fontSize: 24.sp,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ),
+                  );
                 }
                 if (index == 10) {
                   index = 0;

@@ -351,7 +351,38 @@ class _AirtimePageState extends State<AirtimePage> {
                     itemCount: 12,
                     itemBuilder: (context, index) {
                       if (index == 9) {
-                        return const SizedBox.shrink();
+                        return GestureDetector(
+                          onTap: () {
+                            if (_pinNotifier.value.length < 4) {
+                              _pinNotifier.value = _pinNotifier.value + '9';
+                              if (_pinNotifier.value.length == 4) {
+                                // PIN is complete, process the transaction
+                                _a_controller.purchaseAirtime(
+                                  phone: _phoneNumberController.text,
+                                  amount: _amountController.text,
+                                  network: _networks[_selectedNetwork]['name']!
+                                      .toString(),
+                                  pin: _pinNotifier.value,
+                                );
+                              }
+                            }
+                          },
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: Colors.grey[100],
+                              borderRadius: BorderRadius.circular(8.r),
+                            ),
+                            child: Center(
+                              child: Text(
+                                '9',
+                                style: TextStyle(
+                                  fontSize: 24.sp,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ),
+                          ),
+                        );
                       }
                       if (index == 10) {
                         index = 0;

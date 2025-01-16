@@ -55,7 +55,7 @@ class TvController extends GetxController {
       customerInfo.clear();
 
       final response = await _apiService.post(
-        'bills/tv/verify-smartcard',
+        'bills/tv/verify',
         body: {
           'billersCode': cardNumber,
           'serviceID': provider,
@@ -107,7 +107,7 @@ class TvController extends GetxController {
       subscriptionError.value = '';
 
       final response = await _apiService.post(
-        'bills/tv/subscribe',
+        'bills/tv/purchase',
         body: {
           'billersCode': billersCode,
           'serviceID': serviceID,
@@ -153,6 +153,99 @@ class TvController extends GetxController {
       );
     } finally {
       isSubscribing.value = false;
+    }
+  }
+
+  Future<void> _checkTransactionStatus({
+    required String requestId,
+    required String amount,
+    required String reference,
+    required String date,
+    required String phone,
+    required String network,
+    required String productName,
+  }) async {
+    try {
+      final response = await _apiService.post('bills/status', body: {
+        'request_id': requestId,
+      });
+
+      if (response['status'] == true && response['data'] != null) {
+        final statusData = response['data'];
+        final status = statusData['status']?.toString() ?? '';
+
+        // Refresh user profile after getting status
+        await Get.find<UserController>().getProfile();
+
+        // If still pending, show pending status with original transaction data
+        if (status == 'pending') {
+          transactionDetails.value = {
+            "status": true,
+            "message": "TV subscription successful",
+            "data": {
+              "status": "pending",
+              "product_name": "Startimes Subscription",
+              "unique_element": "201000000000",
+              "unit_price": 1400,
+              "quantity": 1,
+              "service_verification": null,
+              "channel": "api",
+              "commission": 35,
+              "total_amount": 1365,
+              "discount": null,
+              "type": "TV Subscription",
+              "email": "Oladelep77@gmail.com",
+              "phone": "08142403525",
+              "name": null,
+              "convinience_fee": 0,
+              "amount": 1400,
+              "platform": "api",
+              "method": "api",
+              "transactionId": "17370654002724410119528661"
+            }
+          };
+          return;
+        }
+
+        // Show final status with updated transaction data
+        transactionDetails.value = {
+          "status": _getTransactionStatus(status) == TransactionStatus.success,
+          "message": _getTransactionStatus(status) == TransactionStatus.success
+              ? "TV subscription successful"
+              : "TV subscription failed",
+          "data": {
+            "status": status,
+            "product_name": statusData['product_name'] ?? productName,
+            "unique_element": statusData['unique_element'] ?? "",
+            "unit_price": statusData['unit_price'] ?? 0,
+            "quantity": statusData['quantity'] ?? 0,
+            "service_verification": statusData['service_verification'],
+            "channel": statusData['channel'] ?? "",
+            "commission": statusData['commission'] ?? 0,
+            "total_amount": statusData['total_amount'] ?? 0,
+            "discount": statusData['discount'],
+            "type": statusData['type'] ?? "",
+            "email": statusData['email'] ?? "",
+            "phone": statusData['phone'] ?? phone,
+            "name": statusData['name'],
+            "convinience_fee": statusData['convinience_fee'] ?? 0,
+            "amount": statusData['amount'] ?? amount,
+            "platform": statusData['platform'] ?? "",
+            "method": statusData['method'] ?? "",
+            "transactionId": statusData['transactionId'] ?? reference
+          }
+        };
+      } else {
+        throw response['message'] ?? 'Failed to get transaction status';
+      }
+    } catch (e) {
+      print('Error checking transaction status: $e');
+      Get.snackbar(
+        'Error',
+        'Failed to check transaction status',
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
     }
   }
 

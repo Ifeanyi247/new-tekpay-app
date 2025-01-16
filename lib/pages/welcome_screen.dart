@@ -41,7 +41,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                 height: 10.h,
               ),
               Text(
-                'Join the Tekpay community today and simplify your bills\n, subscriptions, and betting payments. To get started\n, please sign in your account or create a new one.',
+                'Join the Tekpay community today and simplify your bills,\nsubscriptions, and betting payments. To get started,\nplease sign in your account or create a new one.',
                 textAlign: TextAlign.center,
               ),
               SizedBox(
@@ -60,6 +60,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
               CustomButtonWidget(
                 text: 'Login',
                 bgColor: Colors.white,
+                textColor: primaryColor,
                 onTap: () {
                   Get.to(() => const LoginPage());
                 },

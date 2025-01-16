@@ -52,15 +52,31 @@ class AirtimeWorkingController extends GetxController {
 
         if (response['status'] == true) {
           final transactionData = response['data'];
+          final status = transactionData['status']?.toString() ?? '';
 
-          // Refresh user profile to get updated balance
+          // Refresh user profile after successful request
           await _userController.getProfile();
 
+          if (status == 'pending') {
+            final requestId = transactionData['requestId'];
+            // Check transaction status
+            await _checkTransactionStatus(
+              requestId: requestId,
+              amount: transactionData['amount'],
+              reference: transactionData['reference'],
+              date: transactionData['transaction_date'],
+              phone: transactionData['phone'],
+              network: transactionData['network'],
+              productName: transactionData['product_name'],
+            );
+            return;
+          }
+
           Get.off(() => TransactionStatusPage(
-                status: _getTransactionStatus(transactionData['status']),
+                status: _getTransactionStatus(status),
                 amount: transactionData['amount'],
                 reference: transactionData['reference'],
-                date: transactionData['transaction_date']['date'],
+                date: transactionData['transaction_date'],
                 recipient: transactionData['phone'],
                 network: transactionData['network'],
                 productName: transactionData['product_name'],
@@ -69,27 +85,7 @@ class AirtimeWorkingController extends GetxController {
           throw response['message'] ?? 'Failed to purchase airtime';
         }
       } catch (e) {
-        // If it's a 400 error, try to get the transaction details
-        if (e.toString().contains('400')) {
-          final response = await _api.get('bills/airtime/status/$phone');
-          if (response['status'] == true && response['data'] != null) {
-            final transactionData = response['data'];
-            Get.off(() => TransactionStatusPage(
-                  status: TransactionStatus.failed,
-                  amount: amount,
-                  reference: transactionData['reference'] ?? '',
-                  date: transactionData['transaction_date']?['date'] ??
-                      DateTime.now().toString(),
-                  recipient: phone,
-                  network: network,
-                  productName: 'Airtime Purchase',
-                ));
-          } else {
-            rethrow;
-          }
-        } else {
-          rethrow;
-        }
+        rethrow;
       }
     } catch (e) {
       print('Error purchasing airtime: $e');
@@ -102,6 +98,65 @@ class AirtimeWorkingController extends GetxController {
       );
     } finally {
       isLoading.value = false;
+    }
+  }
+
+  Future<void> _checkTransactionStatus({
+    required String requestId,
+    required String amount,
+    required String reference,
+    required String date,
+    required String phone,
+    required String network,
+    required String productName,
+  }) async {
+    try {
+      final response = await _api.post('bills/status', body: {
+        'request_id': requestId,
+      });
+
+      if (response['status'] == true && response['data'] != null) {
+        final statusData = response['data'];
+        final status = statusData['status']?.toString() ?? '';
+
+        // Refresh user profile after getting status
+        await _userController.getProfile();
+
+        // If still pending, show pending status with original transaction data
+        if (status == 'pending') {
+          Get.off(() => TransactionStatusPage(
+                status: TransactionStatus.pending,
+                amount: amount,
+                reference: reference,
+                date: date,
+                recipient: phone,
+                network: network,
+                productName: productName,
+              ));
+          return;
+        }
+
+        // Show final status with updated transaction data
+        Get.off(() => TransactionStatusPage(
+              status: _getTransactionStatus(status),
+              amount: statusData['amount'] ?? amount,
+              reference: statusData['reference'] ?? reference,
+              date: statusData['transaction_date'] ?? date,
+              recipient: statusData['phone'] ?? phone,
+              network: statusData['network'] ?? network,
+              productName: statusData['product_name'] ?? productName,
+            ));
+      } else {
+        throw response['message'] ?? 'Failed to get transaction status';
+      }
+    } catch (e) {
+      print('Error checking transaction status: $e');
+      Get.snackbar(
+        'Error',
+        'Failed to check transaction status',
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
     }
   }
 

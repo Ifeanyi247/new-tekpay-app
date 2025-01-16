@@ -253,12 +253,12 @@ class AuthController extends GetxController {
 
       final response = await _api.post('auth/verify-pin', body: {
         'login_token': loginToken.value,
-        'pin_code': pin,
+        'pin_code': pin.toString(),
       });
 
       print('Verify PIN Response: $response');
 
-      if (response['status'] == true) {
+      if (response['status'] == true && response['data'] != null) {
         print("From verify: ${response['data']['token']}");
         // Clear old token and user data first
         final userController = Get.find<UserController>();
@@ -270,14 +270,19 @@ class AuthController extends GetxController {
         await StorageService.setToken(token);
         _api.setAuthToken(token);
 
-        // Set user data directly from response
-        final userData = response['data']['user'];
-        currentUser.value = UserModel.fromJson(userData);
-        userController.user.value = UserModel.fromJson(userData);
-
-        loginToken.value =
-            ''; // Clear login token after successful verification
-        return true;
+        try {
+          // The user data already contains the nested profile
+          final userData = response['data']['user'];
+          currentUser.value = UserModel.fromJson(userData);
+          userController.user.value = UserModel.fromJson(userData);
+          loginToken.value = ''; // Clear login token after successful verification
+          return true;
+        } catch (e, stack) {
+          print('Error parsing user data: $e');
+          print('Stack trace: $stack');
+          error.value = 'Error parsing user data';
+          return false;
+        }
       }
 
       if (response['errors'] != null) {

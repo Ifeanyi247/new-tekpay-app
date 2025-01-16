@@ -123,6 +123,99 @@ class ElectricityController extends GetxController {
     }
   }
 
+  Future<void> _checkTransactionStatus({
+    required String requestId,
+    required String amount,
+    required String reference,
+    required String date,
+    required String phone,
+    required String network,
+    required String productName,
+  }) async {
+    try {
+      final response = await _apiService.post('bills/status', body: {
+        'request_id': requestId,
+      });
+
+      if (response['status'] == true && response['data'] != null) {
+        final statusData = response['data'];
+        final status = statusData['status']?.toString() ?? '';
+
+        // Refresh user profile after getting status
+        await _userController.getProfile();
+
+        // If still pending, show pending status with original transaction data
+        if (status == 'delivered') {
+          transactionDetails.value = {
+            "status": true,
+            "message": "Electricity purchase successful",
+            "data": {
+              "status": "delivered",
+              "product_name": "Ikeja Electric Payment - PHCN",
+              "unique_element": "1010101010101",
+              "unit_price": 8000,
+              "quantity": 1,
+              "service_verification": null,
+              "channel": "api",
+              "commission": 120,
+              "total_amount": 7880,
+              "discount": null,
+              "type": "Electricity Bill",
+              "email": "Oladelep77@gmail.com",
+              "phone": "08142403525",
+              "name": null,
+              "convinience_fee": 0,
+              "amount": 8000,
+              "platform": "api",
+              "method": "api",
+              "transactionId": "17370669593125935895265045"
+            }
+          };
+          return;
+        }
+
+        // Show final status with updated transaction data
+        transactionDetails.value = {
+          "status": _getTransactionStatus(status) == TransactionStatus.success,
+          "message": _getTransactionStatus(status) == TransactionStatus.success
+              ? "Electricity purchase successful"
+              : "Electricity purchase failed",
+          "data": {
+            "status": status,
+            "product_name": statusData['product_name'] ?? productName,
+            "unique_element": statusData['unique_element'] ?? "",
+            "unit_price": statusData['unit_price'] ?? 0,
+            "quantity": statusData['quantity'] ?? 0,
+            "service_verification": statusData['service_verification'],
+            "channel": statusData['channel'] ?? "",
+            "commission": statusData['commission'] ?? 0,
+            "total_amount": statusData['total_amount'] ?? 0,
+            "discount": statusData['discount'],
+            "type": statusData['type'] ?? "",
+            "email": statusData['email'] ?? "",
+            "phone": statusData['phone'] ?? phone,
+            "name": statusData['name'],
+            "convinience_fee": statusData['convinience_fee'] ?? 0,
+            "amount": statusData['amount'] ?? amount,
+            "platform": statusData['platform'] ?? "",
+            "method": statusData['method'] ?? "",
+            "transactionId": statusData['transactionId'] ?? reference
+          }
+        };
+      } else {
+        throw response['message'] ?? 'Failed to get transaction status';
+      }
+    } catch (e) {
+      print('Error checking transaction status: $e');
+      Get.snackbar(
+        'Error',
+        'Failed to check transaction status',
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+    }
+  }
+
   void clearSelection() {
     error.value = '';
     verificationError.value = '';
