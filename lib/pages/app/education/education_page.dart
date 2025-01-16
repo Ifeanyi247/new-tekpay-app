@@ -11,7 +11,7 @@ import 'package:tekpayapp/pages/app/education/widgets/education_transaction_widg
 import 'package:tekpayapp/pages/app/airtime/transaction_status_page.dart';
 
 class PinEntrySheet extends StatefulWidget {
-  final VoidCallback onPinComplete;
+  final ValueChanged<String> onPinComplete;
 
   const PinEntrySheet({
     super.key,
@@ -141,8 +141,7 @@ class _PinEntrySheetState extends State<PinEntrySheet> {
                       if (_pinNotifier.value.length < 4) {
                         _pinNotifier.value = _pinNotifier.value + '9';
                         if (_pinNotifier.value.length == 4) {
-                          Get.back();
-                          widget.onPinComplete();
+                          widget.onPinComplete(_pinNotifier.value);
                         }
                       }
                     },
@@ -194,8 +193,7 @@ class _PinEntrySheetState extends State<PinEntrySheet> {
                       _pinNotifier.value =
                           _pinNotifier.value + index.toString();
                       if (_pinNotifier.value.length == 4) {
-                        Get.back();
-                        widget.onPinComplete();
+                        widget.onPinComplete(_pinNotifier.value);
                       }
                     }
                   },
@@ -441,20 +439,23 @@ class _EducationPageState extends State<EducationPage> {
                         isScrollControlled: true,
                         backgroundColor: Colors.transparent,
                         builder: (context) => PinEntrySheet(
-                          onPinComplete: () async {
+                          onPinComplete: (pin) async {
                             Get.back();
                             Get.dialog(
                               const Center(
                                 child: CircularProgressIndicator(
-                                  valueColor: AlwaysStoppedAnimation<Color>(primaryColor),
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                      primaryColor),
                                 ),
                               ),
                               barrierDismissible: false,
                             );
                             if (_selectedProvider.toLowerCase() == 'waec') {
-                              final success = await _educationController.purchaseWaec(
+                              final success =
+                                  await _educationController.purchaseWaec(
                                 variationCode: _selectedVariation!,
                                 phone: _mobileController.text,
+                                pin: pin,
                               );
 
                               Get.back();
@@ -509,11 +510,14 @@ class _EducationPageState extends State<EducationPage> {
                                   snackPosition: SnackPosition.BOTTOM,
                                 );
                               }
-                            } else if (_selectedProvider.toLowerCase() == 'jamb') {
-                              final success = await _educationController.purchaseJamb(
+                            } else if (_selectedProvider.toLowerCase() ==
+                                'jamb') {
+                              final success =
+                                  await _educationController.purchaseJamb(
                                 variationCode: _selectedVariation!,
                                 phone: _mobileController.text,
                                 billersCode: _profileIdController.text,
+                                pin: pin,
                               );
 
                               Get.back();

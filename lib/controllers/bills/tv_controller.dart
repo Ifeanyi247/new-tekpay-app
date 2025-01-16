@@ -103,6 +103,17 @@ class TvController extends GetxController {
     required String pin,
   }) async {
     try {
+      // Validate PIN
+      if (pin.isEmpty || pin.length != 4) {
+        throw 'Invalid PIN';
+      }
+
+      // Verify PIN with user profile
+      final userModel = Get.find<UserController>().user.value;
+      if (userModel == null || userModel.profile.pinCode.toString() != pin) {
+        throw 'Invalid transaction PIN';
+      }
+
       isSubscribing.value = true;
       subscriptionError.value = '';
 

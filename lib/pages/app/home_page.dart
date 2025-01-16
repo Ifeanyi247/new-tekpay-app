@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -219,7 +220,8 @@ class HomePage extends StatelessWidget {
                                 child: CircleAvatar(
                                   radius: 24.r,
                                   backgroundImage: user != null
-                                      ? NetworkImage(user.profile.profileUrl)
+                                      ? CachedNetworkImageProvider(
+                                          user.profile.profileUrl)
                                       : const AssetImage(
                                               'assets/images/user.png')
                                           as ImageProvider,

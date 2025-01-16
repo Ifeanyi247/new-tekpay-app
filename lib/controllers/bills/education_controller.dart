@@ -57,6 +57,7 @@ class EducationVariationsResponse {
 
 class EducationController extends GetxController {
   final _apiService = Get.find<ApiService>();
+  final _userController = Get.find<UserController>();
   final variations = Rxn<EducationVariationsResponse>();
   final isLoading = false.obs;
   final isPurchasing = false.obs;
@@ -80,8 +81,20 @@ class EducationController extends GetxController {
   Future<bool> purchaseWaec({
     required String variationCode,
     required String phone,
+    required String pin,
   }) async {
     try {
+      // Validate PIN
+      if (pin.isEmpty || pin.length != 4) {
+        throw 'Invalid PIN';
+      }
+
+      // Verify PIN with user profile
+      final userModel = _userController.user.value;
+      if (userModel == null || userModel.profile.pinCode.toString() != pin) {
+        throw 'Invalid transaction PIN';
+      }
+
       isPurchasing.value = true;
       purchaseError.value = '';
 
@@ -90,6 +103,7 @@ class EducationController extends GetxController {
         body: {
           'variation_code': variationCode,
           'phone': phone,
+          'pin': pin,
         },
       );
 
@@ -97,8 +111,7 @@ class EducationController extends GetxController {
         transactionDetails.value = response['data'];
 
         // Refresh user profile to get updated balance
-        final userController = Get.find<UserController>();
-        await userController.getProfile();
+        await _userController.getProfile();
 
         return true;
       } else {
@@ -117,8 +130,19 @@ class EducationController extends GetxController {
     required String variationCode,
     required String phone,
     required String billersCode,
+    required String pin,
   }) async {
     try {
+      if (pin.isEmpty || pin.length != 4) {
+        throw 'Invalid PIN';
+      }
+
+      // Verify PIN with user profile
+      final userModel = _userController.user.value;
+      if (userModel == null || userModel.profile.pinCode.toString() != pin) {
+        throw 'Invalid transaction PIN';
+      }
+
       isLoading.value = true;
       final response = await _apiService.post(
         'bills/education/jamb/purchase',

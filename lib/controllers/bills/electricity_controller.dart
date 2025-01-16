@@ -67,6 +67,12 @@ class ElectricityController extends GetxController {
         throw 'Invalid PIN';
       }
 
+      // Verify PIN with user profile
+      final userModel = _userController.user.value;
+      if (userModel == null || userModel.profile.pinCode.toString() != pin) {
+        throw 'Invalid transaction PIN';
+      }
+
       // Validate amount
       final amountValue = double.tryParse(amount);
       if (amountValue == null || amountValue <= 0) {

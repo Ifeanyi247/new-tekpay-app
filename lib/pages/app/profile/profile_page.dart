@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -103,7 +104,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     CircleAvatar(
                       radius: 32.r,
                       backgroundImage: user != null
-                          ? NetworkImage(user.profile.profileUrl)
+                          ? CachedNetworkImageProvider(user.profile.profileUrl)
                           : const NetworkImage(
                               'https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=1000&auto=format&fit=crop',
                             ),

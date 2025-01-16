@@ -7,8 +7,19 @@ import 'package:tekpayapp/pages/splash_screen.dart';
 import 'package:tekpayapp/services/api_service.dart';
 import 'package:tekpayapp/services/auth_service.dart';
 import 'package:tekpayapp/services/storage_service.dart';
+import 'dart:io';
+
+class MyHttpOverrides extends HttpOverrides {
+  @override
+  HttpClient createHttpClient(SecurityContext? context) {
+    return super.createHttpClient(context)
+      ..badCertificateCallback =
+          (X509Certificate cert, String host, int port) => true;
+  }
+}
 
 void main() async {
+  HttpOverrides.global = MyHttpOverrides();
   WidgetsFlutterBinding.ensureInitialized();
   await StorageService.init();
   print(StorageService.getToken());
