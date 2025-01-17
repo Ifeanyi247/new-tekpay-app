@@ -1,6 +1,9 @@
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:tekpayapp/constants/colors.dart';
 import 'package:tekpayapp/controllers/auth_controller.dart';
 import 'package:tekpayapp/models/user_model.dart';
+import 'package:tekpayapp/pages/app/settings_page.dart';
 import 'package:tekpayapp/pages/auth/login_page.dart';
 import 'package:tekpayapp/services/api_service.dart';
 import 'package:tekpayapp/services/api_exception.dart';
@@ -14,6 +17,7 @@ class UserController extends GetxController {
   final Rx<UserModel?> user = Rx<UserModel?>(null);
   final error = Rxn<String>();
   final isBalanceVisible = true.obs;
+  final isResendingOtp = false.obs;
 
   @override
   void onInit() {
@@ -126,5 +130,211 @@ class UserController extends GetxController {
 
   void clearError() {
     error.value = null;
+  }
+
+  Future<void> changePassword({
+    required String currentPassword,
+    required String newPassword,
+    required String confirmPassword,
+  }) async {
+    try {
+      isLoading.value = true;
+      error.value = null;
+
+      final response = await _apiService.post(
+        'user/change-password',
+        body: {
+          'current_password': currentPassword,
+          'new_password': newPassword,
+          'new_password_confirmation': confirmPassword,
+        },
+      );
+
+      if (response['status'] == true) {
+        Get.back();
+        Get.snackbar(
+          'Success',
+          response['message'] ?? 'Password changed successfully',
+          backgroundColor: Colors.green,
+          colorText: Colors.white,
+          snackPosition: SnackPosition.BOTTOM,
+        );
+      }
+    } on ApiException catch (e) {
+      error.value = e.message;
+      Get.snackbar(
+        'Error',
+        e.message,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+        snackPosition: SnackPosition.BOTTOM,
+      );
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  Future<void> sendPinChangeOtp({
+    required String email,
+  }) async {
+    try {
+      isLoading.value = true;
+      error.value = null;
+
+      final response = await _apiService.post(
+        'user/send-pin-change-otp',
+        body: {
+          'email': email,
+        },
+      );
+
+      if (response['status'] == true) {
+        Get.snackbar(
+          'Success',
+          response['message'] ?? 'OTP sent successfully',
+          backgroundColor: primaryColor,
+          colorText: Colors.white,
+        );
+      }
+    } on ApiException catch (e) {
+      error.value = e.message;
+      Get.snackbar(
+        'Error',
+        e.message,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+        snackPosition: SnackPosition.BOTTOM,
+      );
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  Future<bool> resendPinChangeOtp({
+    required String email,
+  }) async {
+    try {
+      isLoading.value = true;
+      error.value = null;
+
+      final response = await _apiService.post(
+        'user/resend-pin-change-otp',
+        body: {
+          'email': email,
+        },
+      );
+
+      if (response['status'] == true) {
+        Get.snackbar(
+          'Success',
+          response['message'] ?? 'New OTP has been sent to your email',
+          backgroundColor: primaryColor,
+          colorText: Colors.white,
+        );
+        return true;
+      }
+      return false;
+    } on ApiException catch (e) {
+      error.value = e.message;
+      Get.snackbar(
+        'Error',
+        e.message,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+      return false;
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  Future<String?> verifyPinChangeOtp({required String otp}) async {
+    try {
+      isLoading.value = true;
+      error.value = null;
+
+      final response = await _apiService.post(
+        'user/verify-pin-change-otp',
+        body: {
+          'otp': otp,
+        },
+      );
+
+      if (response['status'] == true) {
+        Get.snackbar(
+          'Success',
+          response['message'] ?? 'OTP verified successfully',
+          backgroundColor: primaryColor,
+          colorText: Colors.white,
+        );
+        return response['data']['pin_token'];
+      }
+      error.value = response['message'];
+      Get.snackbar(
+        'Error',
+        response['message'] ?? 'Failed to verify OTP',
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+      return null;
+    } on ApiException catch (e) {
+      error.value = e.message;
+      Get.snackbar(
+        'Error',
+        e.message,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+      return null;
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  Future<bool> changeTransactionPin({
+    required String pin,
+    required String pinToken,
+  }) async {
+    try {
+      isLoading.value = true;
+      error.value = null;
+
+      final response = await _apiService.post(
+        'user/change-transaction-pin',
+        body: {
+          'new_pin': pin,
+          'pin_token': pinToken,
+        },
+      );
+
+      if (response['status'] == true) {
+        Get.snackbar(
+          'Success',
+          response['message'] ?? 'Transaction PIN changed successfully',
+          backgroundColor: primaryColor,
+          colorText: Colors.white,
+        );
+        return true;
+      }
+      error.value = response['message'];
+      Get.snackbar(
+        'Error',
+        response['message'] ?? 'Failed to change transaction PIN',
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+      return false;
+    } on ApiException catch (e) {
+      error.value = e.message;
+      Get.snackbar(
+        'Error',
+        e.message,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+      return false;
+    } finally {
+      isLoading.value = false;
+    }
   }
 }

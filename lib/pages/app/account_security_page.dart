@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:tekpayapp/constants/colors.dart';
+import 'package:tekpayapp/controllers/user_controller.dart';
 import 'package:tekpayapp/pages/app/biometric_setting_page.dart';
+import 'package:tekpayapp/pages/app/resetPin/email_otp_page.dart';
 import 'package:tekpayapp/pages/app/reset_password_page.dart';
 import 'package:tekpayapp/pages/app/two_factor_page.dart';
 
@@ -85,8 +87,25 @@ class AccountSecurityPage extends StatelessWidget {
             title: 'Reset Security Pin',
             subtitle: 'Update your security pin',
             icon: Icons.pin_outlined,
-            onTap: () {
-              // Navigate to reset security pin page
+            onTap: () async {
+              final userController = Get.find<UserController>();
+              final userEmail = userController.user.value?.email ?? '';
+
+              Get.dialog(
+                const Center(
+                  child: CircularProgressIndicator(
+                    valueColor: AlwaysStoppedAnimation<Color>(primaryColor),
+                  ),
+                ),
+                barrierDismissible: false,
+              );
+
+              await userController.sendPinChangeOtp(email: userEmail);
+              Get.back(); // Close loading dialog
+
+              if (userController.error.value == null) {
+                Get.to(() => EmailOtpPage(email: userEmail));
+              }
             },
           ),
           _buildSecurityItem(
