@@ -15,6 +15,7 @@ import 'package:tekpayapp/pages/app/data/data_page.dart';
 import 'package:tekpayapp/pages/app/electricity/electricity_page.dart';
 import 'package:tekpayapp/pages/app/internet/internet_page.dart';
 import 'package:tekpayapp/pages/app/profile/profile_page.dart';
+import 'package:tekpayapp/pages/app/transactions_page.dart';
 import 'package:tekpayapp/pages/app/tv/tv_page.dart';
 import 'package:tekpayapp/pages/app/widgets/custom_icon_widget.dart';
 
@@ -480,7 +481,9 @@ class HomePage extends StatelessWidget {
                               ),
                             ),
                             TextButton(
-                              onPressed: () {},
+                              onPressed: () {
+                                Get.to(() => TransactionsPage());
+                              },
                               child: Text(
                                 'See all',
                                 style: TextStyle(

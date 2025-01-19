@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:local_auth/local_auth.dart';
 import 'package:tekpayapp/constants/colors.dart';
+import 'package:tekpayapp/services/storage_service.dart';
 
 class BiometricSettingPage extends StatefulWidget {
   const BiometricSettingPage({super.key});
@@ -13,6 +15,73 @@ class BiometricSettingPage extends StatefulWidget {
 class _BiometricSettingPageState extends State<BiometricSettingPage> {
   bool _loginEnabled = false;
   bool _paymentEnabled = false;
+  final LocalAuthentication _localAuth = LocalAuthentication();
+
+  Future<bool> _authenticate() async {
+    try {
+      final bool canAuthenticateWithBiometrics = await _localAuth.canCheckBiometrics;
+      final bool canAuthenticate = canAuthenticateWithBiometrics || await _localAuth.isDeviceSupported();
+
+      if (!canAuthenticate) {
+        Get.snackbar(
+          'Error',
+          'Biometric authentication is not available on this device',
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+        );
+        return false;
+      }
+
+      final bool didAuthenticate = await _localAuth.authenticate(
+        localizedReason: 'Please authenticate to enable biometric settings',
+        options: const AuthenticationOptions(
+          stickyAuth: true,
+          biometricOnly: true,
+        ),
+      );
+
+      return didAuthenticate;
+    } catch (e) {
+      Get.snackbar(
+        'Error',
+        'Failed to authenticate: $e',
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+      return false;
+    }
+  }
+
+  Future<void> _checkBiometricSupport() async {
+    try {
+      final bool canAuthenticateWithBiometrics = await _localAuth.canCheckBiometrics;
+      final bool canAuthenticate = canAuthenticateWithBiometrics || await _localAuth.isDeviceSupported();
+
+      if (!canAuthenticate) {
+        Get.snackbar(
+          'Error',
+          'Biometric authentication is not available on this device',
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+        );
+        Get.back();
+        return;
+      }
+
+      setState(() {
+        _loginEnabled = StorageService.getBiometricLogin();
+        _paymentEnabled = StorageService.getBiometricPayment();
+      });
+    } catch (e) {
+      Get.snackbar(
+        'Error',
+        'Failed to check biometric support: $e',
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+      Get.back();
+    }
+  }
 
   Widget _buildBiometricOption({
     required String title,
@@ -69,11 +138,6 @@ class _BiometricSettingPageState extends State<BiometricSettingPage> {
     );
   }
 
-  Future<void> _checkBiometricSupport() async {
-    // TODO: Implement biometric support check
-    // If biometrics is not supported, show a message and go back
-  }
-
   @override
   void initState() {
     super.initState();
@@ -108,10 +172,26 @@ class _BiometricSettingPageState extends State<BiometricSettingPage> {
               subtitle: 'Activate biometrics Login',
               value: _loginEnabled,
               onChanged: (value) async {
-                // TODO: Implement biometric authentication before enabling
-                setState(() {
-                  _loginEnabled = value;
-                });
+                if (value) {
+                  final authenticated = await _authenticate();
+                  if (authenticated) {
+                    setState(() {
+                      _loginEnabled = true;
+                    });
+                    await StorageService.setBiometricLogin(true);
+                    Get.snackbar(
+                      'Success',
+                      'Biometric login enabled',
+                      backgroundColor: primaryColor,
+                      colorText: Colors.white,
+                    );
+                  }
+                } else {
+                  setState(() {
+                    _loginEnabled = false;
+                  });
+                  await StorageService.setBiometricLogin(false);
+                }
               },
             ),
             _buildBiometricOption(
@@ -119,10 +199,26 @@ class _BiometricSettingPageState extends State<BiometricSettingPage> {
               subtitle: 'Activate biometrics for transactions',
               value: _paymentEnabled,
               onChanged: (value) async {
-                // TODO: Implement biometric authentication before enabling
-                setState(() {
-                  _paymentEnabled = value;
-                });
+                if (value) {
+                  final authenticated = await _authenticate();
+                  if (authenticated) {
+                    setState(() {
+                      _paymentEnabled = true;
+                    });
+                    await StorageService.setBiometricPayment(true);
+                    Get.snackbar(
+                      'Success',
+                      'Biometric payment enabled',
+                      backgroundColor: primaryColor,
+                      colorText: Colors.white,
+                    );
+                  }
+                } else {
+                  setState(() {
+                    _paymentEnabled = false;
+                  });
+                  await StorageService.setBiometricPayment(false);
+                }
               },
             ),
           ],

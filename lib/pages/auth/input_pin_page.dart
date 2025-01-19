@@ -7,6 +7,8 @@ import 'package:tekpayapp/constants/colors.dart';
 import 'package:tekpayapp/controllers/auth_controller.dart';
 import 'package:tekpayapp/controllers/user_controller.dart';
 import 'package:tekpayapp/pages/widgets/bottom_bar.dart';
+import 'package:tekpayapp/services/storage_service.dart';
+import 'package:local_auth/local_auth.dart';
 
 class InputPinPage extends StatefulWidget {
   const InputPinPage({super.key});
@@ -19,11 +21,55 @@ class _InputPinPageState extends State<InputPinPage> {
   final _pinController = TextEditingController();
   final _authController = Get.find<AuthController>();
   late final UserController userController;
+  final _showBiometric = false.obs;
+  final LocalAuthentication _localAuth = LocalAuthentication();
+
+  Future<void> _authenticateWithBiometrics() async {
+    try {
+      final bool didAuthenticate = await _localAuth.authenticate(
+        localizedReason: 'Please authenticate to login',
+        options: const AuthenticationOptions(
+          stickyAuth: true,
+          biometricOnly: true,
+        ),
+      );
+
+      if (didAuthenticate) {
+        final storedPin = _authController.pinCode.value.toString().padLeft(4, '0');
+        final success = await _authController.verifyPin(storedPin);
+        if (success) {
+          Get.offAll(() => const BottomBar());
+        } else {
+          Get.snackbar(
+            'Error',
+            'Failed to verify PIN',
+            backgroundColor: Colors.red,
+            colorText: Colors.white,
+          );
+        }
+      }
+    } catch (e) {
+      Get.snackbar(
+        'Error',
+        'Failed to authenticate: $e',
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+    }
+  }
 
   @override
   void initState() {
     super.initState();
     userController = Get.find<UserController>();
+    _showBiometric.value = StorageService.getBiometricLogin();
+    
+    // Trigger biometric authentication if enabled
+    if (_showBiometric.value) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _authenticateWithBiometrics();
+      });
+    }
   }
 
   void _onKeyTap(String value) {
@@ -213,16 +259,21 @@ class _InputPinPageState extends State<InputPinPage> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
-                    Container(
-                      width: 80.w,
-                      height: 80.w,
-                      alignment: Alignment.center,
-                      child: Image.asset(
-                        'assets/images/fingerprint.png',
-                        width: 32.w,
-                        color: Colors.blue,
-                      ),
-                    ),
+                    Obx(() => _showBiometric.value
+                        ? InkWell(
+                            onTap: _authenticateWithBiometrics,
+                            child: Container(
+                              width: 80.w,
+                              height: 80.w,
+                              alignment: Alignment.center,
+                              child: Image.asset(
+                                'assets/images/fingerprint.png',
+                                width: 32.w,
+                                color: Colors.blue,
+                              ),
+                            ),
+                          )
+                        : SizedBox(width: 80.w)),
                     _buildNumberButton('0'),
                     InkWell(
                       onTap: () => _onKeyTap('delete'),

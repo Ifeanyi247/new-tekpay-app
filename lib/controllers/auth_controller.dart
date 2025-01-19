@@ -23,6 +23,7 @@ class AuthController extends GetxController {
   final loginToken = ''.obs;
   final tempUserName = ''.obs;
   final tempUserImage = ''.obs;
+  final pinCode = 0.obs;
 
   void navigateToRegister() {
     // Clear all user data before showing register page
@@ -219,6 +220,7 @@ class AuthController extends GetxController {
         loginToken.value = response['login_token'];
         tempUserName.value = response['username'] ?? '';
         tempUserImage.value = response['profile_url'] ?? '';
+        pinCode.value = response['pin_code'] ?? 0;
         return true;
       }
 
@@ -275,7 +277,8 @@ class AuthController extends GetxController {
           final userData = response['data']['user'];
           currentUser.value = UserModel.fromJson(userData);
           userController.user.value = UserModel.fromJson(userData);
-          loginToken.value = ''; // Clear login token after successful verification
+          loginToken.value =
+              ''; // Clear login token after successful verification
           return true;
         } catch (e, stack) {
           print('Error parsing user data: $e');

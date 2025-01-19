@@ -6,6 +6,9 @@
     <string>Tekpay needs access to the camera to take photos and videos.</string>
     <key>NSPhotoLibraryUsageDescription</key>
     <string>Tekpay needs access to the photo library to select photos and videos.</string>
+
+	<key>NSFaceIDUsageDescription</key>
+	<string>We use Face ID to secure your login and transactions</string>
 	
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
