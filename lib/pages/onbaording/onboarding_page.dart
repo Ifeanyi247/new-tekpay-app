@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:tekpayapp/constants/colors.dart';
 import 'package:tekpayapp/pages/onbaording/widgets/onboarding_widget.dart';
@@ -16,6 +17,13 @@ class OnboardingPage extends StatefulWidget {
 
 class _OnboardingPageState extends State<OnboardingPage> {
   final _controller = PageController();
+  final _storage = GetStorage();
+  static const String _hasSeenOnboardingKey = 'has_seen_onboarding';
+
+  void _finishOnboarding() async {
+    await _storage.write(_hasSeenOnboardingKey, true);
+    Get.off(() => const WelcomeScreen());
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -67,12 +75,13 @@ class _OnboardingPageState extends State<OnboardingPage> {
                 SizedBox(height: 30.h),
                 RoundedButtonWidget(
                   onPressed: () {
-                    _controller.nextPage(
-                      duration: const Duration(milliseconds: 700),
-                      curve: Curves.fastLinearToSlowEaseIn,
-                    );
                     if (_controller.page == 2) {
-                      Get.to(() => const WelcomeScreen());
+                      _finishOnboarding();
+                    } else {
+                      _controller.nextPage(
+                        duration: const Duration(milliseconds: 700),
+                        curve: Curves.fastLinearToSlowEaseIn,
+                      );
                     }
                   },
                 ),
