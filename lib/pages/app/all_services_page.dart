@@ -3,6 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:tekpayapp/constants/colors.dart';
 import 'package:tekpayapp/pages/app/airtime/airtime_page.dart';
+import 'package:tekpayapp/pages/app/betting/betting_page.dart';
 import 'package:tekpayapp/pages/app/data/data_page.dart';
 import 'package:tekpayapp/pages/app/education/education_page.dart';
 import 'package:tekpayapp/pages/app/tv/tv_page.dart';
@@ -129,6 +130,14 @@ class AllServicesPage extends StatelessWidget {
           size: 30.sp,
         ),
         onTap: () => Get.to(() => const EducationPage()),
+      ),
+      ServiceItem(
+        title: 'Betting',
+        icon: Image.asset(
+          'assets/images/betting.png',
+          scale: 1.5,
+        ),
+        onTap: () => Get.to(() => const BettingPage()),
       ),
     ];
 
