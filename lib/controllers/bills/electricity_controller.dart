@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 import 'package:tekpayapp/services/api_service.dart';
@@ -23,6 +25,9 @@ class ElectricityController extends GetxController {
       isVerifying.value = true;
       verificationError.value = '';
       customerInfo.clear();
+
+      print(
+          'Verifying meter with billersCode: $billersCode, serviceID: $serviceID, type: $type');
 
       final response = await _apiService.post(
         'bills/electricity/verify',

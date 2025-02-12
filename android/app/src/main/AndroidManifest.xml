@@ -6,7 +6,7 @@
     <!-- Biometrics -->
     <uses-permission android:name="android.permission.USE_BIOMETRIC"/>
     <application
-        android:label="tekpayapp"
+        android:label="Tekpay"
         android:name="${applicationName}"
         android:icon="@mipmap/launcher_icon"
         android:theme="@style/Theme.AppCompat.Light.NoActionBar">

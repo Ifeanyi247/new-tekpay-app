@@ -24,25 +24,8 @@ class _ElectricityPageState extends State<ElectricityPage> {
   Timer? _debounceTimer;
   String? _selectedProvider;
   String? _selectedType;
+  String? _selectedServiceID;
   String _selectedTypeValue = 'prepaid'; // Default to prepaid
-
-  final _providers = [
-    {
-      'name': 'AEDC',
-      'type': 'Abuja',
-      'serviceID': 'abuja-electric',
-    },
-    {
-      'name': 'IKEDC',
-      'type': 'Ikeja',
-      'serviceID': 'ikeja-electric',
-    },
-    {
-      'name': 'EKEDC',
-      'type': 'Eko',
-      'serviceID': 'eko-electric',
-    },
-  ];
 
   @override
   void initState() {
@@ -55,9 +38,11 @@ class _ElectricityPageState extends State<ElectricityPage> {
       () => const ProviderListPage(),
     );
     if (result != null) {
+      print(result);
       setState(() {
         _selectedProvider = result['name'] as String;
         _selectedType = result['type'] as String;
+        _selectedServiceID = result['serviceID'] as String;
       });
     }
   }
@@ -65,15 +50,15 @@ class _ElectricityPageState extends State<ElectricityPage> {
   Future<void> _verifyMeter() async {
     if (_selectedProvider == null) return;
 
-    final provider = _providers.firstWhere(
-      (p) => p['name'] == _selectedProvider,
-      orElse: () => _providers[0],
-    );
+    // final provider = _selectedProvider.firstWhere(
+    //   (p) => p['name'] == _selectedProvider,
+    //   orElse: () => _providers[0],
+    // );
 
     final controller = Get.find<ElectricityController>();
     await controller.verifyMeter(
       billersCode: _meterController.text,
-      serviceID: provider['serviceID']!,
+      serviceID: _selectedServiceID!,
       type: _selectedTypeValue,
     );
   }
@@ -96,10 +81,7 @@ class _ElectricityPageState extends State<ElectricityPage> {
   }
 
   void _showPinEntry() {
-    final provider = _providers.firstWhere(
-      (p) => p['name'] == _selectedProvider,
-      orElse: () => _providers[0],
-    );
+    final provider = _selectedProvider;
 
     Get.bottomSheet(
       PinEntrySheet(
@@ -108,7 +90,7 @@ class _ElectricityPageState extends State<ElectricityPage> {
           final userController = Get.find<UserController>();
           await controller.purchaseElectricity(
             billersCode: _meterController.text,
-            serviceID: provider['serviceID']!,
+            serviceID: provider!,
             variationCode: _selectedTypeValue,
             amount: _amountController.text,
             phone: userController.user.value?.phoneNumber ?? '',
@@ -555,6 +537,7 @@ class _ProviderListPageState extends State<ProviderListPage> {
                     Get.back(result: {
                       'name': provider.name,
                       'type': provider.type,
+                      'serviceID': provider.serviceID
                     });
                   },
                   child: Container(
