@@ -35,7 +35,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
             child: Column(
               children: [
                 SizedBox(
-                  height: 560.h,
+                  height: 550.h,
                   child: PageView(
                     controller: _controller,
                     scrollDirection: Axis.horizontal,

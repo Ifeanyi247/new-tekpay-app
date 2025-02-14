@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:pinput/pinput.dart';
 import 'package:tekpayapp/constants/colors.dart';
 import 'package:tekpayapp/controllers/user_controller.dart';
+import 'package:tekpayapp/pages/app/account_security_page.dart';
 import 'package:tekpayapp/pages/widgets/bottom_bar.dart';
 import 'package:tekpayapp/pages/widgets/custom_button_widget.dart';
 
@@ -47,11 +48,6 @@ class _TransactionPinPageState extends State<TransactionPinPage> {
 
   bool _validatePin(String pin) {
     // Check if PIN contains consecutive numbers
-    for (int i = 0; i < pin.length - 1; i++) {
-      if (int.parse(pin[i + 1]) - int.parse(pin[i]) == 1) {
-        return false;
-      }
-    }
 
     // Check if PIN contains repeated numbers
     final pinSet = pin.split('').toSet();

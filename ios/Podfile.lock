@@ -8,6 +8,8 @@ PODS:
   - path_provider_foundation (0.0.1):
     - Flutter
     - FlutterMacOS
+  - rive_common (0.0.1):
+    - Flutter
   - smart_auth (0.0.1):
     - Flutter
   - sqflite_darwin (0.0.4):
@@ -19,6 +21,7 @@ DEPENDENCIES:
   - image_picker_ios (from `.symlinks/plugins/image_picker_ios/ios`)
   - local_auth_darwin (from `.symlinks/plugins/local_auth_darwin/darwin`)
   - path_provider_foundation (from `.symlinks/plugins/path_provider_foundation/darwin`)
+  - rive_common (from `.symlinks/plugins/rive_common/ios`)
   - smart_auth (from `.symlinks/plugins/smart_auth/ios`)
   - sqflite_darwin (from `.symlinks/plugins/sqflite_darwin/darwin`)
 
@@ -31,6 +34,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/local_auth_darwin/darwin"
   path_provider_foundation:
     :path: ".symlinks/plugins/path_provider_foundation/darwin"
+  rive_common:
+    :path: ".symlinks/plugins/rive_common/ios"
   smart_auth:
     :path: ".symlinks/plugins/smart_auth/ios"
   sqflite_darwin:
@@ -41,6 +46,7 @@ SPEC CHECKSUMS:
   image_picker_ios: c560581cceedb403a6ff17f2f816d7fea1421fc1
   local_auth_darwin: 66e40372f1c29f383a314c738c7446e2f7fdadc3
   path_provider_foundation: 2b6b4c569c0fb62ec74538f866245ac84301af46
+  rive_common: 4743dbfd2911c99066547a3c6454681e0fa907df
   smart_auth: 4bedbc118723912d0e45a07e8ab34039c19e04f2
   sqflite_darwin: 5a7236e3b501866c1c9befc6771dfd73ffb8702d
 

@@ -72,7 +72,7 @@ class _EmailOtpPageState extends State<EmailOtpPage> {
         backgroundColor: Colors.transparent,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios),
-          onPressed: () => Get.off(() => SettingsPage()),
+          onPressed: () => Get.to(() => SettingsPage()),
         ),
       ),
       body: Padding(

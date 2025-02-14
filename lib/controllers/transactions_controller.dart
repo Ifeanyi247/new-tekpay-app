@@ -89,6 +89,7 @@ class TransactionsController extends GetxController {
       });
 
       if (response['status'] == true) {
+        print(response['data']);
         return response['data'];
       } else {
         throw ApiException(

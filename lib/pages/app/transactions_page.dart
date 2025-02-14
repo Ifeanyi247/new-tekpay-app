@@ -228,13 +228,12 @@ class _TransactionItem extends StatelessWidget {
                 Get.to(() => StatusPage(
                       amount: statusData['amount'],
                       status: statusData['status'],
-                      date: DateTime.parse(
-                          statusData['transaction_date']['date']),
+                      date: DateTime.parse(statusData['transaction_date']),
                       recipientId: statusData['phone'],
                       transactionType: statusData['product_name'],
                       method: statusData['method'],
                       transactionId: statusData['transactionId'],
-                      transactionDate: statusData['transaction_date']['date'],
+                      transactionDate: statusData['transaction_date'],
                     ));
               } catch (e) {
                 // Error is already handled in the controller
