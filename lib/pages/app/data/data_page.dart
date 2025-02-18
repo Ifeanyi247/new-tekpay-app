@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:tekpayapp/constants/colors.dart';
+import 'package:tekpayapp/controllers/bills/airtime_controller.dart';
 import 'package:tekpayapp/controllers/bills/data_controller.dart';
 import 'package:tekpayapp/controllers/user_controller.dart';
 import 'package:tekpayapp/pages/widgets/custom_button_widget.dart';
@@ -264,6 +265,7 @@ class _DataPageState extends State<DataPage> {
   String? _selectedPlan;
   int _selectedNetwork = 0;
   DataController? _dataController;
+  final _a_controller = Get.put(AirtimeWorkingController());
 
   final _networks = [
     {
@@ -304,23 +306,32 @@ class _DataPageState extends State<DataPage> {
     },
   ];
 
-  // final _dataTypes = [
-  //   'SME',
-  //   'GIFTING',
-  //   'CORPORATE GIFTING',
-  // ];
+  @override
+  void initState() {
+    super.initState();
+    _fetchDataServices();
+  }
+
+  Future<void> _fetchDataServices() async {
+    await _a_controller.fetchDataServices('data');
+  }
 
   Future<void> _showDataPlans() async {
+    final services = _a_controller.dataServices.value?.data.content ?? [];
+    final serviceId = services.isEmpty
+        ? _networks[_selectedNetwork]['serviceId']!.toString()
+        : services[_selectedNetwork].serviceID;
+
     final result = await Get.to<Map<String, dynamic>>(() => DataListPage(
-          serviceId: _networks[_selectedNetwork]['serviceId']!.toString(),
+          serviceId: serviceId,
         ));
+
     if (result != null) {
       setState(() {
         _selectedPlan = result['code'] as String;
         _amountController.text = result['price'].toString();
       });
-      _dataController = Get.put(
-          DataController(_networks[_selectedNetwork]['serviceId']!.toString()));
+      _dataController = Get.put(DataController(serviceId));
     }
   }
 
@@ -381,8 +392,7 @@ class _DataPageState extends State<DataPage> {
             _buildInfoRow(
                 'Network', _networks[_selectedNetwork]['name']!.toString()),
             _buildInfoRow('Paying', '₦ ${_amountController.text}.00'),
-            _buildInfoRow(
-                'Date',
+            _buildInfoRow('Date',
                 DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime.now())),
             SizedBox(height: 24.h),
             Text(
@@ -534,95 +544,113 @@ class _DataPageState extends State<DataPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            SizedBox(
-              height: 80.h,
-              child: ListView.builder(
-                scrollDirection: Axis.horizontal,
-                itemCount: _networks.length,
-                itemBuilder: (context, index) {
-                  return GestureDetector(
-                    onTap: () {
-                      setState(() {
-                        _selectedNetwork = index;
-                      });
-                    },
-                    child: Container(
-                      width: 80.w,
-                      margin: EdgeInsets.only(right: 12.w),
-                      decoration: BoxDecoration(
-                        color: _selectedNetwork == index
-                            ? const Color(0xFFFFF4E6)
-                            : Colors.white,
-                        borderRadius: BorderRadius.circular(8.r),
-                        border: Border.all(
-                          color: Colors.grey.shade200,
-                        ),
-                      ),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Image.asset(
-                            _networks[index]['logo']!.toString(),
-                            height: 32.h,
-                            width: 32.w,
-                          ),
-                          SizedBox(height: 4.h),
-                          Text(
-                            _networks[index]['name']!.toString(),
-                            style: TextStyle(
-                              fontSize: 12.sp,
-                              color: Colors.black,
+            Obx(() {
+              final services =
+                  _a_controller.dataServices.value?.data.content ?? [];
+              if (_a_controller.isLoading.value && services.isEmpty) {
+                return const Center(child: CircularProgressIndicator());
+              }
+
+              return SizedBox(
+                height: 80.h,
+                child: ListView.builder(
+                  scrollDirection: Axis.horizontal,
+                  itemCount:
+                      services.isEmpty ? _networks.length : services.length,
+                  itemBuilder: (context, index) {
+                    // If no services loaded yet, use fallback network data
+                    if (services.isEmpty) {
+                      final network = _networks[index];
+                      return GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            _selectedNetwork = index;
+                          });
+                        },
+                        child: Container(
+                          width: 80.w,
+                          margin: EdgeInsets.only(right: 12.w),
+                          decoration: BoxDecoration(
+                            color: _selectedNetwork == index
+                                ? const Color(0xFFFFF4E6)
+                                : Colors.white,
+                            borderRadius: BorderRadius.circular(8.r),
+                            border: Border.all(
+                              color: Colors.grey.shade200,
                             ),
                           ),
-                        ],
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Image.asset(
+                                network['logo']!.toString(),
+                                height: 32.h,
+                                width: 32.w,
+                              ),
+                              SizedBox(height: 4.h),
+                              Text(
+                                network['name']!.toString(),
+                                style: TextStyle(
+                                  fontSize: 12.sp,
+                                  color: Colors.black,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    }
+
+                    // Use data from services
+                    final service = services[index];
+                    return GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          _selectedNetwork = index;
+                        });
+                      },
+                      child: Container(
+                        width: 80.w,
+                        margin: EdgeInsets.only(right: 12.w),
+                        decoration: BoxDecoration(
+                          color: _selectedNetwork == index
+                              ? const Color(0xFFFFF4E6)
+                              : Colors.white,
+                          borderRadius: BorderRadius.circular(8.r),
+                          border: Border.all(
+                            color: Colors.grey.shade200,
+                          ),
+                        ),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            ClipOval(
+                              child: Image.network(
+                                service.image,
+                                height: 32.h,
+                                width: 32.w,
+                                errorBuilder: (context, error, stackTrace) =>
+                                    Icon(Icons.network_cell, size: 32.sp),
+                              ),
+                            ),
+                            SizedBox(height: 4.h),
+                            Text(
+                              service.name,
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontSize: 12.sp,
+                                color: Colors.black,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-                  );
-                },
-              ),
-            ),
+                    );
+                  },
+                ),
+              );
+            }),
             SizedBox(height: 32.h),
-            // Text(
-            //   'Data Type*',
-            //   style: TextStyle(
-            //     fontSize: 16.sp,
-            //     color: primaryColor,
-            //     fontWeight: FontWeight.w500,
-            //   ),
-            // ),
-            // SizedBox(height: 8.h),
-            // Container(
-            //   padding: EdgeInsets.symmetric(horizontal: 16.w),
-            //   decoration: BoxDecoration(
-            //     border: Border.all(color: Colors.grey.shade300),
-            //     borderRadius: BorderRadius.circular(8.r),
-            //   ),
-            //   child: DropdownButtonHideUnderline(
-            //     child: DropdownButton<String>(
-            //       isExpanded: true,
-            //       hint: Text(
-            //         'Select Plan Type SME, GIFTING or CORPORATE GIFTING',
-            //         style: TextStyle(
-            //           fontSize: 14.sp,
-            //           color: Colors.grey,
-            //         ),
-            //       ),
-            //       value: _selectedDataType,
-            //       items: _dataTypes.map((String type) {
-            //         return DropdownMenuItem<String>(
-            //           value: type,
-            //           child: Text(type),
-            //         );
-            //       }).toList(),
-            //       onChanged: (String? value) {
-            //         setState(() {
-            //           _selectedDataType = value;
-            //         });
-            //       },
-            //     ),
-            //   ),
-            // ),
-            // SizedBox(height: 24.h),
             Text(
               'Mobile Number*',
               style: TextStyle(

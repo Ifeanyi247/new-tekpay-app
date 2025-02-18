@@ -3,12 +3,14 @@ import 'package:get/get.dart';
 import 'package:tekpayapp/services/api_service.dart';
 import 'package:tekpayapp/pages/app/airtime/transaction_status_page.dart';
 import 'package:tekpayapp/controllers/user_controller.dart';
+import 'package:tekpayapp/models/data_services_model.dart';
 
 class AirtimeWorkingController extends GetxController {
   final _api = ApiService();
   final _userController = Get.find<UserController>();
   final isLoading = false.obs;
   final savedBeneficiaries = <Map<String, String>>[].obs;
+  final dataServices = Rxn<DataServicesResponse>();
 
   final serviceIds = {
     'MTN': 'mtn',
@@ -189,5 +191,22 @@ class AirtimeWorkingController extends GetxController {
 
   void removeBeneficiary(int index) {
     savedBeneficiaries.removeAt(index);
+  }
+
+  Future<void> fetchDataServices(String identifier) async {
+    try {
+      isLoading.value = true;
+      final response = await _api.get('bills/services/$identifier');
+      dataServices.value = DataServicesResponse.fromJson(response);
+    } catch (e) {
+      Get.snackbar(
+        'Error',
+        'Failed to fetch data services: ${e.toString()}',
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+    } finally {
+      isLoading.value = false;
+    }
   }
 }

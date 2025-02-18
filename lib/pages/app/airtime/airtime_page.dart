@@ -562,6 +562,107 @@ class _AirtimePageState extends State<AirtimePage> {
   void initState() {
     super.initState();
     _phoneNumberController.addListener(_onPhoneNumberChanged);
+    _fetchDataServices();
+  }
+
+  Future<void> _fetchDataServices() async {
+    await _a_controller.fetchDataServices('airtime');
+  }
+
+  Widget _buildNetworkList() {
+    return Obx(() {
+      final services = _a_controller.dataServices.value?.data.content ?? [];
+      if (_a_controller.isLoading.value && services.isEmpty) {
+        return const Center(child: CircularProgressIndicator());
+      }
+
+      return SizedBox(
+        height: 80.h,
+        child: ListView.builder(
+          scrollDirection: Axis.horizontal,
+          itemCount: services.isEmpty ? _networks.length : services.length,
+          itemBuilder: (context, index) {
+            // If no services loaded yet, use fallback network data
+            if (services.isEmpty) {
+              final network = _networks[index];
+              return _buildNetworkItem(
+                index: index,
+                name: network['name']!.toString(),
+                logo: network['logo']!.toString(),
+                isAssetImage: true,
+              );
+            }
+
+            // Use data from services
+            final service = services[index];
+            return _buildNetworkItem(
+              index: index,
+              name: service.name,
+              logo: service.image,
+              isAssetImage: false,
+            );
+          },
+        ),
+      );
+    });
+  }
+
+  Widget _buildNetworkItem({
+    required int index,
+    required String name,
+    required String logo,
+    required bool isAssetImage,
+  }) {
+    return GestureDetector(
+      onTap: () {
+        setState(() {
+          _selectedNetwork = index;
+        });
+      },
+      child: Container(
+        width: 80.w,
+        margin: EdgeInsets.only(right: 12.w),
+        decoration: BoxDecoration(
+          color: _selectedNetwork == index
+              ? const Color(0xFFFFF4E6)
+              : Colors.white,
+          borderRadius: BorderRadius.circular(8.r),
+          border: Border.all(
+            color: Colors.grey.shade200,
+          ),
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            if (isAssetImage)
+              Image.asset(
+                logo,
+                height: 32.h,
+                width: 32.w,
+              )
+            else
+              ClipOval(
+                child: Image.network(
+                  logo,
+                  height: 32.h,
+                  width: 32.w,
+                  errorBuilder: (context, error, stackTrace) =>
+                      Icon(Icons.network_cell, size: 32.sp),
+                ),
+              ),
+            SizedBox(height: 4.h),
+            Text(
+              name,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 12.sp,
+                color: Colors.black,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   void _onPhoneNumberChanged() {
@@ -632,53 +733,16 @@ class _AirtimePageState extends State<AirtimePage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            SizedBox(
-              height: 80.h,
-              child: ListView.builder(
-                scrollDirection: Axis.horizontal,
-                itemCount: _networks.length,
-                itemBuilder: (context, index) {
-                  return GestureDetector(
-                    onTap: () {
-                      setState(() {
-                        _selectedNetwork = index;
-                      });
-                    },
-                    child: Container(
-                      width: 80.w,
-                      margin: EdgeInsets.only(right: 12.w),
-                      decoration: BoxDecoration(
-                        color: _selectedNetwork == index
-                            ? const Color(0xFFFFF4E6)
-                            : Colors.white,
-                        borderRadius: BorderRadius.circular(8.r),
-                        border: Border.all(
-                          color: Colors.grey.shade200,
-                        ),
-                      ),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Image.asset(
-                            _networks[index]['logo']!.toString(),
-                            height: 32.h,
-                            width: 32.w,
-                          ),
-                          SizedBox(height: 4.h),
-                          Text(
-                            _networks[index]['name']!.toString(),
-                            style: TextStyle(
-                              fontSize: 12.sp,
-                              color: Colors.black,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  );
-                },
+            Text(
+              'Select Network',
+              style: TextStyle(
+                fontSize: 16.sp,
+                fontWeight: FontWeight.w500,
+                color: Colors.black87,
               ),
             ),
+            SizedBox(height: 16.h),
+            _buildNetworkList(),
             SizedBox(height: 24.h),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
