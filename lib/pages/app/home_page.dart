@@ -16,6 +16,7 @@ import 'package:tekpayapp/pages/app/electricity/electricity_page.dart';
 import 'package:tekpayapp/pages/app/internet/internet_page.dart';
 import 'package:tekpayapp/pages/app/profile/profile_page.dart';
 import 'package:tekpayapp/pages/app/transactions_page.dart';
+import 'package:tekpayapp/pages/app/transfer_page.dart';
 import 'package:tekpayapp/pages/app/tv/tv_page.dart';
 import 'package:tekpayapp/pages/app/widgets/custom_icon_widget.dart';
 
@@ -348,7 +349,7 @@ class HomePage extends StatelessWidget {
                                   icon: const Icon(Icons.add),
                                   text: 'Add money',
                                   onPressed: () {
-                                    Get.to(() => const AddMoneyPage());
+                                    Get.to(() => AddMoneyPage());
                                   },
                                 ),
                               ),
@@ -357,7 +358,9 @@ class HomePage extends StatelessWidget {
                                 child: CustomIconButtonWidget(
                                   icon: const Icon(Icons.send),
                                   text: 'Transfer',
-                                  onPressed: () {},
+                                  onPressed: () {
+                                    Get.to(() => TransferPage());
+                                  },
                                 ),
                               ),
                             ],

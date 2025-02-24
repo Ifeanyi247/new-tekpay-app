@@ -3,12 +3,15 @@ import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:tekpayapp/constants/colors.dart';
 import 'package:get/get.dart';
+import 'package:tekpayapp/controllers/virtual_account_controller.dart';
 import 'package:tekpayapp/pages/app/account_details_page.dart';
 import 'package:tekpayapp/pages/app/add_bank_page.dart';
 import 'package:tekpayapp/pages/app/top_up_card_page.dart';
 
 class AddMoneyPage extends StatelessWidget {
-  const AddMoneyPage({super.key});
+  final _virtualAccountController = Get.put(VirtualAccountController());
+
+  AddMoneyPage({super.key});
 
   Widget _buildBankCard({
     required String bankName,
@@ -40,7 +43,7 @@ class AddMoneyPage extends StatelessWidget {
           ),
           SizedBox(height: 4.h),
           Text(
-            'Account Name',
+            'Account Number',
             style: TextStyle(
               fontSize: 14.sp,
               color: Colors.grey,
@@ -59,6 +62,12 @@ class AddMoneyPage extends StatelessWidget {
               GestureDetector(
                 onTap: () {
                   Clipboard.setData(ClipboardData(text: accountNumber));
+                  Get.snackbar(
+                    'Success',
+                    'Account number copied to clipboard',
+                    backgroundColor: Colors.green,
+                    colorText: Colors.white,
+                  );
                 },
                 child: Row(
                   children: [
@@ -111,119 +120,136 @@ class AddMoneyPage extends StatelessWidget {
           ),
         ),
       ),
-      body: SingleChildScrollView(
-        padding: EdgeInsets.all(16.w),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Virtual accounts',
-              style: TextStyle(
-                fontSize: 20.sp,
-                fontWeight: FontWeight.w600,
+      body: Obx(() {
+        if (_virtualAccountController.isLoading.value) {
+          return const Center(child: CircularProgressIndicator());
+        }
+
+        final virtualAccount =
+            _virtualAccountController.virtualAccountDetails.value;
+
+        return SingleChildScrollView(
+          padding: EdgeInsets.all(16.w),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Virtual accounts',
+                style: TextStyle(
+                  fontSize: 20.sp,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
-            ),
-            SizedBox(height: 8.h),
-            Text(
-              'Make a transfer to any of the accounts',
-              style: TextStyle(
-                fontSize: 14.sp,
-                color: Colors.grey,
+              SizedBox(height: 8.h),
+              Text(
+                'Make a transfer to the generated account once.',
+                style: TextStyle(
+                  fontSize: 14.sp,
+                  color: Colors.grey,
+                ),
               ),
-            ),
-            SizedBox(height: 24.h),
-            _buildBankCard(
-              bankName: 'Sterling Bank',
-              accountNumber: '9876543210',
-            ),
-            _buildBankCard(
-              bankName: 'Wema Bank',
-              accountNumber: '9876543210',
-            ),
-            _buildBankCard(
-              bankName: 'Other Bank',
-              accountNumber: '9876543210',
-            ),
-            Padding(
-              padding: EdgeInsets.symmetric(vertical: 24.h),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Divider(
-                      color: Colors.grey[300],
-                    ),
-                  ),
-                  Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 16.w),
+              SizedBox(height: 24.h),
+              if (virtualAccount != null)
+                _buildBankCard(
+                  bankName: virtualAccount['bank_name'] ?? 'N/A',
+                  accountNumber: virtualAccount['account_number'] ?? 'N/A',
+                )
+              else
+                Center(
+                  child: TextButton(
+                    onPressed: () =>
+                        _virtualAccountController.createVirtualAccount(),
                     child: Text(
-                      'OR',
+                      'Create Virtual Account',
                       style: TextStyle(
                         fontSize: 14.sp,
-                        color: Colors.grey,
+                        color: primaryColor,
+                        fontWeight: FontWeight.w500,
                       ),
                     ),
                   ),
-                  Expanded(
-                    child: Divider(
-                      color: Colors.grey[300],
+                ),
+              Padding(
+                padding: EdgeInsets.symmetric(vertical: 24.h),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Divider(
+                        color: Colors.grey[300],
+                      ),
+                    ),
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 16.w),
+                      child: Text(
+                        'OR',
+                        style: TextStyle(
+                          fontSize: 14.sp,
+                          color: Colors.grey,
+                        ),
+                      ),
+                    ),
+                    Expanded(
+                      child: Divider(
+                        color: Colors.grey[300],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(12),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.05),
+                      blurRadius: 10,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: ListTile(
+                  leading: Container(
+                    width: 40.w,
+                    height: 40.w,
+                    decoration: BoxDecoration(
+                      color: primaryColor.withOpacity(0.1),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(
+                      Icons.credit_card,
+                      color: primaryColor,
+                      size: 24.sp,
                     ),
                   ),
-                ],
-              ),
-            ),
-            Container(
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(12),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.05),
-                    blurRadius: 10,
-                    offset: const Offset(0, 2),
+                  title: Text(
+                    'Top-up with Card',
+                    style: TextStyle(
+                      fontSize: 16.sp,
+                      fontWeight: FontWeight.w500,
+                    ),
                   ),
-                ],
-              ),
-              child: ListTile(
-                leading: Container(
-                  width: 40.w,
-                  height: 40.w,
-                  decoration: BoxDecoration(
-                    color: primaryColor.withOpacity(0.1),
-                    shape: BoxShape.circle,
+                  subtitle: Text(
+                    'Add money from your bank card',
+                    style: TextStyle(
+                      fontSize: 14.sp,
+                      color: Colors.grey,
+                    ),
                   ),
-                  child: Icon(
-                    Icons.credit_card,
-                    color: primaryColor,
+                  trailing: Icon(
+                    Icons.chevron_right,
+                    color: Colors.grey,
                     size: 24.sp,
                   ),
+                  onTap: () {
+                    Get.to(() => const TopUpCardPage());
+                  },
                 ),
-                title: Text(
-                  'Top-up with Card',
-                  style: TextStyle(
-                    fontSize: 16.sp,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-                subtitle: Text(
-                  'Add money from your bank card',
-                  style: TextStyle(
-                    fontSize: 14.sp,
-                    color: Colors.grey,
-                  ),
-                ),
-                trailing: Icon(
-                  Icons.chevron_right,
-                  color: Colors.grey,
-                  size: 24.sp,
-                ),
-                onTap: () {
-                  Get.to(() => const AddBankPage());
-                },
               ),
-            ),
-          ],
-        ),
-      ),
+            ],
+          ),
+        );
+      }),
     );
   }
 }
