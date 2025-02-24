@@ -262,6 +262,8 @@ class _TransactionItem extends StatelessWidget {
         return Colors.orange;
       case 'failed':
         return Colors.red;
+      case 'success':
+        return Colors.green;
       default:
         return Colors.grey;
     }

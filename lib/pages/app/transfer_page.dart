@@ -206,11 +206,12 @@ class TransferPage extends StatelessWidget {
                       return;
                     }
 
-                    Get.to(ConfirmTransferPage(
-                      recipientName: accountDetails.accountName,
-                      accountNumber: accountNumberController.text,
-                      bankName: selectedBank.value!.name,
-                    ));
+                    Get.to(() => ConfirmTransferPage(
+                          recipientName: accountDetails.accountName,
+                          accountNumber: accountNumberController.text,
+                          bankName: selectedBank.value!.name,
+                          bankCode: selectedBank.value!.code,
+                        ));
                   }
                 },
                 style: ElevatedButton.styleFrom(

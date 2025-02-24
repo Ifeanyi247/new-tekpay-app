@@ -112,33 +112,36 @@ class BankSelectionPage extends StatelessWidget {
                     ),
                     itemBuilder: (context, index) {
                       final bank = filteredBanks[index];
-                      return ListTile(
-                        contentPadding: EdgeInsets.zero,
-                        leading: Container(
-                          width: 40.w,
-                          height: 40.w,
-                          decoration: BoxDecoration(
-                            color: Colors.grey[100],
-                            shape: BoxShape.circle,
-                          ),
-                          child: Center(
-                            child: Icon(
-                              Icons.account_balance,
-                              size: 20.sp,
-                              color: Colors.grey,
+                      return Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: ListTile(
+                          contentPadding: EdgeInsets.zero,
+                          leading: Container(
+                            width: 40.w,
+                            height: 40.w,
+                            decoration: BoxDecoration(
+                              color: Colors.grey[100],
+                              shape: BoxShape.circle,
+                            ),
+                            child: Center(
+                              child: Icon(
+                                Icons.account_balance,
+                                size: 20.sp,
+                                color: Colors.grey,
+                              ),
                             ),
                           ),
-                        ),
-                        title: Text(
-                          bank.name,
-                          style: TextStyle(
-                            fontSize: 14.sp,
-                            fontWeight: FontWeight.w500,
+                          title: Text(
+                            bank.name,
+                            style: TextStyle(
+                              fontSize: 14.sp,
+                              fontWeight: FontWeight.w500,
+                            ),
                           ),
+                          onTap: () {
+                            Get.back(result: bank);
+                          },
                         ),
-                        onTap: () {
-                          Get.back(result: bank);
-                        },
                       );
                     },
                   ));
