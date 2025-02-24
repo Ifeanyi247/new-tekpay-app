@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:tekpayapp/controllers/transfer_controller.dart';
+import 'package:tekpayapp/models/bank_model.dart';
 import 'package:tekpayapp/constants/colors.dart';
 import 'package:tekpayapp/pages/app/bank_selection_page.dart';
 import 'package:tekpayapp/pages/app/confirm_transfer.dart';
@@ -12,9 +14,18 @@ class TransferPage extends StatelessWidget {
   final accountNumberController = TextEditingController();
   final formKey = GlobalKey<FormState>();
   final selectedBank = Rxn<Bank>();
-  final recipientName = ''.obs;
+  final transferController = Get.find<TransferController>();
 
-  Widget _buildAccountDetails() {
+  void _onAccountNumberChanged(String value) {
+    if (value.length == 10 && selectedBank.value != null) {
+      transferController.verifyAccount(
+        accountNumber: value,
+        bankCode: selectedBank.value!.code,
+      );
+    }
+  }
+
+  Widget _buildAccountDetails(BuildContext context) {
     return Form(
       key: formKey,
       child: Column(
@@ -36,6 +47,7 @@ class TransferPage extends StatelessWidget {
                     fontSize: 18.sp,
                     fontWeight: FontWeight.w500,
                   ),
+                  onChanged: _onAccountNumberChanged,
                   decoration: InputDecoration(
                     hintText: 'Enter account number',
                     border: InputBorder.none,
@@ -43,7 +55,7 @@ class TransferPage extends StatelessWidget {
                     suffixIcon: IconButton(
                       onPressed: () {
                         accountNumberController.clear();
-                        recipientName.value = '';
+                        transferController.accountDetails.value = null;
                       },
                       icon: const Icon(Icons.close),
                       color: Colors.grey,
@@ -71,9 +83,12 @@ class TransferPage extends StatelessWidget {
                     final result = await Get.to(() => BankSelectionPage());
                     if (result != null && result is Bank) {
                       selectedBank.value = result;
-                      // Here you would typically call your API to get recipient name
-                      // For now, we'll just clear it
-                      recipientName.value = '';
+                      if (accountNumberController.text.length == 10) {
+                        transferController.verifyAccount(
+                          accountNumber: accountNumberController.text,
+                          bankCode: result.code,
+                        );
+                      }
                     }
                   },
                   child: Row(
@@ -108,15 +123,56 @@ class TransferPage extends StatelessWidget {
                   ),
                 ),
                 SizedBox(height: 16.h),
-                Obx(() => recipientName.value.isNotEmpty
-                    ? Text(
-                        recipientName.value,
-                        style: TextStyle(
-                          fontSize: 16.sp,
-                          fontWeight: FontWeight.w600,
+                Obx(() {
+                  if (transferController.verificationLoading.value) {
+                    return Center(
+                      child: SizedBox(
+                        height: 20.h,
+                        width: 20.h,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            primaryColor,
+                          ),
                         ),
-                      )
-                    : const SizedBox.shrink()),
+                      ),
+                    );
+                  }
+
+                  final accountDetails =
+                      transferController.accountDetails.value;
+                  if (accountDetails != null) {
+                    return Container(
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                        color: primaryColor.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      padding: EdgeInsets.all(4.r),
+                      child: Center(
+                        child: Text(
+                          accountDetails.accountName,
+                          style: TextStyle(
+                            fontSize: 16.sp,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    );
+                  }
+
+                  if (transferController.verificationError.isNotEmpty) {
+                    return Text(
+                      'Invalid account number',
+                      style: TextStyle(
+                        fontSize: 14.sp,
+                        color: Colors.red,
+                      ),
+                    );
+                  }
+
+                  return const SizedBox.shrink();
+                }),
               ],
             ),
           ),
@@ -137,12 +193,24 @@ class TransferPage extends StatelessWidget {
                       );
                       return;
                     }
-                    // Navigate to confirm transfer page
-                    Get.to(() => ConfirmTransferPage(
-                          recipientName: recipientName.value,
-                          accountNumber: accountNumberController.text,
-                          bankName: selectedBank.value!.name,
-                        ));
+
+                    final accountDetails =
+                        transferController.accountDetails.value;
+                    if (accountDetails == null) {
+                      Get.snackbar(
+                        'Error',
+                        'Please wait for account verification',
+                        backgroundColor: Colors.red,
+                        colorText: Colors.white,
+                      );
+                      return;
+                    }
+
+                    Get.to(ConfirmTransferPage(
+                      recipientName: accountDetails.accountName,
+                      accountNumber: accountNumberController.text,
+                      bankName: selectedBank.value!.name,
+                    ));
                   }
                 },
                 style: ElevatedButton.styleFrom(
@@ -276,7 +344,7 @@ class TransferPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[50],
+      backgroundColor: const Color(0xFFF8F2FF),
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -303,7 +371,7 @@ class TransferPage extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             SizedBox(height: 24.h),
-            _buildAccountDetails(),
+            _buildAccountDetails(context),
             SizedBox(height: 32.h),
             _buildTransactionsList(),
           ],

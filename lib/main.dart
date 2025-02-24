@@ -3,6 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:tekpayapp/controllers/auth_controller.dart';
 import 'package:tekpayapp/controllers/user_controller.dart';
+import 'package:tekpayapp/controllers/transfer_controller.dart';
 import 'package:tekpayapp/pages/splash_screen.dart';
 import 'package:tekpayapp/services/api_service.dart';
 import 'package:tekpayapp/services/auth_service.dart';
@@ -31,6 +32,7 @@ void main() async {
   Get.put(AuthService());
   Get.put(AuthController());
   Get.put(UserController());
+  Get.put(TransferController());
 
   runApp(const MyApp());
 }
