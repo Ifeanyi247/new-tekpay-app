@@ -12,14 +12,16 @@ class VirtualAccountController extends GetxController {
   final virtualAccountDetails = Rxn<Map<String, dynamic>>();
   final error = ''.obs;
 
-  Future<Map<String, dynamic>?> createVirtualAccount() async {
+  Future<Map<String, dynamic>?> createVirtualAccount(amount) async {
     try {
       isLoading.value = true;
       error.value = '';
 
       final response = await _api.post(
         'flutterwave/virtual-account/create',
-        body: {},
+        body: {
+          'amount': amount,
+        },
       );
 
       if (response['status'] == 'success') {

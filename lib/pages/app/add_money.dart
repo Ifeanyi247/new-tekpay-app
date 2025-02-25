@@ -7,9 +7,11 @@ import 'package:tekpayapp/controllers/virtual_account_controller.dart';
 import 'package:tekpayapp/pages/app/account_details_page.dart';
 import 'package:tekpayapp/pages/app/add_bank_page.dart';
 import 'package:tekpayapp/pages/app/top_up_card_page.dart';
+import 'package:tekpayapp/pages/widgets/custom_text_field.dart';
 
 class AddMoneyPage extends StatelessWidget {
   final _virtualAccountController = Get.put(VirtualAccountController());
+  final TextEditingController amountController = TextEditingController();
 
   AddMoneyPage({super.key});
 
@@ -156,17 +158,42 @@ class AddMoneyPage extends StatelessWidget {
                 )
               else
                 Center(
-                  child: TextButton(
-                    onPressed: () =>
-                        _virtualAccountController.createVirtualAccount(),
-                    child: Text(
-                      'Create Virtual Account',
-                      style: TextStyle(
-                        fontSize: 14.sp,
-                        color: primaryColor,
-                        fontWeight: FontWeight.w500,
+                  child: Column(
+                    children: [
+                      CustomTextFieldWidget(
+                        label: 'Amount',
+                        icon: Icons.card_giftcard_outlined,
+                        controller: amountController,
+                        readOnly: false,
                       ),
-                    ),
+                      SizedBox(
+                        height: 10.h,
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          if (amountController.text.isEmpty) {
+                            Get.snackbar(
+                              'Error',
+                              'Please enter an amount',
+                              backgroundColor: Colors.red,
+                              colorText: Colors.white,
+                            );
+                            return;
+                          }
+                          _virtualAccountController.createVirtualAccount(
+                            amountController.text,
+                          );
+                        },
+                        child: Text(
+                          'Create Virtual Account',
+                          style: TextStyle(
+                            fontSize: 14.sp,
+                            color: primaryColor,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               Padding(

@@ -3,6 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:tekpayapp/constants/colors.dart';
 import 'package:tekpayapp/controllers/auth_controller.dart';
+import 'package:tekpayapp/pages/app/password_reset/forgot_password_email_page.dart';
 import 'package:tekpayapp/pages/auth/input_pin_page.dart';
 import 'package:tekpayapp/pages/auth/register_page.dart';
 import 'package:tekpayapp/pages/widgets/bottom_bar.dart';
@@ -112,7 +113,7 @@ class _LoginPageState extends State<LoginPage> {
                 alignment: Alignment.centerRight,
                 child: TextButton(
                   onPressed: () {
-                    // Handle forgot password
+                    Get.to(() => ForgotPasswordEmailPage());
                   },
                   child: Text(
                     'Forgot Password',

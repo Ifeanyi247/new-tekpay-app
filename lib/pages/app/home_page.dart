@@ -185,6 +185,7 @@ class HomePage extends StatelessWidget {
           RefreshIndicator(
             onRefresh: () async {
               await userController.getProfile();
+              await transactionsController.fetchTransactions();
             },
             color: primaryColor,
             backgroundColor: Colors.white,
