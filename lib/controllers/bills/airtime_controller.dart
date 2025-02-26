@@ -12,13 +12,6 @@ class AirtimeWorkingController extends GetxController {
   final savedBeneficiaries = <Map<String, String>>[].obs;
   final dataServices = Rxn<DataServicesResponse>();
 
-  final serviceIds = {
-    'MTN': 'mtn',
-    'GLO': 'glo',
-    'Airtel': 'airtel',
-    '9Mobile': '9mobile',
-  };
-
   Future<void> purchaseAirtime({
     required String phone,
     required String amount,
@@ -33,7 +26,7 @@ class AirtimeWorkingController extends GetxController {
       }
 
       // Validate network
-      if (!serviceIds.containsKey(network)) {
+      if (network.isEmpty) {
         throw 'Invalid network selected';
       }
 
@@ -54,7 +47,7 @@ class AirtimeWorkingController extends GetxController {
         final response = await _api.post('bills/airtime', body: {
           'phone': phone,
           'amount': amount,
-          'serviceID': serviceIds[network],
+          'serviceID': network,
           'pin': pin,
         });
 

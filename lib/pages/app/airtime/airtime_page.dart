@@ -119,8 +119,7 @@ class _AirtimePageState extends State<AirtimePage> {
             SizedBox(height: 24.h),
             _buildInfoRow('Recipient ID', _phoneNumberController.text),
             _buildInfoRow('Transaction Type', 'Airtime'),
-            _buildInfoRow(
-                'Network', _networks[_selectedNetwork]['name']!.toString()),
+            _buildInfoRow('Network', _getNetworkDisplayName()),
             _buildInfoRow('Paying', '₦ ${_amountController.text}.00'),
             _buildInfoRow('Date',
                 DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime.now())),
@@ -360,8 +359,7 @@ class _AirtimePageState extends State<AirtimePage> {
                                 _a_controller.purchaseAirtime(
                                   phone: _phoneNumberController.text,
                                   amount: _amountController.text,
-                                  network: _networks[_selectedNetwork]['name']!
-                                      .toString(),
+                                  network: _getSelectedNetwork(),
                                   pin: _pinNotifier.value,
                                 );
                               }
@@ -419,8 +417,7 @@ class _AirtimePageState extends State<AirtimePage> {
                               _a_controller.purchaseAirtime(
                                 phone: _phoneNumberController.text,
                                 amount: _amountController.text,
-                                network: _networks[_selectedNetwork]['name']!
-                                    .toString(),
+                                network: _getSelectedNetwork(),
                                 pin: _pinNotifier.value,
                               );
                             }
@@ -454,6 +451,26 @@ class _AirtimePageState extends State<AirtimePage> {
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
     );
+  }
+
+  String _getSelectedNetwork() {
+    final services = _a_controller.dataServices.value?.data.content ?? [];
+    final useStaticData = services.isEmpty;
+
+    if (useStaticData) {
+      return _networks[_selectedNetwork]['serviceID']!.toString();
+    }
+    return services[_selectedNetwork].serviceID;
+  }
+
+  String _getNetworkDisplayName() {
+    final services = _a_controller.dataServices.value?.data.content ?? [];
+    final useStaticData = services.isEmpty;
+
+    if (useStaticData) {
+      return _networks[_selectedNetwork]['name']!.toString();
+    }
+    return services[_selectedNetwork].name;
   }
 
   void _showBeneficiariesDialog() {
@@ -576,14 +593,15 @@ class _AirtimePageState extends State<AirtimePage> {
         return const Center(child: CircularProgressIndicator());
       }
 
+      final useStaticData = services.isEmpty;
+
       return SizedBox(
         height: 80.h,
         child: ListView.builder(
           scrollDirection: Axis.horizontal,
-          itemCount: services.isEmpty ? _networks.length : services.length,
+          itemCount: useStaticData ? _networks.length : services.length,
           itemBuilder: (context, index) {
-            // If no services loaded yet, use fallback network data
-            if (services.isEmpty) {
+            if (useStaticData) {
               final network = _networks[index];
               return _buildNetworkItem(
                 index: index,
@@ -593,7 +611,6 @@ class _AirtimePageState extends State<AirtimePage> {
               );
             }
 
-            // Use data from services
             final service = services[index];
             return _buildNetworkItem(
               index: index,
@@ -703,7 +720,7 @@ class _AirtimePageState extends State<AirtimePage> {
       'name': '9Mobile',
       'logo': 'assets/images/9mobile.png',
       'color': Colors.white,
-      'serviceID': 'etisalat',
+      'serviceID': '9mobile',
     },
   ];
 
@@ -771,30 +788,30 @@ class _AirtimePageState extends State<AirtimePage> {
               icon: Icons.phone,
               controller: _phoneNumberController,
             ),
-            if (_showSaveOption) ...[
-              SizedBox(height: 16.h),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    'Save as Beneficiary',
-                    style: TextStyle(
-                      fontSize: 14.sp,
-                      color: Colors.black54,
-                    ),
-                  ),
-                  Switch(
-                    value: _saveBeneficiary,
-                    onChanged: (value) {
-                      setState(() {
-                        _saveBeneficiary = value;
-                      });
-                    },
-                    activeColor: primaryColor,
-                  ),
-                ],
-              ),
-            ],
+            // if (_showSaveOption) ...[
+            //   SizedBox(height: 16.h),
+            //   Row(
+            //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            //     children: [
+            //       Text(
+            //         'Save as Beneficiary',
+            //         style: TextStyle(
+            //           fontSize: 14.sp,
+            //           color: Colors.black54,
+            //         ),
+            //       ),
+            //       Switch(
+            //         value: _saveBeneficiary,
+            //         onChanged: (value) {
+            //           setState(() {
+            //             _saveBeneficiary = value;
+            //           });
+            //         },
+            //         activeColor: primaryColor,
+            //       ),
+            //     ],
+            //   ),
+            // ],
             SizedBox(height: 24.h),
             CustomTextFieldWidget(
               label: 'Amount',

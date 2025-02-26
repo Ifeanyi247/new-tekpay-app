@@ -19,8 +19,10 @@ class _BiometricSettingPageState extends State<BiometricSettingPage> {
 
   Future<bool> _authenticate() async {
     try {
-      final bool canAuthenticateWithBiometrics = await _localAuth.canCheckBiometrics;
-      final bool canAuthenticate = canAuthenticateWithBiometrics || await _localAuth.isDeviceSupported();
+      final bool canAuthenticateWithBiometrics =
+          await _localAuth.canCheckBiometrics;
+      final bool canAuthenticate =
+          canAuthenticateWithBiometrics || await _localAuth.isDeviceSupported();
 
       if (!canAuthenticate) {
         Get.snackbar(
@@ -54,8 +56,10 @@ class _BiometricSettingPageState extends State<BiometricSettingPage> {
 
   Future<void> _checkBiometricSupport() async {
     try {
-      final bool canAuthenticateWithBiometrics = await _localAuth.canCheckBiometrics;
-      final bool canAuthenticate = canAuthenticateWithBiometrics || await _localAuth.isDeviceSupported();
+      final bool canAuthenticateWithBiometrics =
+          await _localAuth.canCheckBiometrics;
+      final bool canAuthenticate =
+          canAuthenticateWithBiometrics || await _localAuth.isDeviceSupported();
 
       if (!canAuthenticate) {
         Get.snackbar(
@@ -194,33 +198,33 @@ class _BiometricSettingPageState extends State<BiometricSettingPage> {
                 }
               },
             ),
-            _buildBiometricOption(
-              title: 'Biometrics To Pay',
-              subtitle: 'Activate biometrics for transactions',
-              value: _paymentEnabled,
-              onChanged: (value) async {
-                if (value) {
-                  final authenticated = await _authenticate();
-                  if (authenticated) {
-                    setState(() {
-                      _paymentEnabled = true;
-                    });
-                    await StorageService.setBiometricPayment(true);
-                    Get.snackbar(
-                      'Success',
-                      'Biometric payment enabled',
-                      backgroundColor: primaryColor,
-                      colorText: Colors.white,
-                    );
-                  }
-                } else {
-                  setState(() {
-                    _paymentEnabled = false;
-                  });
-                  await StorageService.setBiometricPayment(false);
-                }
-              },
-            ),
+            // _buildBiometricOption(
+            //   title: 'Biometrics To Pay',
+            //   subtitle: 'Activate biometrics for transactions',
+            //   value: _paymentEnabled,
+            //   onChanged: (value) async {
+            //     if (value) {
+            //       final authenticated = await _authenticate();
+            //       if (authenticated) {
+            //         setState(() {
+            //           _paymentEnabled = true;
+            //         });
+            //         await StorageService.setBiometricPayment(true);
+            //         Get.snackbar(
+            //           'Success',
+            //           'Biometric payment enabled',
+            //           backgroundColor: primaryColor,
+            //           colorText: Colors.white,
+            //         );
+            //       }
+            //     } else {
+            //       setState(() {
+            //         _paymentEnabled = false;
+            //       });
+            //       await StorageService.setBiometricPayment(false);
+            //     }
+            //   },
+            // ),
           ],
         ),
       ),

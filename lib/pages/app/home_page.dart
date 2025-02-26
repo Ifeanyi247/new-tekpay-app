@@ -255,27 +255,27 @@ class HomePage extends StatelessWidget {
                                   ],
                                 ),
                               ),
-                              Stack(
-                                children: [
-                                  const Icon(
-                                    Icons.notifications,
-                                    color: Colors.white,
-                                  ),
-                                  Positioned(
-                                    top: 0,
-                                    right: 0,
-                                    child: Container(
-                                      width: 8.w,
-                                      height: 8.w,
-                                      decoration: const BoxDecoration(
-                                        shape: BoxShape.circle,
-                                        color: Colors.red,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              SizedBox(width: 12.w),
+                              // Stack(
+                              //   children: [
+                              //     const Icon(
+                              //       Icons.notifications,
+                              //       color: Colors.white,
+                              //     ),
+                              //     Positioned(
+                              //       top: 0,
+                              //       right: 0,
+                              //       child: Container(
+                              //         width: 8.w,
+                              //         height: 8.w,
+                              //         decoration: const BoxDecoration(
+                              //           shape: BoxShape.circle,
+                              //           color: Colors.red,
+                              //         ),
+                              //       ),
+                              //     ),
+                              //   ],
+                              // ),
+                              // SizedBox(width: 12.w),
                               GestureDetector(
                                 onTap: () {},
                                 child: Image.asset(
