@@ -8,10 +8,12 @@ import 'package:tekpayapp/pages/widgets/custom_text_field.dart';
 
 class ResetPasswordOtpPage extends StatefulWidget {
   final String email;
+  final String resetToken;
 
   const ResetPasswordOtpPage({
     super.key,
     required this.email,
+    required this.resetToken,
   });
 
   @override
@@ -152,13 +154,21 @@ class _ResetPasswordOtpPageState extends State<ResetPasswordOtpPage> {
                 () => ElevatedButton(
                   onPressed: authController.isLoading.value
                       ? null
-                      : () {
+                      : () async {
                           if (formKey.currentState?.validate() ?? false) {
-                            // After successful password reset
-                            Get.dialog(
-                              const PasswordResetSuccessDialog(),
-                              barrierDismissible: false,
+                            final success = await authController.resetPassword(
+                              email: widget.email,
+                              resetToken: widget.resetToken,
+                              newPassword: passwordController.text,
+                              confirmPassword: confirmPasswordController.text,
                             );
+
+                            if (success) {
+                              Get.dialog(
+                                const PasswordResetSuccessDialog(),
+                                barrierDismissible: false,
+                              );
+                            }
                           }
                         },
                   style: ElevatedButton.styleFrom(

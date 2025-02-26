@@ -5,8 +5,8 @@ import 'package:http/io_client.dart';
 import 'package:tekpayapp/services/api_exception.dart';
 
 class ApiService {
-  // static const String baseUrl = 'http://172.20.10.2:8000/api';
-  static const String baseUrl = 'https://api.usetekpay.com/api';
+  static const String baseUrl = 'http://172.20.10.2:8000/api';
+  // static const String baseUrl = 'https://api.usetekpay.com/api';
 
   // Singleton pattern
   static final ApiService _instance = ApiService._internal();

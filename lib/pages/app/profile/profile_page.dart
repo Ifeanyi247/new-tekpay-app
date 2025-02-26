@@ -185,14 +185,14 @@ class _ProfilePageState extends State<ProfilePage> {
                             Get.to(() => const ReferralPage());
                           },
                         ),
-                        _buildProfileOption(
-                          title: 'KYC',
-                          subtitle: 'Identity verification',
-                          icon: Icons.verified_user_outlined,
-                          onTap: () {
-                            Get.to(() => const KYCPage());
-                          },
-                        ),
+                        // _buildProfileOption(
+                        //   title: 'KYC',
+                        //   subtitle: 'Identity verification',
+                        //   icon: Icons.verified_user_outlined,
+                        //   onTap: () {
+                        //     Get.to(() => const KYCPage());
+                        //   },
+                        // ),
                         _buildProfileOption(
                           title: 'Help & Support',
                           subtitle: 'Help or contact vasel',

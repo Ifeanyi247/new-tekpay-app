@@ -307,6 +307,160 @@ class AuthController extends GetxController {
     }
   }
 
+  Future<String?> verifyResetOtp({
+    required String email,
+    required String otp,
+  }) async {
+    try {
+      isLoading.value = true;
+      final response = await _api.post('auth/verify-reset-otp', body: {
+        'email': email,
+        'otp': otp,
+      });
+
+      if (response['status'] == true) {
+        final resetToken = response['data']['reset_token'];
+        Get.snackbar(
+          'Success',
+          response['message'] ?? 'OTP verified successfully',
+          backgroundColor: primaryColor,
+          colorText: Colors.white,
+        );
+        return resetToken;
+      }
+      return null;
+    } on ApiException catch (e) {
+      if (e.statusCode == 422) {
+        Get.snackbar(
+          'Validation Error',
+          e.message,
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+          duration: const Duration(seconds: 5),
+        );
+      } else {
+        Get.snackbar(
+          'Error',
+          e.message,
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+        );
+      }
+      return null;
+    } catch (e) {
+      Get.snackbar(
+        'Error',
+        'An unexpected error occurred',
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+      return null;
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  Future<void> sendForgotOtpToMail(String email) async {
+    try {
+      isLoading.value = true;
+      final response = await _api.post('auth/forgot-password', body: {
+        'email': email,
+      });
+
+      if (response['status'] == true) {
+        Get.snackbar(
+          'Success',
+          response['message'] ??
+              'Password reset OTP has been sent to your email',
+          backgroundColor: primaryColor,
+          colorText: Colors.white,
+        );
+      }
+    } on ApiException catch (e) {
+      if (e.statusCode == 422) {
+        Get.snackbar(
+          'Validation Error',
+          e.message,
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+          duration: const Duration(seconds: 5),
+        );
+      } else {
+        Get.snackbar(
+          'Error',
+          e.message,
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+        );
+      }
+    } catch (e) {
+      Get.snackbar(
+        'Error',
+        'An unexpected error occurred',
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  Future<bool> resetPassword({
+    required String email,
+    required String resetToken,
+    required String newPassword,
+    required String confirmPassword,
+  }) async {
+    try {
+      isLoading.value = true;
+      final response = await _api.post('auth/reset-password', body: {
+        'email': email,
+        'reset_token': resetToken,
+        'new_password': newPassword,
+        'confirm_password': confirmPassword,
+      });
+
+      if (response['status'] == true) {
+        Get.snackbar(
+          'Success',
+          response['message'] ?? 'Password has been reset successfully',
+          backgroundColor: primaryColor,
+          colorText: Colors.white,
+        );
+        return true;
+      }
+      return false;
+    } on ApiException catch (e) {
+      if (e.statusCode == 422) {
+        Get.snackbar(
+          'Validation Error',
+          e.message,
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+          duration: const Duration(seconds: 5),
+        );
+      } else {
+        Get.snackbar(
+          'Error',
+          e.message,
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+        );
+      }
+      return false;
+    } catch (e) {
+      Get.snackbar(
+        'Error',
+        'An unexpected error occurred',
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+      return false;
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
   Future<void> logout() async {
     try {
       isLoading.value = true;

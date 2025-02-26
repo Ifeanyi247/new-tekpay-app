@@ -80,8 +80,11 @@ class _ForgotPasswordEmailPageState extends State<ForgotPasswordEmailPage> {
                 () => ElevatedButton(
                   onPressed: authController.isLoading.value
                       ? null
-                      : () {
+                      : () async {
                           if (formKey.currentState?.validate() ?? false) {
+                            await authController.sendForgotOtpToMail(
+                              emailController.text,
+                            );
                             Get.to(
                               () => VerifyForgotPasswordOtpPage(
                                 email: emailController.text,

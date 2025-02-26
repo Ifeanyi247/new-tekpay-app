@@ -156,11 +156,20 @@ class _VerifyForgotPasswordOtpPageState
                 () => ElevatedButton(
                   onPressed: authController.isLoading.value
                       ? null
-                      : () {
+                      : () async {
                           if (pinController.text.length == 4) {
-                            Get.to(() => ResetPasswordOtpPage(
-                                  email: widget.email,
-                                ));
+                            final resetToken =
+                                await authController.verifyResetOtp(
+                              email: widget.email,
+                              otp: pinController.text,
+                            );
+
+                            if (resetToken != null) {
+                              Get.to(() => ResetPasswordOtpPage(
+                                    email: widget.email,
+                                    resetToken: resetToken,
+                                  ));
+                            }
                           }
                         },
                   style: ElevatedButton.styleFrom(
