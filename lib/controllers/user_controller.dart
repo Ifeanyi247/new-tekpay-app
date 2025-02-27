@@ -314,6 +314,7 @@ class UserController extends GetxController {
           backgroundColor: primaryColor,
           colorText: Colors.white,
         );
+        await getProfile();
         return true;
       }
       error.value = response['message'];

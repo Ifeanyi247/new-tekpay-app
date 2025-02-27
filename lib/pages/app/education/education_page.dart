@@ -3,6 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:tekpayapp/constants/colors.dart';
 import 'package:tekpayapp/controllers/bills/education_controller.dart';
+import 'package:tekpayapp/pages/app/account_security_page.dart';
 import 'package:tekpayapp/pages/app/data/data_page.dart';
 import 'package:tekpayapp/pages/widgets/custom_button_widget.dart';
 import 'package:tekpayapp/pages/widgets/custom_text_field.dart';
@@ -69,7 +70,7 @@ class _PinEntrySheetState extends State<PinEntrySheet> {
                   icon: const Icon(Icons.close),
                   onPressed: () {
                     _pinNotifier.value = '';
-                    Get.back();
+                    Navigator.pop(context);
                   },
                 ),
               ],
@@ -111,7 +112,7 @@ class _PinEntrySheetState extends State<PinEntrySheet> {
           SizedBox(height: 24.h),
           TextButton(
             onPressed: () {
-              // Handle forgot PIN
+              Get.to(() => const AccountSecurityPage());
             },
             child: Text(
               'Forgot Pin',
@@ -316,7 +317,7 @@ class _EducationPageState extends State<EducationPage> {
             color: Colors.black,
             size: 24.sp,
           ),
-          onPressed: () => Get.back(),
+          onPressed: () => Navigator.pop(context),
         ),
         title: Text(
           'Education',

@@ -169,8 +169,7 @@ class TransactionStatusPage extends StatelessWidget {
                     Row(
                       children: [
                         Expanded(
-                          child: _buildInfoRow(
-                              'Electricity Token', lightToken.toString()),
+                          child: _buildInfoRow('Token', lightToken.toString()),
                         ),
                         IconButton(
                           onPressed: () {

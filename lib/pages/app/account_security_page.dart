@@ -6,7 +6,7 @@ import 'package:tekpayapp/controllers/user_controller.dart';
 import 'package:tekpayapp/pages/app/biometric_setting_page.dart';
 import 'package:tekpayapp/pages/app/resetPin/email_otp_page.dart';
 import 'package:tekpayapp/pages/app/reset_password_page.dart';
-import 'package:tekpayapp/pages/app/settings_page.dart';
+// import 'package:tekpayapp/pages/app/settings_page.dart';
 import 'package:tekpayapp/pages/app/two_factor_page.dart';
 
 class AccountSecurityPage extends StatelessWidget {
@@ -71,7 +71,7 @@ class AccountSecurityPage extends StatelessWidget {
         backgroundColor: Colors.transparent,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
-          onPressed: () => Get.back(),
+          onPressed: () => Navigator.pop(context),
         ),
       ),
       body: ListView(

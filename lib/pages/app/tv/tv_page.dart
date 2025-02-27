@@ -56,7 +56,7 @@ class _TvPackageListPageState extends State<TvPackageListPage> {
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.close, color: Colors.black),
-          onPressed: () => Get.back(),
+          onPressed: () => Navigator.pop(context),
         ),
       ),
       body: Column(
@@ -99,7 +99,7 @@ class _TvPackageListPageState extends State<TvPackageListPage> {
                   return GestureDetector(
                     onTap: () {
                       _tvController.selectPlan(plan);
-                      Get.back(result: plan);
+                      Navigator.of(context).pop(plan);
                     },
                     child: Container(
                       margin: EdgeInsets.only(bottom: 8.h),

@@ -5,6 +5,7 @@ import 'package:tekpayapp/constants/colors.dart';
 import 'package:tekpayapp/controllers/bills/airtime_controller.dart';
 import 'package:tekpayapp/controllers/bills/data_controller.dart';
 import 'package:tekpayapp/controllers/user_controller.dart';
+import 'package:tekpayapp/pages/app/account_security_page.dart';
 import 'package:tekpayapp/pages/widgets/custom_button_widget.dart';
 import 'package:tekpayapp/pages/widgets/custom_text_field.dart';
 import 'package:tekpayapp/pages/app/data/data_list.dart';
@@ -124,7 +125,7 @@ class _PinEntrySheetState extends State<PinEntrySheet> {
           ),
           TextButton(
             onPressed: () {
-              // Handle forgot PIN
+              Get.to(() => const AccountSecurityPage());
             },
             child: Text(
               'Forgot Pin',

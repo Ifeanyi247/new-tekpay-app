@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:tekpayapp/constants/colors.dart';
 import 'package:tekpayapp/controllers/bills/airtime_controller.dart';
 import 'package:tekpayapp/controllers/user_controller.dart';
+import 'package:tekpayapp/pages/app/account_security_page.dart';
 import 'package:tekpayapp/pages/app/airtime/transaction_status_page.dart';
 import 'package:tekpayapp/pages/widgets/custom_button_widget.dart';
 import 'package:tekpayapp/pages/widgets/custom_text_field.dart';
@@ -324,7 +325,7 @@ class _AirtimePageState extends State<AirtimePage> {
                 // Forgot PIN text
                 TextButton(
                   onPressed: () {
-                    // Handle forgot PIN
+                    Get.to(() => const AccountSecurityPage());
                   },
                   child: Text(
                     'Forgot Pin',

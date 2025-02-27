@@ -90,7 +90,7 @@ class EducationTransactionSheet extends StatelessWidget {
               ),
               IconButton(
                 icon: const Icon(Icons.close),
-                onPressed: () => Get.back(),
+                onPressed: () => Navigator.pop(context),
               ),
             ],
           ),

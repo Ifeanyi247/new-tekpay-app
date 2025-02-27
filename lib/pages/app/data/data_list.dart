@@ -38,7 +38,7 @@ class _DataListPageState extends State<DataListPage> {
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.close, color: Colors.black),
-          onPressed: () => Get.back(),
+          onPressed: () => Navigator.pop(context),
         ),
       ),
       body: Column(
@@ -106,7 +106,7 @@ class _DataListPageState extends State<DataListPage> {
 
                   return GestureDetector(
                     onTap: () {
-                      Get.back(result: {
+                      Navigator.of(context).pop({
                         'name': plan.name,
                         'price': price,
                         'code': plan.code,
