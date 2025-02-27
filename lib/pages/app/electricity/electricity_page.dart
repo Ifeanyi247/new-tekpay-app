@@ -501,7 +501,7 @@ class _ProviderListPageState extends State<ProviderListPage> {
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.close, color: Colors.black),
-          onPressed: () => Get.back(),
+          onPressed: () => Navigator.pop(context),
         ),
       ),
       body: Column(
@@ -537,11 +537,14 @@ class _ProviderListPageState extends State<ProviderListPage> {
                 final provider = _filteredProviders[index];
                 return GestureDetector(
                   onTap: () {
-                    Get.back(result: {
-                      'name': provider.name,
-                      'type': provider.type,
-                      'serviceID': provider.serviceID
-                    });
+                    Navigator.pop(
+                      context,
+                      {
+                        'name': provider.name,
+                        'type': provider.type,
+                        'serviceID': provider.serviceID
+                      },
+                    );
                   },
                   child: Container(
                     margin: EdgeInsets.only(bottom: 8.h),

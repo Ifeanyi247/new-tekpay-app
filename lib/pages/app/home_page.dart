@@ -552,6 +552,7 @@ class HomePage extends StatelessWidget {
                                         recipient: transaction.phone,
                                         network: transaction.serviceId,
                                         productName: transaction.title,
+                                        lightToken: transaction.purchasedCode,
                                       ));
                                 },
                                 pin: transaction.type?.toLowerCase() ==

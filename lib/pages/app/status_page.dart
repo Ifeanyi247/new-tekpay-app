@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
@@ -18,6 +19,7 @@ class StatusPage extends StatefulWidget {
   final String method;
   final String transactionId;
   final String transactionDate;
+  final String? lightToken;
 
   const StatusPage({
     super.key,
@@ -29,6 +31,7 @@ class StatusPage extends StatefulWidget {
     required this.method,
     required this.transactionId,
     required this.transactionDate,
+    this.lightToken,
   });
 
   @override
@@ -128,6 +131,10 @@ class _StatusPageState extends State<StatusPage> {
                 _buildPdfDetailRow('Method:', widget.method),
                 _buildPdfDetailRow('Transaction Date:', widget.transactionDate),
                 _buildPdfDetailRow('Transaction ID:', widget.transactionId),
+                widget.lightToken != ""
+                    ? _buildPdfDetailRow(
+                        'Electricity Token:', widget.lightToken.toString())
+                    : pw.SizedBox(),
               ],
             );
           },
@@ -374,6 +381,26 @@ class _StatusPageState extends State<StatusPage> {
             _buildDetailRow('Method:', widget.method),
             _buildDetailRow('Transaction Date:', widget.transactionDate),
             _buildDetailRow('Transaction ID:', widget.transactionId),
+            widget.lightToken != ""
+                ? Row(
+                    children: [
+                      Expanded(
+                        child: _buildDetailRow(
+                            'Token:', widget.lightToken.toString()),
+                      ),
+                      IconButton(
+                        onPressed: () {
+                          Clipboard.setData(
+                            ClipboardData(
+                              text: widget.lightToken.toString(),
+                            ),
+                          );
+                        },
+                        icon: Icon(Icons.copy),
+                      ),
+                    ],
+                  )
+                : SizedBox(),
 
             SizedBox(height: 48.h),
 

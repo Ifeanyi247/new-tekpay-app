@@ -269,6 +269,7 @@ class _TransactionItem extends StatelessWidget {
                         method: statusData['method'],
                         transactionId: statusData['transactionId'],
                         transactionDate: statusData['transaction_date'],
+                        lightToken: statusData['purchased_code'],
                       ),
                     ),
                   );

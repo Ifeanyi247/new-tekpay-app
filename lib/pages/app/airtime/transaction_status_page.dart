@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:tekpayapp/constants/colors.dart';
@@ -15,6 +16,7 @@ class TransactionStatusPage extends StatelessWidget {
   final String recipient;
   final String network;
   final String productName;
+  final String? lightToken;
 
   const TransactionStatusPage({
     super.key,
@@ -25,6 +27,7 @@ class TransactionStatusPage extends StatelessWidget {
     required this.recipient,
     required this.network,
     required this.productName,
+    this.lightToken,
   });
 
   Color get statusColor {
@@ -163,6 +166,21 @@ class TransactionStatusPage extends StatelessWidget {
                     _buildInfoRow('Recipient', recipient),
                     _buildInfoRow('Network', network.toUpperCase()),
                     _buildInfoRow('Product', productName),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _buildInfoRow(
+                              'Electricity Token', lightToken.toString()),
+                        ),
+                        IconButton(
+                          onPressed: () {
+                            Clipboard.setData(
+                                ClipboardData(text: lightToken.toString()));
+                          },
+                          icon: Icon(Icons.copy),
+                        ),
+                      ],
+                    ),
                   ],
                 ),
               ),

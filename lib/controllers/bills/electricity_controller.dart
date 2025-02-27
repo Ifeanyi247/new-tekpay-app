@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
+import 'package:tekpayapp/constants/colors.dart';
 import 'package:tekpayapp/services/api_service.dart';
 import 'package:tekpayapp/controllers/user_controller.dart';
 import 'package:tekpayapp/pages/app/airtime/transaction_status_page.dart';
@@ -107,6 +108,13 @@ class ElectricityController extends GetxController {
           // Refresh user profile to get updated balance
           await _userController.getProfile();
 
+          Get.snackbar(
+            'Sucess',
+            'You can grab your token in the transaction details page.',
+            backgroundColor: primaryColor,
+            colorText: Colors.white,
+          );
+
           Get.off(() => TransactionStatusPage(
                 status: _getTransactionStatus(transactionData['status']),
                 amount: transactionData['amount'].toString(),
@@ -114,7 +122,8 @@ class ElectricityController extends GetxController {
                 date: DateTime.now().toString(),
                 recipient: transactionData['unique_element'],
                 network: transactionData['product_name'].split('-')[0].trim(),
-                productName: transactionData['type'],
+                productName: transactionData['product_name'],
+                lightToken: transactionData['purchased_code'],
               ));
         } else {
           throw response['message'] ?? 'Failed to purchase electricity';
