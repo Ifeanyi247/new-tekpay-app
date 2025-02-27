@@ -498,6 +498,56 @@ class AuthController extends GetxController {
     }
   }
 
+  Future<void> deleteAccount() async {
+    try {
+      isLoading.value = true;
+      final response = await _api.delete('delete-account');
+
+      if (response['status'] == true) {
+        // Clear user data
+        currentUser.value = null;
+        final userController = Get.find<UserController>();
+        userController.clearUserData();
+
+        // Clear all storage data
+        await StorageService.clearAll();
+
+        // Show success message and navigate
+        Get.offAll(() => const WelcomeScreen());
+        Get.snackbar(
+          'Success',
+          response['message'] ?? 'Account deleted successfully',
+          backgroundColor: Colors.green,
+          colorText: Colors.white,
+        );
+      } else {
+        Get.snackbar(
+          'Error',
+          response['message'] ?? 'Failed to delete account',
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+        );
+      }
+    } on ApiException catch (e) {
+      Get.snackbar(
+        'Error',
+        e.message,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+    } catch (e) {
+      print('Error deleting account: $e');
+      Get.snackbar(
+        'Error',
+        'An unexpected error occurred',
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
   void clearError() {
     error.value = null;
   }

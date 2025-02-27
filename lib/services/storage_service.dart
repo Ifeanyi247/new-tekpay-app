@@ -45,4 +45,8 @@ class StorageService {
   static bool getBiometricPayment() {
     return _box.read<bool>(_biometricPaymentKey) ?? false;
   }
+
+  static Future<void> clearAll() async {
+    await _box.erase();
+  }
 }

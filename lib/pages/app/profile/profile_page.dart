@@ -174,7 +174,7 @@ class _ProfilePageState extends State<ProfilePage> {
                           subtitle: 'Account, notification, security',
                           icon: Icons.settings_outlined,
                           onTap: () {
-                            Get.to(() => const SettingsPage());
+                            Get.to(() => SettingsPage());
                           },
                         ),
                         _buildProfileOption(
