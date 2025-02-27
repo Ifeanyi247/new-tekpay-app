@@ -7,6 +7,7 @@ import 'package:tekpayapp/constants/colors.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:path_provider/path_provider.dart';
+import 'package:share_plus/share_plus.dart';
 
 class StatusPage extends StatefulWidget {
   final String amount;
@@ -163,6 +164,122 @@ class _StatusPageState extends State<StatusPage> {
     }
   }
 
+  Future<void> _shareReceipt() async {
+    try {
+      // Create PDF document
+      final pdf = pw.Document();
+
+      // Add content to PDF (same as download receipt)
+      pdf.addPage(
+        pw.Page(
+          pageFormat: PdfPageFormat.a4,
+          build: (pw.Context context) {
+            return pw.Column(
+              crossAxisAlignment: pw.CrossAxisAlignment.start,
+              children: [
+                // Header
+                pw.Center(
+                  child: pw.Text(
+                    'Transaction Receipt',
+                    style: pw.TextStyle(
+                      fontSize: 24,
+                      fontWeight: pw.FontWeight.bold,
+                    ),
+                  ),
+                ),
+                pw.SizedBox(height: 20),
+
+                // Amount
+                pw.Center(
+                  child: pw.Text(
+                    'NGN ${NumberFormat('#,##0.00').format(double.parse(widget.amount))}',
+                    style: pw.TextStyle(
+                      fontSize: 32,
+                      fontWeight: pw.FontWeight.bold,
+                      color: PdfColors.green,
+                    ),
+                  ),
+                ),
+                pw.SizedBox(height: 10),
+
+                // Status
+                pw.Center(
+                  child: pw.Text(
+                    'Transaction ${widget.status}',
+                    style: pw.TextStyle(
+                      fontSize: 18,
+                      fontWeight: pw.FontWeight.bold,
+                    ),
+                  ),
+                ),
+                pw.SizedBox(height: 5),
+
+                // Date
+                pw.Center(
+                  child: pw.Text(
+                    DateFormat('MMM d, y h:mma').format(widget.date),
+                    style: const pw.TextStyle(
+                      fontSize: 14,
+                    ),
+                  ),
+                ),
+                pw.SizedBox(height: 30),
+
+                // Transaction Details
+                pw.Text(
+                  'Transaction Details:',
+                  style: pw.TextStyle(
+                    fontSize: 18,
+                    fontWeight: pw.FontWeight.bold,
+                  ),
+                ),
+                pw.SizedBox(height: 15),
+
+                // Details List
+                _buildPdfDetailRow('Recipient ID:', widget.recipientId),
+                _buildPdfDetailRow('Transaction Type:', widget.transactionType),
+                _buildPdfDetailRow('Method:', widget.method),
+                _buildPdfDetailRow('Transaction Date:', widget.transactionDate),
+                _buildPdfDetailRow('Transaction ID:', widget.transactionId),
+              ],
+            );
+          },
+        ),
+      );
+
+      // Get temporary directory to store the file for sharing
+      final tempDir = await getTemporaryDirectory();
+      final fileName = 'tekpay_receipt_${widget.transactionId}.pdf';
+      final file = File('${tempDir.path}/$fileName');
+
+      // Save the PDF
+      await file.writeAsBytes(await pdf.save());
+
+      // Share the file
+      await Share.shareXFiles(
+        [XFile(file.path)],
+        subject: 'TekPay Transaction Receipt',
+        text:
+            'Transaction Receipt for ${widget.transactionType} - NGN ${NumberFormat('#,##0.00').format(double.parse(widget.amount))}',
+      );
+
+      // Delete the temporary file after sharing
+      if (await file.exists()) {
+        await file.delete();
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Failed to share receipt'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+      print('Error sharing receipt: $e');
+    }
+  }
+
   pw.Widget _buildPdfDetailRow(String label, String value) {
     return pw.Container(
       margin: const pw.EdgeInsets.only(bottom: 10),
@@ -265,9 +382,7 @@ class _StatusPageState extends State<StatusPage> {
               children: [
                 Expanded(
                   child: ElevatedButton.icon(
-                    onPressed: () {
-                      // TODO: Implement share receipt
-                    },
+                    onPressed: _shareReceipt,
                     icon: const Icon(Icons.share, color: primaryColor),
                     label: const Text('Share Receipt'),
                     style: ElevatedButton.styleFrom(
