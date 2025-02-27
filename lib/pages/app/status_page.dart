@@ -1,8 +1,12 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:tekpayapp/constants/colors.dart';
+import 'package:pdf/pdf.dart';
+import 'package:pdf/widgets.dart' as pw;
+import 'package:path_provider/path_provider.dart';
 
 class StatusPage extends StatefulWidget {
   final String amount;
@@ -44,6 +48,146 @@ class _StatusPageState extends State<StatusPage> {
       default:
         return Colors.grey;
     }
+  }
+
+  Future<void> _generateAndDownloadReceipt() async {
+    try {
+      // Create PDF document
+      final pdf = pw.Document();
+
+      // Add content to PDF
+      pdf.addPage(
+        pw.Page(
+          pageFormat: PdfPageFormat.a4,
+          build: (pw.Context context) {
+            return pw.Column(
+              crossAxisAlignment: pw.CrossAxisAlignment.start,
+              children: [
+                // Header
+                pw.Center(
+                  child: pw.Text(
+                    'Transaction Receipt',
+                    style: pw.TextStyle(
+                      fontSize: 24,
+                      fontWeight: pw.FontWeight.bold,
+                    ),
+                  ),
+                ),
+                pw.SizedBox(height: 20),
+
+                // Amount
+                pw.Center(
+                  child: pw.Text(
+                    'NGN ${NumberFormat('#,##0.00').format(double.parse(widget.amount))}',
+                    style: pw.TextStyle(
+                      fontSize: 32,
+                      fontWeight: pw.FontWeight.bold,
+                      color: PdfColors.green,
+                    ),
+                  ),
+                ),
+                pw.SizedBox(height: 10),
+
+                // Status
+                pw.Center(
+                  child: pw.Text(
+                    'Transaction ${widget.status}',
+                    style: pw.TextStyle(
+                      fontSize: 18,
+                      fontWeight: pw.FontWeight.bold,
+                    ),
+                  ),
+                ),
+                pw.SizedBox(height: 5),
+
+                // Date
+                pw.Center(
+                  child: pw.Text(
+                    DateFormat('MMM d, y h:mma').format(widget.date),
+                    style: const pw.TextStyle(
+                      fontSize: 14,
+                    ),
+                  ),
+                ),
+                pw.SizedBox(height: 30),
+
+                // Transaction Details
+                pw.Text(
+                  'Transaction Details:',
+                  style: pw.TextStyle(
+                    fontSize: 18,
+                    fontWeight: pw.FontWeight.bold,
+                  ),
+                ),
+                pw.SizedBox(height: 15),
+
+                // Details List
+                _buildPdfDetailRow('Recipient ID:', widget.recipientId),
+                _buildPdfDetailRow('Transaction Type:', widget.transactionType),
+                _buildPdfDetailRow('Method:', widget.method),
+                _buildPdfDetailRow('Transaction Date:', widget.transactionDate),
+                _buildPdfDetailRow('Transaction ID:', widget.transactionId),
+              ],
+            );
+          },
+        ),
+      );
+
+      // Get the documents directory
+      final directory = await getApplicationDocumentsDirectory();
+      final fileName = 'receipt_${widget.transactionId}.pdf';
+      final file = File('${directory.path}/$fileName');
+
+      // Save the PDF
+      await file.writeAsBytes(await pdf.save());
+
+      // Show success message
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Receipt downloaded successfully'),
+            backgroundColor: Colors.green,
+          ),
+        );
+        print('Receipt downloaded to ${file.path}');
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Failed to download receipt'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+
+  pw.Widget _buildPdfDetailRow(String label, String value) {
+    return pw.Container(
+      margin: const pw.EdgeInsets.only(bottom: 10),
+      child: pw.Row(
+        crossAxisAlignment: pw.CrossAxisAlignment.start,
+        children: [
+          pw.Text(
+            label,
+            style: const pw.TextStyle(
+              fontSize: 14,
+            ),
+          ),
+          pw.SizedBox(width: 10),
+          pw.Expanded(
+            child: pw.Text(
+              value,
+              style: pw.TextStyle(
+                fontSize: 14,
+                fontWeight: pw.FontWeight.bold,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -140,9 +284,7 @@ class _StatusPageState extends State<StatusPage> {
                 SizedBox(width: 16.w),
                 Expanded(
                   child: ElevatedButton.icon(
-                    onPressed: () {
-                      // TODO: Implement download receipt
-                    },
+                    onPressed: _generateAndDownloadReceipt,
                     icon: const Icon(Icons.download),
                     label: const Text('Download Receipt'),
                     style: ElevatedButton.styleFrom(

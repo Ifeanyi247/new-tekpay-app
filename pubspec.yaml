@@ -46,6 +46,9 @@ dependencies:
   cached_network_image: ^3.4.1
   local_auth: ^2.1.8
   connectivity_plus: ^5.0.2
+  pdf: ^3.10.7
+  path_provider: ^2.1.2
+  shared_preferences: ^2.2.2
 
 dev_dependencies:
   flutter_test:
