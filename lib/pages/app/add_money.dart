@@ -9,11 +9,23 @@ import 'package:tekpayapp/pages/app/add_bank_page.dart';
 import 'package:tekpayapp/pages/app/top_up_card_page.dart';
 import 'package:tekpayapp/pages/widgets/custom_text_field.dart';
 
-class AddMoneyPage extends StatelessWidget {
+class AddMoneyPage extends StatefulWidget {
+  const AddMoneyPage({super.key});
+
+  @override
+  State<AddMoneyPage> createState() => _AddMoneyPageState();
+}
+
+class _AddMoneyPageState extends State<AddMoneyPage> {
   final _virtualAccountController = Get.put(VirtualAccountController());
   final TextEditingController amountController = TextEditingController();
 
-  AddMoneyPage({super.key});
+  @override
+  void dispose() {
+    _virtualAccountController.clearVirtualAccount();
+    amountController.dispose();
+    super.dispose();
+  }
 
   Widget _buildBankCard({
     required String bankName,
@@ -142,12 +154,28 @@ class AddMoneyPage extends StatelessWidget {
                   fontWeight: FontWeight.w600,
                 ),
               ),
+              // SizedBox(height: 8.h),
+              // Text(
+              //   'Make a transfer to the generated account once.',
+              //   style: TextStyle(
+              //     fontSize: 14.sp,
+              //     color: Colors.grey,
+              //   ),
+              // ),
               SizedBox(height: 8.h),
               Text(
-                'Make a transfer to the generated account once.',
+                'Please note that once you leave this page the generated account will be cleared, make sure you make a transfer to the generated account before leaving this page, or made a copy.',
                 style: TextStyle(
                   fontSize: 14.sp,
-                  color: Colors.grey,
+                  color: Colors.black,
+                ),
+              ),
+              SizedBox(height: 8.h),
+              Text(
+                'Transaction should be made to the generated account once and with the specified amount.',
+                style: TextStyle(
+                  fontSize: 14.sp,
+                  color: Colors.black,
                 ),
               ),
               SizedBox(height: 24.h),
@@ -196,83 +224,83 @@ class AddMoneyPage extends StatelessWidget {
                     ],
                   ),
                 ),
-              Padding(
-                padding: EdgeInsets.symmetric(vertical: 24.h),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: Divider(
-                        color: Colors.grey[300],
-                      ),
-                    ),
-                    Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 16.w),
-                      child: Text(
-                        'OR',
-                        style: TextStyle(
-                          fontSize: 14.sp,
-                          color: Colors.grey,
-                        ),
-                      ),
-                    ),
-                    Expanded(
-                      child: Divider(
-                        color: Colors.grey[300],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Container(
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(12),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.05),
-                      blurRadius: 10,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
-                ),
-                child: ListTile(
-                  leading: Container(
-                    width: 40.w,
-                    height: 40.w,
-                    decoration: BoxDecoration(
-                      color: primaryColor.withOpacity(0.1),
-                      shape: BoxShape.circle,
-                    ),
-                    child: Icon(
-                      Icons.credit_card,
-                      color: primaryColor,
-                      size: 24.sp,
-                    ),
-                  ),
-                  title: Text(
-                    'Top-up with Card',
-                    style: TextStyle(
-                      fontSize: 16.sp,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                  subtitle: Text(
-                    'Add money from your bank card',
-                    style: TextStyle(
-                      fontSize: 14.sp,
-                      color: Colors.grey,
-                    ),
-                  ),
-                  trailing: Icon(
-                    Icons.chevron_right,
-                    color: Colors.grey,
-                    size: 24.sp,
-                  ),
-                  onTap: () {
-                    Get.to(() => const TopUpCardPage());
-                  },
-                ),
-              ),
+              // Padding(
+              //   padding: EdgeInsets.symmetric(vertical: 24.h),
+              //   child: Row(
+              //     children: [
+              //       Expanded(
+              //         child: Divider(
+              //           color: Colors.grey[300],
+              //         ),
+              //       ),
+              //       Padding(
+              //         padding: EdgeInsets.symmetric(horizontal: 16.w),
+              //         child: Text(
+              //           'OR',
+              //           style: TextStyle(
+              //             fontSize: 14.sp,
+              //             color: Colors.grey,
+              //           ),
+              //         ),
+              //       ),
+              //       Expanded(
+              //         child: Divider(
+              //           color: Colors.grey[300],
+              //         ),
+              //       ),
+              //     ],
+              //   ),
+              // ),
+              // Container(
+              //   decoration: BoxDecoration(
+              //     color: Colors.white,
+              //     borderRadius: BorderRadius.circular(12),
+              //     boxShadow: [
+              //       BoxShadow(
+              //         color: Colors.black.withOpacity(0.05),
+              //         blurRadius: 10,
+              //         offset: const Offset(0, 2),
+              //       ),
+              //     ],
+              //   ),
+              //   child: ListTile(
+              //     leading: Container(
+              //       width: 40.w,
+              //       height: 40.w,
+              //       decoration: BoxDecoration(
+              //         color: primaryColor.withOpacity(0.1),
+              //         shape: BoxShape.circle,
+              //       ),
+              //       child: Icon(
+              //         Icons.credit_card,
+              //         color: primaryColor,
+              //         size: 24.sp,
+              //       ),
+              //     ),
+              //     title: Text(
+              //       'Top-up with Card',
+              //       style: TextStyle(
+              //         fontSize: 16.sp,
+              //         fontWeight: FontWeight.w500,
+              //       ),
+              //     ),
+              //     subtitle: Text(
+              //       'Add money from your bank card',
+              //       style: TextStyle(
+              //         fontSize: 14.sp,
+              //         color: Colors.grey,
+              //       ),
+              //     ),
+              //     trailing: Icon(
+              //       Icons.chevron_right,
+              //       color: Colors.grey,
+              //       size: 24.sp,
+              //     ),
+              //     onTap: () {
+              //       Get.to(() => const TopUpCardPage());
+              //     },
+              //   ),
+              // ),
             ],
           ),
         );

@@ -221,20 +221,58 @@ class _TransactionItem extends StatelessWidget {
           InkWell(
             onTap: () async {
               try {
-                final statusData = await controller.checkTransactionStatus(
-                  transaction.requestId,
-                );
-
-                Get.to(() => StatusPage(
-                      amount: statusData['amount'],
-                      status: statusData['status'],
-                      date: DateTime.parse(statusData['transaction_date']),
-                      recipientId: statusData['phone'],
-                      transactionType: statusData['product_name'],
-                      method: statusData['method'],
-                      transactionId: statusData['transactionId'],
-                      transactionDate: statusData['transaction_date'],
-                    ));
+                if (transaction.type == 'deposit') {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => StatusPage(
+                        amount: transaction.amount,
+                        status: transaction.status,
+                        date: transaction.transactionDate,
+                        recipientId: transaction.phone,
+                        transactionType: 'Deposit',
+                        method: transaction.method,
+                        transactionId: transaction.transactionId,
+                        transactionDate: transaction.transactionDate.toString(),
+                      ),
+                    ),
+                  );
+                } else if (transaction.type == 'Transfer') {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => StatusPage(
+                        amount: transaction.amount,
+                        status: transaction.status,
+                        date: transaction.transactionDate,
+                        recipientId: transaction.phone,
+                        transactionType: 'Transfer',
+                        method: transaction.method,
+                        transactionId: transaction.transactionId,
+                        transactionDate: transaction.transactionDate.toString(),
+                      ),
+                    ),
+                  );
+                } else {
+                  final statusData = await controller.checkTransactionStatus(
+                    transaction.requestId,
+                  );
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => StatusPage(
+                        amount: statusData['amount'],
+                        status: statusData['status'],
+                        date: DateTime.parse(statusData['transaction_date']),
+                        recipientId: statusData['phone'],
+                        transactionType: statusData['product_name'],
+                        method: statusData['method'],
+                        transactionId: statusData['transactionId'],
+                        transactionDate: statusData['transaction_date'],
+                      ),
+                    ),
+                  );
+                }
               } catch (e) {
                 // Error is already handled in the controller
               }

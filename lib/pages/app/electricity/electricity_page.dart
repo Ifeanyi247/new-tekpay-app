@@ -81,7 +81,7 @@ class _ElectricityPageState extends State<ElectricityPage> {
   }
 
   void _showPinEntry() {
-    final provider = _selectedProvider;
+    final provider = _selectedServiceID;
 
     Get.bottomSheet(
       PinEntrySheet(
@@ -381,6 +381,9 @@ class _ElectricityPageState extends State<ElectricityPage> {
             SizedBox(height: 40.h),
             CustomButtonWidget(
               text: 'Proceed',
+              // onTap: () {
+              //   print(_selectedServiceID);
+              // },
               onTap: _showTransactionConfirmation,
             ),
           ],

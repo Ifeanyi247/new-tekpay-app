@@ -120,4 +120,9 @@ class VirtualAccountController extends GetxController {
       isLoading.value = false;
     }
   }
+
+  void clearVirtualAccount() {
+    virtualAccountDetails.value = null;
+    error.value = '';
+  }
 }

@@ -9,6 +9,7 @@ import 'package:tekpayapp/pages/splash_screen.dart';
 import 'package:tekpayapp/services/api_service.dart';
 import 'package:tekpayapp/services/auth_service.dart';
 import 'package:tekpayapp/services/storage_service.dart';
+import 'package:tekpayapp/services/connectivity_service.dart';
 import 'dart:io';
 
 class MyHttpOverrides extends HttpOverrides {
@@ -27,7 +28,11 @@ class MyHttpOverrides extends HttpOverrides {
 void main() async {
   HttpOverrides.global = MyHttpOverrides();
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Initialize services
   await StorageService.init();
+  await Get.put(ConnectivityService()).init();
+
   print(StorageService.getToken());
 
   // Initialize services and controllers in correct order

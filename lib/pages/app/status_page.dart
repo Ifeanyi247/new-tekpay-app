@@ -4,7 +4,7 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:tekpayapp/constants/colors.dart';
 
-class StatusPage extends StatelessWidget {
+class StatusPage extends StatefulWidget {
   final String amount;
   final String status;
   final DateTime date;
@@ -26,8 +26,13 @@ class StatusPage extends StatelessWidget {
     required this.transactionDate,
   });
 
+  @override
+  State<StatusPage> createState() => _StatusPageState();
+}
+
+class _StatusPageState extends State<StatusPage> {
   Color get statusColor {
-    switch (status.toLowerCase()) {
+    switch (widget.status.toLowerCase()) {
       case 'delivered':
       case 'successful':
         return Colors.green;
@@ -50,7 +55,7 @@ class StatusPage extends StatelessWidget {
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.black),
-          onPressed: () => Get.back(),
+          onPressed: () => Navigator.of(context).pop(),
         ),
         title: const Text(
           'Transaction Receipt',
@@ -66,7 +71,7 @@ class StatusPage extends StatelessWidget {
           children: [
             // Amount and Status
             Text(
-              '₦${NumberFormat('#,##0.00').format(double.parse(amount))}',
+              '₦${NumberFormat('#,##0.00').format(double.parse(widget.amount))}',
               style: TextStyle(
                 fontSize: 32.sp,
                 fontWeight: FontWeight.w600,
@@ -75,7 +80,7 @@ class StatusPage extends StatelessWidget {
             ),
             SizedBox(height: 8.h),
             Text(
-              'Transaction $status',
+              'Transaction ${widget.status}',
               style: TextStyle(
                 fontSize: 18.sp,
                 fontWeight: FontWeight.w500,
@@ -84,7 +89,7 @@ class StatusPage extends StatelessWidget {
             ),
             SizedBox(height: 4.h),
             Text(
-              'Today ${DateFormat('h:mma').format(date).toLowerCase()}',
+              'Today ${DateFormat('h:mma').format(widget.date).toLowerCase()}',
               style: TextStyle(
                 fontSize: 14.sp,
                 color: Colors.grey,
@@ -103,11 +108,11 @@ class StatusPage extends StatelessWidget {
             SizedBox(height: 16.h),
 
             // Details List
-            _buildDetailRow('Recipient ID:', recipientId),
-            _buildDetailRow('Transaction Type:', transactionType),
-            _buildDetailRow('Method:', method),
-            _buildDetailRow('Transaction Date:', transactionDate),
-            _buildDetailRow('Transaction ID:', transactionId),
+            _buildDetailRow('Recipient ID:', widget.recipientId),
+            _buildDetailRow('Transaction Type:', widget.transactionType),
+            _buildDetailRow('Method:', widget.method),
+            _buildDetailRow('Transaction Date:', widget.transactionDate),
+            _buildDetailRow('Transaction ID:', widget.transactionId),
 
             SizedBox(height: 48.h),
 

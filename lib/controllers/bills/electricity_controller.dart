@@ -67,6 +67,8 @@ class ElectricityController extends GetxController {
     required String pin,
   }) async {
     try {
+      print(
+          'Purchasing electricity with billersCode: $billersCode, serviceID: $serviceID, variationCode: $variationCode, amount: $amount, phone: $phone, pin: $pin');
       // Validate PIN
       if (pin.isEmpty || pin.length != 4) {
         throw 'Invalid PIN';
