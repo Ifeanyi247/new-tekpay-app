@@ -3,10 +3,12 @@ import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:tekpayapp/controllers/transfer_controller.dart';
+import 'package:tekpayapp/controllers/user_controller.dart';
 import 'package:tekpayapp/models/bank_model.dart';
 import 'package:tekpayapp/constants/colors.dart';
 import 'package:tekpayapp/pages/app/bank_selection_page.dart';
 import 'package:tekpayapp/pages/app/confirm_transfer.dart';
+import 'package:intl/intl.dart';
 
 class TransferPage extends StatelessWidget {
   TransferPage({super.key});
@@ -15,6 +17,7 @@ class TransferPage extends StatelessWidget {
   final formKey = GlobalKey<FormState>();
   final selectedBank = Rxn<Bank>();
   final transferController = Get.find<TransferController>();
+  final userController = Get.find<UserController>();
 
   void _onAccountNumberChanged(String value) {
     if (value.length == 10 && selectedBank.value != null) {
@@ -238,33 +241,6 @@ class TransferPage extends StatelessWidget {
   }
 
   Widget _buildTransactionsList() {
-    final transactions = [
-      {
-        'name': 'AYOBAMI OLUWAMUYIWA',
-        'date': 'Today (10:12)',
-      },
-      {
-        'name': 'AYOMIDE JOHN FAVOUR',
-        'date': 'Today (10:12)',
-      },
-      {
-        'name': 'BLESSED SUNDAY',
-        'date': 'Moniepoint (10:32)',
-      },
-      {
-        'name': 'MIRABEL ENTERPRISE',
-        'date': 'Moniepoint (10:32)',
-      },
-      {
-        'name': 'EGBE OLUWAKEMI',
-        'date': 'Moniepoint (10:32)',
-      },
-      {
-        'name': 'IBUKUN WORTHY FUNSHO',
-        'date': 'Moniepoint (10:32)',
-      },
-    ];
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -274,16 +250,16 @@ class TransferPage extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Transactions',
+                'Recent Transfers',
                 style: TextStyle(
                   fontSize: 16.sp,
                   fontWeight: FontWeight.w600,
                 ),
               ),
               TextButton(
-                onPressed: () {},
+                onPressed: () => userController.fetchUserTransfers(),
                 child: Text(
-                  'See all',
+                  'Refresh',
                   style: TextStyle(
                     fontSize: 14.sp,
                     color: const Color(0xFF8B3DFF),
@@ -293,57 +269,131 @@ class TransferPage extends StatelessWidget {
             ],
           ),
         ),
-        ListView.separated(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          padding: EdgeInsets.symmetric(horizontal: 16.w),
-          itemCount: transactions.length,
-          separatorBuilder: (context, index) => Divider(
-            color: Colors.grey[200],
-            height: 1,
-          ),
-          itemBuilder: (context, index) {
-            final transaction = transactions[index];
-            return ListTile(
-              contentPadding: EdgeInsets.zero,
-              leading: Container(
-                width: 40.w,
-                height: 40.w,
-                decoration: BoxDecoration(
-                  color: Colors.grey[100],
-                  shape: BoxShape.circle,
-                ),
-                child: Center(
-                  child: Icon(
-                    Icons.account_circle_outlined,
-                    size: 20.sp,
+        Obx(() {
+          if (userController.isLoadingTransfers.value) {
+            return Center(
+              child: Padding(
+                padding: EdgeInsets.all(16.r),
+                child: CircularProgressIndicator(),
+              ),
+            );
+          }
+
+          if (userController.transfers.isEmpty) {
+            return Center(
+              child: Padding(
+                padding: EdgeInsets.all(16.r),
+                child: Text(
+                  'No recent transfers',
+                  style: TextStyle(
+                    fontSize: 14.sp,
                     color: Colors.grey,
                   ),
                 ),
               ),
-              title: Text(
-                transaction['name']!,
-                style: TextStyle(
-                  fontSize: 14.sp,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-              subtitle: Text(
-                transaction['date']!,
-                style: TextStyle(
-                  fontSize: 12.sp,
-                  color: Colors.grey,
-                ),
-              ),
             );
-          },
-        ),
+          }
+
+          return ListView.separated(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            padding: EdgeInsets.symmetric(horizontal: 16.w),
+            itemCount: userController.transfers.length,
+            separatorBuilder: (context, index) => Divider(
+              color: Colors.grey[200],
+              height: 1,
+            ),
+            itemBuilder: (context, index) {
+              final transfer = userController.transfers[index];
+              final formattedDate =
+                  DateFormat('MMM d, y (HH:mm)').format(transfer.createdAt);
+
+              return ListTile(
+                contentPadding: EdgeInsets.zero,
+                onTap: () {
+                  Get.to(() => ConfirmTransferPage(
+                        recipientName: transfer.accountName,
+                        accountNumber: transfer.accountNumber,
+                        bankName: transfer.accountBank,
+                        bankCode: transfer.accountCode,
+                        prefillAmount: transfer.amount,
+                      ));
+                },
+                leading: Container(
+                  width: 40.w,
+                  height: 40.w,
+                  decoration: BoxDecoration(
+                    color: Colors.grey[100],
+                    shape: BoxShape.circle,
+                  ),
+                  child: Center(
+                    child: Text(
+                      transfer.accountName.substring(0, 1),
+                      style: TextStyle(
+                        fontSize: 16.sp,
+                        fontWeight: FontWeight.w600,
+                        color: primaryColor,
+                      ),
+                    ),
+                  ),
+                ),
+                title: Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        transfer.accountName,
+                        style: TextStyle(
+                          fontSize: 14.sp,
+                          fontWeight: FontWeight.w500,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    Text(
+                      '₦${transfer.amount}',
+                      style: TextStyle(
+                        fontSize: 14.sp,
+                        fontWeight: FontWeight.w600,
+                        color: primaryColor,
+                      ),
+                    ),
+                  ],
+                ),
+                subtitle: Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        '${transfer.accountBank} • ${transfer.accountNumber}',
+                        style: TextStyle(
+                          fontSize: 12.sp,
+                          color: Colors.grey[600],
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    Text(
+                      formattedDate,
+                      style: TextStyle(
+                        fontSize: 12.sp,
+                        color: Colors.grey,
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            },
+          );
+        }),
       ],
     );
   }
 
   @override
   Widget build(BuildContext context) {
+    userController.fetchUserTransfers();
+
     return Scaffold(
       backgroundColor: const Color(0xFFF8F2FF),
       appBar: AppBar(

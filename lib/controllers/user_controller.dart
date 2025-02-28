@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:tekpayapp/constants/colors.dart';
 import 'package:tekpayapp/controllers/auth_controller.dart';
 import 'package:tekpayapp/models/user_model.dart';
+import 'package:tekpayapp/models/transfer_model.dart';
 import 'package:tekpayapp/pages/app/settings_page.dart';
 import 'package:tekpayapp/pages/auth/login_page.dart';
 import 'package:tekpayapp/services/api_service.dart';
@@ -18,6 +19,8 @@ class UserController extends GetxController {
   final error = Rxn<String>();
   final isBalanceVisible = true.obs;
   final isResendingOtp = false.obs;
+  final transfers = <TransferModel>[].obs;
+  final isLoadingTransfers = false.obs;
 
   @override
   void onInit() {
@@ -336,6 +339,32 @@ class UserController extends GetxController {
       return false;
     } finally {
       isLoading.value = false;
+    }
+  }
+
+  Future<void> fetchUserTransfers() async {
+    try {
+      isLoadingTransfers.value = true;
+      final response = await _apiService.get('user/transfers');
+
+      if (response['status'] == true) {
+        final List<dynamic> transfersData = response['data'];
+        transfers.value = transfersData
+            .map((transfer) => TransferModel.fromJson(transfer))
+            .toList();
+      } else {
+        throw response['message'] ?? 'Failed to fetch transfers';
+      }
+    } catch (e) {
+      print('Error fetching transfers: $e');
+      Get.snackbar(
+        'Error',
+        'Failed to fetch transfers',
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+    } finally {
+      isLoadingTransfers.value = false;
     }
   }
 }

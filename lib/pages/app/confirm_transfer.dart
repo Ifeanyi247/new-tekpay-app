@@ -12,12 +12,14 @@ class ConfirmTransferPage extends StatelessWidget {
     required this.accountNumber,
     required this.bankName,
     required this.bankCode,
+    this.prefillAmount,
   });
 
   final String recipientName;
   final String accountNumber;
   final String bankName;
   final String bankCode;
+  final String? prefillAmount;
   final amountController = TextEditingController();
   final remarkController = TextEditingController();
   final formKey = GlobalKey<FormState>();
@@ -209,6 +211,7 @@ class ConfirmTransferPage extends StatelessWidget {
                             accountBank: bankCode,
                             accoutName: recipientName,
                             amount: double.parse(amountController.text),
+                            bankName: bankName,
                             narration: remarkController.text.isNotEmpty
                                 ? remarkController.text
                                 : null,
@@ -267,6 +270,11 @@ class ConfirmTransferPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Pre-fill amount if provided
+    if (prefillAmount != null) {
+      amountController.text = prefillAmount!;
+    }
+
     return Scaffold(
       backgroundColor: const Color(0xFFF8F2FF),
       appBar: AppBar(

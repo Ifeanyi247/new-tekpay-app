@@ -350,42 +350,7 @@ class _AirtimePageState extends State<AirtimePage> {
                     ),
                     itemCount: 12,
                     itemBuilder: (context, index) {
-                      if (index == 9) {
-                        return GestureDetector(
-                          onTap: () {
-                            if (_pinNotifier.value.length < 4) {
-                              _pinNotifier.value = _pinNotifier.value + '9';
-                              if (_pinNotifier.value.length == 4) {
-                                // PIN is complete, process the transaction
-                                _a_controller.purchaseAirtime(
-                                  phone: _phoneNumberController.text,
-                                  amount: _amountController.text,
-                                  network: _getSelectedNetwork(),
-                                  pin: _pinNotifier.value,
-                                );
-                              }
-                            }
-                          },
-                          child: Container(
-                            decoration: BoxDecoration(
-                              color: Colors.grey[100],
-                              borderRadius: BorderRadius.circular(8.r),
-                            ),
-                            child: Center(
-                              child: Text(
-                                '9',
-                                style: TextStyle(
-                                  fontSize: 24.sp,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                            ),
-                          ),
-                        );
-                      }
-                      if (index == 10) {
-                        index = 0;
-                      }
+                      // Handle backspace button (index 11)
                       if (index == 11) {
                         return GestureDetector(
                           onTap: () {
@@ -408,38 +373,78 @@ class _AirtimePageState extends State<AirtimePage> {
                           ),
                         );
                       }
-                      return GestureDetector(
-                        onTap: () {
-                          if (_pinNotifier.value.length < 4) {
-                            _pinNotifier.value =
-                                _pinNotifier.value + index.toString();
-                            if (_pinNotifier.value.length == 4) {
-                              // PIN is complete, process the transaction
-                              _a_controller.purchaseAirtime(
-                                phone: _phoneNumberController.text,
-                                amount: _amountController.text,
-                                network: _getSelectedNetwork(),
-                                pin: _pinNotifier.value,
-                              );
+
+                      // Handle number 0 (index 10)
+                      if (index == 10) {
+                        return GestureDetector(
+                          onTap: () {
+                            if (_pinNotifier.value.length < 4) {
+                              _pinNotifier.value = _pinNotifier.value + '0';
+                              if (_pinNotifier.value.length == 4) {
+                                // PIN is complete, process the transaction
+                                _a_controller.purchaseAirtime(
+                                  phone: _phoneNumberController.text,
+                                  amount: _amountController.text,
+                                  network: _getSelectedNetwork(),
+                                  pin: _pinNotifier.value,
+                                );
+                              }
                             }
-                          }
-                        },
-                        child: Container(
-                          decoration: BoxDecoration(
-                            color: Colors.grey[100],
-                            borderRadius: BorderRadius.circular(8.r),
-                          ),
-                          child: Center(
-                            child: Text(
-                              index.toString(),
-                              style: TextStyle(
-                                fontSize: 24.sp,
-                                fontWeight: FontWeight.w600,
+                          },
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: Colors.grey[100],
+                              borderRadius: BorderRadius.circular(8.r),
+                            ),
+                            child: Center(
+                              child: Text(
+                                '0',
+                                style: TextStyle(
+                                  fontSize: 24.sp,
+                                  fontWeight: FontWeight.w600,
+                                ),
                               ),
                             ),
                           ),
-                        ),
-                      );
+                        );
+                      }
+
+                      // Handle numbers 1-9
+                      final number = index + 1;
+                      return index < 9
+                          ? GestureDetector(
+                              onTap: () {
+                                if (_pinNotifier.value.length < 4) {
+                                  _pinNotifier.value =
+                                      _pinNotifier.value + number.toString();
+                                  if (_pinNotifier.value.length == 4) {
+                                    // PIN is complete, process the transaction
+                                    _a_controller.purchaseAirtime(
+                                      phone: _phoneNumberController.text,
+                                      amount: _amountController.text,
+                                      network: _getSelectedNetwork(),
+                                      pin: _pinNotifier.value,
+                                    );
+                                  }
+                                }
+                              },
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  color: Colors.grey[100],
+                                  borderRadius: BorderRadius.circular(8.r),
+                                ),
+                                child: Center(
+                                  child: Text(
+                                    number.toString(),
+                                    style: TextStyle(
+                                      fontSize: 24.sp,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            )
+                          : const SizedBox();
                     },
                   ),
                 ),
@@ -762,27 +767,27 @@ class _AirtimePageState extends State<AirtimePage> {
             SizedBox(height: 16.h),
             _buildNetworkList(),
             SizedBox(height: 24.h),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  'Select Beneficiary',
-                  style: TextStyle(
-                    fontSize: 16.sp,
-                    fontWeight: FontWeight.w500,
-                    color: Colors.black54,
-                  ),
-                ),
-                IconButton(
-                  icon: Icon(
-                    Icons.person_add_outlined,
-                    color: primaryColor,
-                    size: 24.sp,
-                  ),
-                  onPressed: _showBeneficiariesDialog,
-                ),
-              ],
-            ),
+            // Row(
+            //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            //   children: [
+            //     Text(
+            //       'Select Beneficiary',
+            //       style: TextStyle(
+            //         fontSize: 16.sp,
+            //         fontWeight: FontWeight.w500,
+            //         color: Colors.black54,
+            //       ),
+            //     ),
+            //     IconButton(
+            //       icon: Icon(
+            //         Icons.person_add_outlined,
+            //         color: primaryColor,
+            //         size: 24.sp,
+            //       ),
+            //       onPressed: _showBeneficiariesDialog,
+            //     ),
+            //   ],
+            // ),
             SizedBox(height: 16.h),
             CustomTextFieldWidget(
               label: 'Mobile Number',

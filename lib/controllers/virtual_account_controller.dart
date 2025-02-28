@@ -61,6 +61,7 @@ class VirtualAccountController extends GetxController {
     required String accountBank,
     required String accoutName,
     required double amount,
+    required String bankName,
     String? narration,
   }) async {
     try {
@@ -74,6 +75,7 @@ class VirtualAccountController extends GetxController {
           'account_bank': accountBank,
           'account_name': accoutName,
           'amount': amount,
+          'bank': bankName,
           if (narration != null) 'narration': narration,
         },
       );

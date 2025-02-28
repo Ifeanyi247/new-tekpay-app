@@ -136,36 +136,7 @@ class _PinEntrySheetState extends State<PinEntrySheet> {
               ),
               itemCount: 12,
               itemBuilder: (context, index) {
-                if (index == 9) {
-                  return GestureDetector(
-                    onTap: () {
-                      if (_pinNotifier.value.length < 4) {
-                        _pinNotifier.value = _pinNotifier.value + '9';
-                        if (_pinNotifier.value.length == 4) {
-                          widget.onPinComplete(_pinNotifier.value);
-                        }
-                      }
-                    },
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: Colors.grey[100],
-                        borderRadius: BorderRadius.circular(8.r),
-                      ),
-                      child: Center(
-                        child: Text(
-                          '9',
-                          style: TextStyle(
-                            fontSize: 24.sp,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ),
-                    ),
-                  );
-                }
-                if (index == 10) {
-                  index = 0;
-                }
+                // Handle backspace button (index 11)
                 if (index == 11) {
                   return GestureDetector(
                     onTap: () {
@@ -188,32 +159,66 @@ class _PinEntrySheetState extends State<PinEntrySheet> {
                     ),
                   );
                 }
-                return GestureDetector(
-                  onTap: () {
-                    if (_pinNotifier.value.length < 4) {
-                      _pinNotifier.value =
-                          _pinNotifier.value + index.toString();
-                      if (_pinNotifier.value.length == 4) {
-                        widget.onPinComplete(_pinNotifier.value);
+
+                // Handle number 0 (index 10)
+                if (index == 10) {
+                  return GestureDetector(
+                    onTap: () {
+                      if (_pinNotifier.value.length < 4) {
+                        _pinNotifier.value = _pinNotifier.value + '0';
+                        if (_pinNotifier.value.length == 4) {
+                          widget.onPinComplete(_pinNotifier.value);
+                        }
                       }
-                    }
-                  },
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: Colors.grey[100],
-                      borderRadius: BorderRadius.circular(8.r),
-                    ),
-                    child: Center(
-                      child: Text(
-                        index.toString(),
-                        style: TextStyle(
-                          fontSize: 24.sp,
-                          fontWeight: FontWeight.w600,
+                    },
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.grey[100],
+                        borderRadius: BorderRadius.circular(8.r),
+                      ),
+                      child: Center(
+                        child: Text(
+                          '0',
+                          style: TextStyle(
+                            fontSize: 24.sp,
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                );
+                  );
+                }
+
+                // Handle numbers 1-9
+                final number = index + 1;
+                return index < 9
+                    ? GestureDetector(
+                        onTap: () {
+                          if (_pinNotifier.value.length < 4) {
+                            _pinNotifier.value =
+                                _pinNotifier.value + number.toString();
+                            if (_pinNotifier.value.length == 4) {
+                              widget.onPinComplete(_pinNotifier.value);
+                            }
+                          }
+                        },
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: Colors.grey[100],
+                            borderRadius: BorderRadius.circular(8.r),
+                          ),
+                          child: Center(
+                            child: Text(
+                              number.toString(),
+                              style: TextStyle(
+                                fontSize: 24.sp,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                        ),
+                      )
+                    : const SizedBox();
               },
             ),
           ),
