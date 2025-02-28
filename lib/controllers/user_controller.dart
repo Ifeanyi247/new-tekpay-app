@@ -367,4 +367,42 @@ class UserController extends GetxController {
       isLoadingTransfers.value = false;
     }
   }
+
+  Future<Map<String, dynamic>> getReferrals() async {
+    try {
+      isLoading.value = true;
+      error.value = null;
+
+      final response = await _apiService.get('user/referrals');
+
+      if (response['status'] == true) {
+        return response;
+      } else {
+        error.value = response['message'] ?? 'Failed to fetch referral data';
+        throw ApiException(statusCode: 500, message: error.value!);
+      }
+    } on ApiException catch (e) {
+      error.value = e.message;
+      Get.snackbar(
+        'Error',
+        e.message,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+        snackPosition: SnackPosition.BOTTOM,
+      );
+      rethrow;
+    } catch (e) {
+      error.value = 'An unexpected error occurred';
+      Get.snackbar(
+        'Error',
+        'An unexpected error occurred',
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+        snackPosition: SnackPosition.BOTTOM,
+      );
+      rethrow;
+    } finally {
+      isLoading.value = false;
+    }
+  }
 }

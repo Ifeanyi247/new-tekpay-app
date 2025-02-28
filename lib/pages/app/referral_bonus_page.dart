@@ -2,109 +2,34 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:tekpayapp/constants/colors.dart';
+import 'package:tekpayapp/controllers/user_controller.dart';
 import 'package:tekpayapp/pages/widgets/custom_button_widget.dart';
+import 'package:intl/intl.dart';
 
-class ReferralBonusPage extends StatelessWidget {
-  const ReferralBonusPage({super.key});
+class ReferralBonusController extends GetxController {
+  final UserController _userController = Get.find<UserController>();
+  final referralData = {}.obs;
+  final isLoading = false.obs;
 
-  Widget _buildStatItem(
-      {required String title, required String value, required IconData icon}) {
-    return Column(
-      children: [
-        Container(
-          width: 48.w,
-          height: 48.w,
-          decoration: BoxDecoration(
-            color: Colors.purple.shade50,
-            shape: BoxShape.circle,
-          ),
-          child: Icon(
-            icon,
-            color: primaryColor,
-            size: 24.sp,
-          ),
-        ),
-        SizedBox(height: 8.h),
-        Text(
-          value,
-          style: TextStyle(
-            fontSize: 16.sp,
-            fontWeight: FontWeight.w600,
-            color: primaryColor,
-          ),
-        ),
-        Text(
-          title,
-          style: TextStyle(
-            fontSize: 14.sp,
-            color: primaryColor,
-          ),
-        ),
-      ],
-    );
+  @override
+  void onInit() {
+    super.onInit();
+    _loadReferralData();
   }
 
-  Widget _buildReferralItem() {
-    return Container(
-      margin: EdgeInsets.only(bottom: 16.h),
-      child: Row(
-        children: [
-          Container(
-            width: 48.w,
-            height: 48.w,
-            decoration: BoxDecoration(
-              color: Colors.purple.shade50,
-              shape: BoxShape.circle,
-            ),
-            child: Icon(
-              Icons.person_outline,
-              color: primaryColor,
-              size: 24.sp,
-            ),
-          ),
-          SizedBox(width: 12.w),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Username',
-                  style: TextStyle(
-                    fontSize: 16.sp,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-                Text(
-                  'Phone No. 09123456789',
-                  style: TextStyle(
-                    fontSize: 12.sp,
-                    color: Colors.grey,
-                  ),
-                ),
-                Text(
-                  '2024-09-23, 05:13:53',
-                  style: TextStyle(
-                    fontSize: 12.sp,
-                    color: Colors.grey,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Text(
-            '₦100',
-            style: TextStyle(
-              fontSize: 16.sp,
-              fontWeight: FontWeight.w600,
-              color: primaryColor,
-            ),
-          ),
-        ],
-      ),
-    );
+  Future<void> _loadReferralData() async {
+    try {
+      isLoading.value = true;
+      final response = await _userController.getReferrals();
+      if (response['status'] == true) {
+        referralData.value = response['data'];
+      }
+    } finally {
+      isLoading.value = false;
+    }
   }
 
-  void _showWithdrawConfirmation() {
+  void showWithdrawConfirmation() {
     Get.bottomSheet(
       Container(
         padding: EdgeInsets.all(24.w),
@@ -157,6 +82,112 @@ class ReferralBonusPage extends StatelessWidget {
     );
   }
 
+  Widget buildStatItem(
+      {required String title, required String value, required IconData icon}) {
+    return Column(
+      children: [
+        Container(
+          width: 48.w,
+          height: 48.w,
+          decoration: BoxDecoration(
+            color: Colors.purple.shade50,
+            shape: BoxShape.circle,
+          ),
+          child: Icon(
+            icon,
+            color: primaryColor,
+            size: 24.sp,
+          ),
+        ),
+        SizedBox(height: 8.h),
+        Text(
+          value,
+          style: TextStyle(
+            fontSize: 16.sp,
+            fontWeight: FontWeight.w600,
+            color: primaryColor,
+          ),
+        ),
+        Text(
+          title,
+          style: TextStyle(
+            fontSize: 14.sp,
+            color: primaryColor,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget buildReferralItem(Map<String, dynamic> user) {
+    final dateTime = DateTime.parse(user['joined_at']);
+    final formattedDate = DateFormat('yyyy-MM-dd, HH:mm:ss').format(dateTime);
+
+    return Container(
+      margin: EdgeInsets.only(bottom: 16.h),
+      child: Row(
+        children: [
+          Container(
+            width: 48.w,
+            height: 48.w,
+            decoration: BoxDecoration(
+              color: Colors.purple.shade50,
+              shape: BoxShape.circle,
+            ),
+            child: Icon(
+              Icons.person_outline,
+              color: primaryColor,
+              size: 24.sp,
+            ),
+          ),
+          SizedBox(width: 12.w),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  user['name'] ?? 'N/A',
+                  style: TextStyle(
+                    fontSize: 16.sp,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                Text(
+                  'Phone: ${user['phone'] ?? 'N/A'}',
+                  style: TextStyle(
+                    fontSize: 12.sp,
+                    color: Colors.grey,
+                  ),
+                ),
+                Text(
+                  formattedDate,
+                  style: TextStyle(
+                    fontSize: 12.sp,
+                    color: Colors.grey,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Text(
+            '₦10.00',
+            style: TextStyle(
+              fontSize: 16.sp,
+              fontWeight: FontWeight.w600,
+              color: primaryColor,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class ReferralBonusPage extends StatelessWidget {
+  ReferralBonusPage({super.key});
+
+  final controller = Get.put(ReferralBonusController());
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -183,46 +214,54 @@ class ReferralBonusPage extends StatelessWidget {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                _buildStatItem(
-                  title: 'Total Earned',
-                  value: '₦ 500',
-                  icon: Icons.account_balance_wallet,
-                ),
-                _buildStatItem(
-                  title: 'Total Invited',
-                  value: '5',
-                  icon: Icons.group_add,
-                ),
+                Obx(() => controller.buildStatItem(
+                      title: 'Total Earned',
+                      value:
+                          '₦${controller.referralData['total_earnings'] ?? '0.00'}',
+                      icon: Icons.account_balance_wallet,
+                    )),
+                Obx(() => controller.buildStatItem(
+                      title: 'Total Invited',
+                      value:
+                          '${controller.referralData['total_referrals'] ?? '0'}',
+                      icon: Icons.group_add,
+                    )),
               ],
             ),
           ),
           Container(
             width: double.infinity,
             padding: EdgeInsets.symmetric(vertical: 12.h, horizontal: 16.w),
-            color: Colors.purple.shade50,
+            color: Colors.grey.shade100,
             child: Text(
               'Referral History',
               style: TextStyle(
                 fontSize: 16.sp,
                 fontWeight: FontWeight.w500,
-                color: primaryColor,
               ),
             ),
           ),
           Expanded(
-            child: ListView.builder(
-              padding: EdgeInsets.all(16.w),
-              itemCount: 5,
-              itemBuilder: (context, index) => _buildReferralItem(),
-            ),
+            child: Obx(() => ListView.builder(
+                  padding: EdgeInsets.all(16.w),
+                  itemCount: (controller.referralData['referred_users']
+                              as List<dynamic>?)
+                          ?.length ??
+                      0,
+                  itemBuilder: (context, index) {
+                    final users = controller.referralData['referred_users']
+                        as List<dynamic>;
+                    return controller.buildReferralItem(users[index]);
+                  },
+                )),
           ),
-          Padding(
-            padding: EdgeInsets.all(16.w),
-            child: CustomButtonWidget(
-              text: 'Withdraw Bonus',
-              onTap: _showWithdrawConfirmation,
-            ),
-          ),
+          // Padding(
+          //   padding: EdgeInsets.all(16.w),
+          //   child: CustomButtonWidget(
+          //     text: 'Withdraw Bonus',
+          //     onTap: controller.showWithdrawConfirmation,
+          //   ),
+          // ),
         ],
       ),
     );

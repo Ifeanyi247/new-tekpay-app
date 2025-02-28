@@ -41,6 +41,7 @@ class AuthController extends GetxController {
     required String phoneNumber,
     required String password,
     required String confirmPassword,
+    String? referralCode,
   }) async {
     try {
       // Clear any existing user data before registration
@@ -57,6 +58,7 @@ class AuthController extends GetxController {
         'phone_number': phoneNumber,
         'password': password,
         'confirm_password': confirmPassword,
+        'referral_code': referralCode,
       });
 
       if (response['status'] == true) {

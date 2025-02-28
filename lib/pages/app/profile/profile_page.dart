@@ -182,7 +182,7 @@ class _ProfilePageState extends State<ProfilePage> {
                           subtitle: 'Referral bonuses',
                           icon: Icons.attach_money_outlined,
                           onTap: () {
-                            Get.to(() => const ReferralPage());
+                            Get.to(() => ReferralPage());
                           },
                         ),
                         // _buildProfileOption(

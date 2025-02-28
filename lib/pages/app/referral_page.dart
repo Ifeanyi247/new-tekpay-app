@@ -2,12 +2,49 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:tekpayapp/constants/colors.dart';
+import 'package:tekpayapp/controllers/user_controller.dart';
 import 'package:tekpayapp/pages/app/referral_bonus_page.dart';
 import 'package:tekpayapp/pages/widgets/custom_button_widget.dart';
 
+class ReferralController extends GetxController {
+  final UserController _userController = Get.find<UserController>();
+  final referralData = {}.obs;
+  final isLoading = false.obs;
+
+  @override
+  void onInit() {
+    super.onInit();
+    _loadReferralData();
+  }
+
+  Future<void> _loadReferralData() async {
+    try {
+      isLoading.value = true;
+      final response = await _userController.getReferrals();
+      if (response['status'] == true) {
+        referralData.value = response['data'];
+      }
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  String get shareMessage =>
+      '''🌟 Join me on Tekpay and make seamless transactions! 🌟
+
+Send and receive money instantly, pay bills, buy airtime, and more with Tekpay. 
+
+📱 Use my referral code: ${referralData['referral_code'] ?? ''}
+
+Join now and let's enjoy the future of digital payments together! 💫''';
+}
+
 class ReferralPage extends StatelessWidget {
-  const ReferralPage({super.key});
+  ReferralPage({super.key});
+
+  final ReferralController controller = Get.put(ReferralController());
 
   void _showShareDialog() {
     Get.dialog(
@@ -46,40 +83,28 @@ class ReferralPage extends StatelessWidget {
                   _buildSocialButton(
                     'Facebook',
                     'assets/images/facebook.png',
-                    () {
-                      // TODO: Share to Facebook
-                      Get.back();
-                    },
+                    () => _shareToSocial('Facebook'),
                   ),
                   _buildSocialButton(
                     'Instagram',
                     'assets/images/instagram.png',
-                    () {
-                      // TODO: Share to Instagram
-                      Get.back();
-                    },
+                    () => _shareToSocial('Instagram'),
                   ),
                   _buildSocialButton(
                     'WhatsApp',
                     'assets/images/whatsapp.png',
-                    () {
-                      // TODO: Share to WhatsApp
-                      Get.back();
-                    },
+                    () => _shareToSocial('WhatsApp'),
                   ),
                   _buildSocialButton(
                     'X',
                     'assets/images/x.png',
-                    () {
-                      // TODO: Share to X
-                      Get.back();
-                    },
+                    () => _shareToSocial('X'),
                   ),
                 ],
               ),
               SizedBox(height: 24.h),
               Text(
-                'Or copy link',
+                'Or copy code',
                 style: TextStyle(
                   fontSize: 14.sp,
                   fontWeight: FontWeight.w500,
@@ -95,13 +120,14 @@ class ReferralPage extends StatelessWidget {
                 child: Row(
                   children: [
                     Expanded(
-                      child: Text(
-                        'www.tekpay.app/share-to-social-to..',
-                        style: TextStyle(
-                          fontSize: 14.sp,
-                          color: primaryColor,
-                        ),
-                      ),
+                      child: Obx(() => Text(
+                            controller.referralData['referral_code'] ??
+                                'Loading...',
+                            style: TextStyle(
+                              fontSize: 14.sp,
+                              color: primaryColor,
+                            ),
+                          )),
                     ),
                     IconButton(
                       icon: Icon(
@@ -110,12 +136,12 @@ class ReferralPage extends StatelessWidget {
                         size: 20.sp,
                       ),
                       onPressed: () {
-                        Clipboard.setData(const ClipboardData(
-                          text: 'www.tekpay.app/share-to-social-to',
+                        Clipboard.setData(ClipboardData(
+                          text: controller.referralData['referral_code'] ?? '',
                         ));
                         Get.snackbar(
                           'Success',
-                          'Link copied to clipboard',
+                          'Code copied to clipboard',
                           snackPosition: SnackPosition.BOTTOM,
                         );
                       },
@@ -131,6 +157,26 @@ class ReferralPage extends StatelessWidget {
       ),
       barrierDismissible: true,
     );
+  }
+
+  Future<void> _shareToSocial(String platform) async {
+    final text = controller.shareMessage;
+
+    try {
+      await Share.share(
+        text,
+        subject: 'Join me on Tekpay!',
+      );
+      Get.back(); // Close the share dialog
+    } catch (e) {
+      Get.snackbar(
+        'Error',
+        'Failed to share to $platform',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+    }
   }
 
   Widget _buildSocialButton(String label, String iconPath, VoidCallback onTap) {
@@ -199,13 +245,21 @@ class ReferralPage extends StatelessWidget {
             ),
             SizedBox(height: 24.h),
             Text(
-              'Invite your friends who have not used Tekpay to\njoin, and earn rewards!',
-              textAlign: TextAlign.center,
+              'Invite your friends to join TekPay',
               style: TextStyle(
-                fontSize: 14.sp,
-                color: Colors.grey,
+                fontSize: 18.sp,
+                fontWeight: FontWeight.w600,
               ),
             ),
+            SizedBox(height: 8.h),
+            Obx(() => Text(
+                  'Your referral code: ${controller.referralData['referral_code'] ?? 'Loading...'}',
+                  style: TextStyle(
+                    fontSize: 16.sp,
+                    color: primaryColor,
+                    fontWeight: FontWeight.w500,
+                  ),
+                )),
             SizedBox(height: 32.h),
             CustomButtonWidget(
               text: 'Share Link And Earn',
@@ -213,10 +267,11 @@ class ReferralPage extends StatelessWidget {
             ),
             SizedBox(height: 16.h),
             Text(
-              'Share you invitation link with your friends to earn',
+              'Share your referral code with your friends and\nget rewarded when they join!',
+              textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 14.sp,
-                color: primaryColor,
+                color: Colors.grey,
               ),
             ),
             SizedBox(height: 32.h),
@@ -230,18 +285,44 @@ class ReferralPage extends StatelessWidget {
                 children: [
                   Row(
                     children: [
-                      Icon(
-                        Icons.account_balance_wallet,
-                        color: primaryColor,
-                        size: 24.sp,
+                      Container(
+                        width: 48.w,
+                        height: 48.w,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          shape: BoxShape.circle,
+                        ),
+                        child: Center(
+                          child: Text(
+                            '₦',
+                            style: TextStyle(
+                              fontSize: 24.sp,
+                              color: primaryColor,
+                            ),
+                          ),
+                        ),
                       ),
-                      SizedBox(width: 8.w),
-                      Text(
-                        'Total Earned: ₦ 0',
-                        style: TextStyle(
-                          fontSize: 16.sp,
-                          fontWeight: FontWeight.w600,
-                          color: primaryColor,
+                      SizedBox(width: 12.w),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Bonus Balance',
+                              style: TextStyle(
+                                fontSize: 14.sp,
+                                color: Colors.grey,
+                              ),
+                            ),
+                            Obx(() => Text(
+                                  '₦${controller.referralData['total_earnings'] ?? '0.00'}',
+                                  style: TextStyle(
+                                    fontSize: 18.sp,
+                                    fontWeight: FontWeight.w600,
+                                    color: primaryColor,
+                                  ),
+                                )),
+                          ],
                         ),
                       ),
                     ],
@@ -249,21 +330,23 @@ class ReferralPage extends StatelessWidget {
                   SizedBox(height: 16.h),
                   InkWell(
                     onTap: () {
-                      Get.to(() => const ReferralBonusPage());
+                      Get.to(() => ReferralBonusPage());
                     },
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          'Referral Records',
+                          'View Bonus History',
                           style: TextStyle(
-                            fontSize: 16.sp,
+                            fontSize: 14.sp,
+                            color: primaryColor,
                             fontWeight: FontWeight.w500,
                           ),
                         ),
                         Icon(
-                          Icons.chevron_right,
-                          size: 24.sp,
+                          Icons.arrow_forward,
+                          color: primaryColor,
+                          size: 20.sp,
                         ),
                       ],
                     ),

@@ -178,6 +178,7 @@ class _RegisterPageState extends State<RegisterPage> {
                               password: _passwordController.text.trim(),
                               confirmPassword:
                                   _confirmPasswordController.text.trim(),
+                              referralCode: _referralCodeController.text.trim(),
                             );
                           },
                         );

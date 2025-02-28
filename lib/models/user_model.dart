@@ -74,6 +74,10 @@ class UserProfile {
   final bool kycVerified;
   final String createdAt;
   final String updatedAt;
+  final String referralCode;
+  final String? referredBy;
+  final int referralCount;
+  final String referralEarnings;
 
   UserProfile({
     required this.id,
@@ -84,6 +88,10 @@ class UserProfile {
     required this.kycVerified,
     required this.createdAt,
     required this.updatedAt,
+    this.referralCode = '',
+    this.referredBy,
+    this.referralCount = 0,
+    this.referralEarnings = '0.00',
   });
 
   factory UserProfile.fromJson(Map<String, dynamic> json) {
@@ -97,9 +105,15 @@ class UserProfile {
       wallet: json['wallet'] is String
           ? double.parse(json['wallet'])
           : (json['wallet'] as num?)?.toDouble() ?? 0.0,
-      kycVerified: json['kyc_verified'] ?? false,
+      kycVerified: json['kyc_verified'] == 1 || json['kyc_verified'] == true,
       createdAt: json['created_at']?.toString() ?? '',
       updatedAt: json['updated_at']?.toString() ?? '',
+      referralCode: json['referral_code']?.toString() ?? '',
+      referredBy: json['referred_by']?.toString(),
+      referralCount: json['referral_count'] is String
+          ? int.parse(json['referral_count'])
+          : json['referral_count'] ?? 0,
+      referralEarnings: json['referral_earnings']?.toString() ?? '0.00',
     );
   }
 
@@ -113,6 +127,10 @@ class UserProfile {
       'kyc_verified': kycVerified,
       'created_at': createdAt,
       'updated_at': updatedAt,
+      'referral_code': referralCode,
+      'referred_by': referredBy,
+      'referral_count': referralCount,
+      'referral_earnings': referralEarnings,
     };
   }
 }

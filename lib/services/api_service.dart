@@ -25,7 +25,6 @@ class ApiService extends GetxService {
 
     _client = IOClient(client);
   }
-
   // Set auth token
   void setAuthToken(String token) {
     _authToken = token;
