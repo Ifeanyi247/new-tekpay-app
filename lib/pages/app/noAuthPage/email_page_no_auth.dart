@@ -5,6 +5,7 @@ import 'package:tekpayapp/constants/colors.dart';
 import 'package:tekpayapp/controllers/auth_controller.dart';
 import 'package:tekpayapp/pages/app/noAuthPage/verify_forgot_otp_pin_page_no_auth.dart';
 import 'package:tekpayapp/pages/app/password_reset/verify_forgot_passowrd_otp_page.dart';
+import 'package:tekpayapp/pages/app/support_page.dart';
 import 'package:tekpayapp/pages/widgets/custom_text_field.dart';
 
 class EmailPageNoAuth extends StatefulWidget {
@@ -40,15 +41,17 @@ class _EmailPageNoAuthState extends State<EmailPageNoAuth> {
         ),
         centerTitle: true,
         actions: [
-          IconButton(
-            icon: CircleAvatar(
+          GestureDetector(
+            onTap: () {
+              Get.to(() => const SupportPage());
+            },
+            child: CircleAvatar(
               backgroundColor: Colors.white,
               child: Image.asset(
                 'assets/images/support_agent.png',
                 color: Colors.black,
               ),
             ),
-            onPressed: () {},
           ),
         ],
       ),

@@ -9,6 +9,7 @@ import 'package:tekpayapp/pages/app/kyc_page.dart';
 import 'package:tekpayapp/pages/app/profile/edit_profile_page.dart';
 import 'package:tekpayapp/pages/app/referral_page.dart';
 import 'package:tekpayapp/pages/app/settings_page.dart';
+import 'package:tekpayapp/pages/app/support_page.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -197,7 +198,9 @@ class _ProfilePageState extends State<ProfilePage> {
                           title: 'Help & Support',
                           subtitle: 'Help or contact vasel',
                           icon: Icons.help_outline,
-                          onTap: () {},
+                          onTap: () {
+                            Get.to(() => const SupportPage());
+                          },
                         ),
                         SizedBox(height: 16.h),
                         Obx(() {

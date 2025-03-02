@@ -53,6 +53,7 @@ dependencies:
   in_app_review: ^2.0.8
   firebase_core:
   firebase_messaging:
+  url_launcher: ^6.3.1
 
 dev_dependencies:
   flutter_test:

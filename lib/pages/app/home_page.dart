@@ -14,7 +14,9 @@ import 'package:tekpayapp/pages/app/all_services_page.dart';
 import 'package:tekpayapp/pages/app/data/data_page.dart';
 import 'package:tekpayapp/pages/app/electricity/electricity_page.dart';
 import 'package:tekpayapp/pages/app/internet/internet_page.dart';
+import 'package:tekpayapp/pages/app/notification_page.dart';
 import 'package:tekpayapp/pages/app/profile/profile_page.dart';
+import 'package:tekpayapp/pages/app/support_page.dart';
 import 'package:tekpayapp/pages/app/transactions_page.dart';
 import 'package:tekpayapp/pages/app/transfer_page.dart';
 import 'package:tekpayapp/pages/app/tv/tv_page.dart';
@@ -255,29 +257,36 @@ class HomePage extends StatelessWidget {
                                   ],
                                 ),
                               ),
-                              // Stack(
-                              //   children: [
-                              //     const Icon(
-                              //       Icons.notifications,
-                              //       color: Colors.white,
-                              //     ),
-                              //     Positioned(
-                              //       top: 0,
-                              //       right: 0,
-                              //       child: Container(
-                              //         width: 8.w,
-                              //         height: 8.w,
-                              //         decoration: const BoxDecoration(
-                              //           shape: BoxShape.circle,
-                              //           color: Colors.red,
-                              //         ),
-                              //       ),
-                              //     ),
-                              //   ],
-                              // ),
-                              // SizedBox(width: 12.w),
                               GestureDetector(
-                                onTap: () {},
+                                onTap: () {
+                                  Get.to(() => const HomeNotificationPage());
+                                },
+                                child: Stack(
+                                  children: [
+                                    const Icon(
+                                      Icons.notifications,
+                                      color: Colors.white,
+                                    ),
+                                    Positioned(
+                                      top: 0,
+                                      right: 0,
+                                      child: Container(
+                                        width: 8.w,
+                                        height: 8.w,
+                                        decoration: const BoxDecoration(
+                                          shape: BoxShape.circle,
+                                          color: Colors.red,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              SizedBox(width: 12.w),
+                              GestureDetector(
+                                onTap: () {
+                                  Get.to(() => const SupportPage());
+                                },
                                 child: Image.asset(
                                   'assets/images/support_agent.png',
                                 ),

@@ -7,6 +7,7 @@ import 'package:tekpayapp/constants/colors.dart';
 import 'package:tekpayapp/controllers/auth_controller.dart';
 import 'package:tekpayapp/controllers/user_controller.dart';
 import 'package:tekpayapp/pages/app/noAuthPage/email_page_no_auth.dart';
+import 'package:tekpayapp/pages/app/support_page.dart';
 import 'package:tekpayapp/pages/widgets/bottom_bar.dart';
 import 'package:tekpayapp/services/storage_service.dart';
 import 'package:local_auth/local_auth.dart';
@@ -144,15 +145,17 @@ class _InputPinPageState extends State<InputPinPage> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         actions: [
-          IconButton(
-            icon: Image.asset(
+          GestureDetector(
+            onTap: () {
+              Get.to(() => const SupportPage());
+            },
+            child: Image.asset(
               'assets/images/support_agent.png',
               width: 25.w,
               height: 25.w,
               color: Colors.black,
               scale: 0.8,
             ),
-            onPressed: () {},
           ),
           SizedBox(width: 8.w),
         ],

@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:tekpayapp/constants/colors.dart';
 import 'package:tekpayapp/controllers/auth_controller.dart';
 import 'package:tekpayapp/pages/app/password_reset/forgot_password_email_page.dart';
+import 'package:tekpayapp/pages/app/support_page.dart';
 import 'package:tekpayapp/pages/auth/input_pin_page.dart';
 import 'package:tekpayapp/pages/auth/register_page.dart';
 import 'package:tekpayapp/pages/widgets/bottom_bar.dart';
@@ -52,13 +53,15 @@ class _LoginPageState extends State<LoginPage> {
         ),
         centerTitle: true,
         actions: [
-          IconButton(
-            icon: Image.asset(
+          GestureDetector(
+            onTap: () {
+              Get.to(() => const SupportPage());
+            },
+            child: Image.asset(
               'assets/images/support_agent.png',
               width: 24.w,
               height: 24.w,
             ),
-            onPressed: () {},
           ),
         ],
       ),

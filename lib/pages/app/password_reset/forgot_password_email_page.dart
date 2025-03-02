@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:tekpayapp/constants/colors.dart';
 import 'package:tekpayapp/controllers/auth_controller.dart';
 import 'package:tekpayapp/pages/app/password_reset/verify_forgot_passowrd_otp_page.dart';
+import 'package:tekpayapp/pages/app/support_page.dart';
 import 'package:tekpayapp/pages/widgets/custom_text_field.dart';
 
 class ForgotPasswordEmailPage extends StatefulWidget {
@@ -41,11 +42,16 @@ class _ForgotPasswordEmailPageState extends State<ForgotPasswordEmailPage> {
         centerTitle: true,
         actions: [
           IconButton(
-            icon: CircleAvatar(
-              backgroundColor: Colors.white,
-              child: Image.asset(
-                'assets/images/support_agent.png',
-                color: Colors.black,
+            icon: GestureDetector(
+              onTap: () {
+                Get.to(() => const SupportPage());
+              },
+              child: CircleAvatar(
+                backgroundColor: Colors.white,
+                child: Image.asset(
+                  'assets/images/support_agent.png',
+                  color: Colors.black,
+                ),
               ),
             ),
             onPressed: () {},

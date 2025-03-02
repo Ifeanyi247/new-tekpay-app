@@ -2,16 +2,83 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:get/get.dart';
 import 'package:tekpayapp/firebase_options.dart';
+import 'package:tekpayapp/models/notification_model.dart';
 import 'package:tekpayapp/services/api_service.dart';
 
 class NotificationController extends GetxController {
   final FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
   final ApiService _apiService = Get.find<ApiService>();
+  
+  final RxList<NotificationModel> notifications = <NotificationModel>[].obs;
+  final RxBool isLoading = false.obs;
+  final RxInt currentPage = 1.obs;
+  final RxInt totalPages = 1.obs;
+  final RxBool hasMore = true.obs;
 
   @override
   void onInit() {
     super.onInit();
     _initNotifications();
+    fetchNotifications();
+  }
+
+  Future<void> fetchNotifications({bool refresh = false}) async {
+    if (refresh) {
+      currentPage.value = 1;
+      hasMore.value = true;
+      notifications.clear();
+    }
+
+    if (!hasMore.value) return;
+
+    try {
+      isLoading.value = true;
+      final response = await _apiService.get(
+        'notifications?page=${currentPage.value}',
+      );
+
+      final notificationResponse = NotificationResponse.fromJson(response);
+      final pagination = notificationResponse.data;
+
+      if (refresh) {
+        notifications.clear();
+      }
+
+      notifications.addAll(pagination.data);
+      totalPages.value = pagination.lastPage;
+      hasMore.value = pagination.nextPageUrl != null;
+      currentPage.value++;
+    } catch (e) {
+      print('Error fetching notifications: $e');
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  Future<void> markAsRead(int notificationId) async {
+    try {
+      await _apiService.post('notifications/$notificationId/read');
+      final index = notifications.indexWhere((n) => n.id == notificationId);
+      if (index != -1) {
+        final updatedNotification = NotificationModel(
+          id: notifications[index].id,
+          userId: notifications[index].userId,
+          title: notifications[index].title,
+          message: notifications[index].message,
+          type: notifications[index].type,
+          transactionId: notifications[index].transactionId,
+          reference: notifications[index].reference,
+          amount: notifications[index].amount,
+          status: notifications[index].status,
+          isRead: true,
+          createdAt: notifications[index].createdAt,
+          updatedAt: DateTime.now(),
+        );
+        notifications[index] = updatedNotification;
+      }
+    } catch (e) {
+      print('Error marking notification as read: $e');
+    }
   }
 
   Future<void> _initNotifications() async {

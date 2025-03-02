@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:tekpayapp/constants/colors.dart';
 import 'package:tekpayapp/controllers/auth_controller.dart';
 import 'package:tekpayapp/pages/app/password_reset/password_reset_success_dialog.dart';
+import 'package:tekpayapp/pages/app/support_page.dart';
 import 'package:tekpayapp/pages/widgets/custom_text_field.dart';
 
 class ResetPasswordOtpPage extends StatefulWidget {
@@ -56,15 +57,17 @@ class _ResetPasswordOtpPageState extends State<ResetPasswordOtpPage> {
         ),
         centerTitle: true,
         actions: [
-          IconButton(
-            icon: CircleAvatar(
+          GestureDetector(
+            onTap: () {
+              Get.to(() => const SupportPage());
+            },
+            child: CircleAvatar(
               backgroundColor: Colors.white,
               child: Image.asset(
                 'assets/images/support_agent.png',
                 color: Colors.black,
               ),
             ),
-            onPressed: () {},
           ),
         ],
       ),

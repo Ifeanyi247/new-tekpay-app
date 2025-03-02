@@ -6,6 +6,7 @@ import 'package:tekpayapp/constants/colors.dart';
 import 'package:tekpayapp/controllers/auth_controller.dart';
 import 'package:tekpayapp/pages/app/noAuthPage/reset_pin_no_auth.dart';
 import 'package:tekpayapp/pages/app/password_reset/reset_password_otp_page.dart';
+import 'package:tekpayapp/pages/app/support_page.dart';
 
 class VerifyForgotOtpPinPageNoAuth extends StatefulWidget {
   final String email;
@@ -71,16 +72,15 @@ class _VerifyForgotOtpPinPageNoAuthState
         ),
         centerTitle: true,
         actions: [
-          IconButton(
-            icon: CircleAvatar(
-              backgroundColor: Colors.white,
-              child: Image.asset(
-                'assets/images/support_agent.png',
-                color: Colors.black,
-                scale: 0.8,
-              ),
+          GestureDetector(
+            onTap: () {
+              Get.to(() => const SupportPage());
+            },
+            child: Image.asset(
+              'assets/images/support_agent.png',
+              color: Colors.black,
+              scale: 0.8,
             ),
-            onPressed: () {},
           ),
         ],
       ),
