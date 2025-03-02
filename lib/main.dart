@@ -5,11 +5,14 @@ import 'package:tekpayapp/controllers/auth_controller.dart';
 import 'package:tekpayapp/controllers/user_controller.dart';
 import 'package:tekpayapp/controllers/transfer_controller.dart';
 import 'package:tekpayapp/controllers/virtual_account_controller.dart';
+import 'package:tekpayapp/controllers/notification_controller.dart';
 import 'package:tekpayapp/pages/splash_screen.dart';
 import 'package:tekpayapp/services/api_service.dart';
 import 'package:tekpayapp/services/auth_service.dart';
 import 'package:tekpayapp/services/storage_service.dart';
 import 'package:tekpayapp/services/connectivity_service.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 import 'dart:io';
 
 class MyHttpOverrides extends HttpOverrides {
@@ -21,13 +24,14 @@ class MyHttpOverrides extends HttpOverrides {
   }
 }
 
-// 45040225802
-
-// 102.89.32.19
-
 void main() async {
   HttpOverrides.global = MyHttpOverrides();
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Initialize Firebase first
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
 
   // Initialize services
   await StorageService.init();
@@ -42,6 +46,7 @@ void main() async {
   Get.put(UserController());
   Get.put(TransferController());
   Get.put(VirtualAccountController());
+  Get.put(NotificationController()); // Add NotificationController
 
   runApp(const MyApp());
 }

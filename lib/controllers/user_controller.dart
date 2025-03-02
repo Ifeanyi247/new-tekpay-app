@@ -342,6 +342,54 @@ class UserController extends GetxController {
     }
   }
 
+  Future<bool> changeTransactionPinNoAuth({
+    required String pin,
+    required String pinToken,
+  }) async {
+    try {
+      isLoading.value = true;
+      error.value = null;
+
+      final response = await _apiService.post(
+        'change-transaction-pin',
+        body: {
+          'new_pin': pin,
+          'pin_token': pinToken,
+        },
+      );
+
+      if (response['status'] == true) {
+        Get.snackbar(
+          'Success',
+          response['message'] ?? 'Transaction PIN changed successfully',
+          backgroundColor: primaryColor,
+          colorText: Colors.white,
+        );
+        await getProfile();
+        return true;
+      }
+      error.value = response['message'];
+      Get.snackbar(
+        'Error',
+        response['message'] ?? 'Failed to change transaction PIN',
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+      return false;
+    } on ApiException catch (e) {
+      error.value = e.message;
+      Get.snackbar(
+        'Error',
+        e.message,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+      return false;
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
   Future<void> fetchUserTransfers() async {
     try {
       isLoadingTransfers.value = true;

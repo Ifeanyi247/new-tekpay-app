@@ -6,6 +6,7 @@ import 'package:pinput/pinput.dart';
 import 'package:tekpayapp/constants/colors.dart';
 import 'package:tekpayapp/controllers/auth_controller.dart';
 import 'package:tekpayapp/controllers/user_controller.dart';
+import 'package:tekpayapp/pages/app/noAuthPage/email_page_no_auth.dart';
 import 'package:tekpayapp/pages/widgets/bottom_bar.dart';
 import 'package:tekpayapp/services/storage_service.dart';
 import 'package:local_auth/local_auth.dart';
@@ -35,7 +36,8 @@ class _InputPinPageState extends State<InputPinPage> {
       );
 
       if (didAuthenticate) {
-        final storedPin = _authController.pinCode.value.toString().padLeft(4, '0');
+        final storedPin =
+            _authController.pinCode.value.toString().padLeft(4, '0');
         final success = await _authController.verifyPin(storedPin);
         if (success) {
           Get.offAll(() => const BottomBar());
@@ -63,7 +65,7 @@ class _InputPinPageState extends State<InputPinPage> {
     super.initState();
     userController = Get.find<UserController>();
     _showBiometric.value = StorageService.getBiometricLogin();
-    
+
     // Trigger biometric authentication if enabled
     if (_showBiometric.value) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -145,9 +147,10 @@ class _InputPinPageState extends State<InputPinPage> {
           IconButton(
             icon: Image.asset(
               'assets/images/support_agent.png',
-              width: 24.w,
-              height: 24.w,
+              width: 25.w,
+              height: 25.w,
               color: Colors.black,
+              scale: 0.8,
             ),
             onPressed: () {},
           ),
@@ -186,7 +189,7 @@ class _InputPinPageState extends State<InputPinPage> {
                 color: Colors.grey,
               ),
             ),
-            SizedBox(height: 32.h),
+            SizedBox(height: 28.h),
             Pinput(
               controller: _pinController,
               length: 4,
@@ -224,6 +227,19 @@ class _InputPinPageState extends State<InputPinPage> {
                   _pinController.clear();
                 }
               },
+            ),
+            SizedBox(height: 16.h),
+            GestureDetector(
+              onTap: () {
+                Get.to(() => const EmailPageNoAuth());
+              },
+              child: Text(
+                'Forgot PIN?',
+                style: TextStyle(
+                  fontSize: 14.sp,
+                  color: primaryColor,
+                ),
+              ),
             ),
             const Spacer(),
             Column(
@@ -291,7 +307,7 @@ class _InputPinPageState extends State<InputPinPage> {
                 ),
               ],
             ),
-            SizedBox(height: 24.h),
+            SizedBox(height: 10.h),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -316,7 +332,7 @@ class _InputPinPageState extends State<InputPinPage> {
                 ),
               ],
             ),
-            SizedBox(height: 34.h),
+            SizedBox(height: 15.h),
           ],
         ),
       ),

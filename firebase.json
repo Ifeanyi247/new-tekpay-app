@@ -1,0 +1,30 @@
+{
+    "flutter": {
+        "platforms": {
+            "android": {
+                "default": {
+                    "projectId": "tekpay-7abcc",
+                    "appId": "1:697274224109:android:233c492eca6d69c3452be4",
+                    "fileOutput": "android/app/google-services.json"
+                }
+            },
+            "ios": {
+                "default": {
+                    "projectId": "tekpay-7abcc",
+                    "appId": "1:697274224109:ios:60829dd16e612f63452be4",
+                    "uploadDebugSymbols": false,
+                    "fileOutput": "ios/Runner/GoogleService-Info.plist"
+                }
+            },
+            "dart": {
+                "lib/firebase_options.dart": {
+                    "projectId": "tekpay-7abcc",
+                    "configurations": {
+                        "android": "1:697274224109:android:233c492eca6d69c3452be4",
+                        "ios": "1:697274224109:ios:60829dd16e612f63452be4"
+                    }
+                }
+            }
+        }
+    }
+}

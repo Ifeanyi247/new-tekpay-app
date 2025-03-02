@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:tekpayapp/constants/colors.dart';
+import 'package:tekpayapp/controllers/notification_controller.dart';
 import 'package:tekpayapp/controllers/user_controller.dart';
 import 'package:tekpayapp/models/user_model.dart';
 import 'package:tekpayapp/pages/auth/otp_verification_page.dart';
@@ -121,8 +122,11 @@ class AuthController extends GetxController {
         'otp': otp,
       });
 
+      print('Response: $response');
+
       if (response['status'] == true) {
-        final pinToken = response['pin_token'];
+        final pinToken = response['data']['pin_token'];
+        print('Extracted pin_token: $pinToken');
         Get.snackbar(
           'Success',
           response['message'] ?? 'OTP verified successfully',
@@ -217,12 +221,24 @@ class AuthController extends GetxController {
         'password': password,
       });
 
+      print(response);
+
       if (response['status'] == true) {
         print(response);
         loginToken.value = response['login_token'];
         tempUserName.value = response['username'] ?? '';
         tempUserImage.value = response['profile_url'] ?? '';
         pinCode.value = response['pin_code'] ?? 0;
+
+        // Register for notifications after successful login
+        // Don't await this call to prevent blocking the login flow
+        Get.find<NotificationController>()
+            .registerDeviceToken()
+            .catchError((error) {
+          print('Failed to register for notifications: $error');
+          // Don't block login if notification registration fails
+        });
+
         return true;
       }
 
@@ -320,8 +336,11 @@ class AuthController extends GetxController {
         'otp': otp,
       });
 
+      print('Response: $response');
+
       if (response['status'] == true) {
         final resetToken = response['data']['reset_token'];
+        print('Extracted reset_token: $resetToken');
         Get.snackbar(
           'Success',
           response['message'] ?? 'OTP verified successfully',
@@ -545,6 +564,149 @@ class AuthController extends GetxController {
         backgroundColor: Colors.red,
         colorText: Colors.white,
       );
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  Future<void> sendForgotPinOtpToMailNoAuth(String email) async {
+    try {
+      isLoading.value = true;
+      final response = await _api.post('send-pin-change-otp', body: {
+        'email': email,
+      });
+
+      if (response['status'] == true) {
+        Get.snackbar(
+          'Success',
+          response['message'] ?? 'Pin reset OTP has been sent to your email',
+          backgroundColor: primaryColor,
+          colorText: Colors.white,
+        );
+      }
+    } on ApiException catch (e) {
+      if (e.statusCode == 422) {
+        Get.snackbar(
+          'Validation Error',
+          e.message,
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+          duration: const Duration(seconds: 5),
+        );
+      } else {
+        Get.snackbar(
+          'Error',
+          e.message,
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+        );
+      }
+    } catch (e) {
+      Get.snackbar(
+        'Error',
+        'An unexpected error occurred',
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  Future<bool> resendPinChangeOtp({
+    required String email,
+  }) async {
+    try {
+      isLoading.value = true;
+      error.value = null;
+
+      final response = await _api.post(
+        'resend-pin-change-otp',
+        body: {
+          'email': email,
+        },
+      );
+
+      if (response['status'] == true) {
+        Get.snackbar(
+          'Success',
+          response['message'] ?? 'New OTP has been sent to your email',
+          backgroundColor: primaryColor,
+          colorText: Colors.white,
+          snackPosition: SnackPosition.TOP,
+          duration: const Duration(seconds: 3),
+        );
+        return true;
+      }
+      return false;
+    } on ApiException catch (e) {
+      error.value = e.message;
+      Get.snackbar(
+        'Error',
+        e.message,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+        snackPosition: SnackPosition.TOP,
+        duration: const Duration(seconds: 3),
+      );
+      return false;
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  Future<String?> verifyResetPinOtpNoAuth({
+    required String email,
+    required String otp,
+  }) async {
+    try {
+      print('Verifying Reset OTP with email: $email and OTP: $otp');
+      isLoading.value = true;
+      final response = await _api.post('verify-pin-change-otp', body: {
+        'email': email,
+        'otp': otp,
+      });
+
+      print(response);
+
+      if (response['status'] == true) {
+        final resetToken = response['data']['pin_token'];
+        print('Extracted reset_token: $resetToken');
+        Get.snackbar(
+          'Success',
+          response['message'] ?? 'OTP verified successfully',
+          backgroundColor: primaryColor,
+          colorText: Colors.white,
+        );
+        return resetToken;
+      }
+      return null;
+    } on ApiException catch (e) {
+      if (e.statusCode == 422) {
+        Get.snackbar(
+          'Validation Error',
+          e.message,
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+          duration: const Duration(seconds: 5),
+        );
+      } else {
+        Get.snackbar(
+          'Error',
+          e.message,
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+        );
+      }
+      return null;
+    } catch (e) {
+      Get.snackbar(
+        'Error',
+        'An unexpected error occurred',
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+      return null;
     } finally {
       isLoading.value = false;
     }
