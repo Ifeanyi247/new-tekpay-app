@@ -4,7 +4,9 @@ import 'package:get/get.dart';
 import 'package:tekpayapp/constants/colors.dart';
 import 'package:tekpayapp/controllers/transactions_controller.dart';
 import 'package:tekpayapp/models/transaction_model.dart';
+import 'package:tekpayapp/pages/app/confirm_transfer.dart';
 import 'package:tekpayapp/pages/app/status_page.dart';
+import 'package:tekpayapp/controllers/transfer_controller.dart';
 
 class TransactionsPage extends StatefulWidget {
   TransactionsPage({super.key});
@@ -237,7 +239,8 @@ class _TransactionItem extends StatelessWidget {
                       ),
                     ),
                   );
-                } else if (transaction.type == 'Transfer') {
+                } else if (transaction.type.toLowerCase() == 'transfer' ||
+                    transaction.type.toLowerCase() == 'in-app transfer') {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
@@ -246,7 +249,7 @@ class _TransactionItem extends StatelessWidget {
                         status: transaction.status,
                         date: transaction.transactionDate,
                         recipientId: transaction.phone,
-                        transactionType: 'Transfer',
+                        transactionType: transaction.type,
                         method: transaction.method,
                         transactionId: transaction.transactionId,
                         transactionDate: transaction.transactionDate.toString(),

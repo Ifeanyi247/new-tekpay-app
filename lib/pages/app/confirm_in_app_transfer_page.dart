@@ -6,8 +6,8 @@ import 'package:tekpayapp/controllers/virtual_account_controller.dart';
 import 'package:tekpayapp/controllers/transfer_controller.dart';
 import 'package:tekpayapp/pages/app/education/education_page.dart';
 
-class ConfirmTransferPage extends StatelessWidget {
-  ConfirmTransferPage({
+class ConfirmInAppTransferPage extends StatelessWidget {
+  ConfirmInAppTransferPage({
     super.key,
     required this.recipientName,
     required this.accountNumber,
@@ -16,6 +16,7 @@ class ConfirmTransferPage extends StatelessWidget {
     this.prefillAmount,
     this.isInAppTransfer = false,
     this.onConfirm,
+    required this.recipientId,
   });
 
   final String recipientName;
@@ -25,11 +26,13 @@ class ConfirmTransferPage extends StatelessWidget {
   final String? prefillAmount;
   final bool isInAppTransfer;
   final Function? onConfirm;
+  final String recipientId;
   final amountController = TextEditingController();
   final remarkController = TextEditingController();
   final formKey = GlobalKey<FormState>();
   final virtualAccountController = Get.find<VirtualAccountController>();
   final userController = Get.find<UserController>();
+  final transferController = Get.find<TransferController>();
 
   void _showTransactionConfirmation(BuildContext context) {
     final now = DateTime.now();
@@ -217,12 +220,9 @@ class ConfirmTransferPage extends StatelessWidget {
                           if (isInAppTransfer && onConfirm != null) {
                             await onConfirm!();
                           } else {
-                            await virtualAccountController.initiateTransfer(
-                              accountNumber: accountNumber,
-                              accountBank: bankCode,
-                              accoutName: recipientName,
+                            await transferController.initiateInAppTransfer(
+                              recipientId: recipientId,
                               amount: double.parse(amountController.text),
-                              bankName: bankName,
                               narration: remarkController.text.isNotEmpty
                                   ? remarkController.text
                                   : null,

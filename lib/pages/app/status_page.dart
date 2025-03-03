@@ -5,6 +5,9 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:tekpayapp/constants/colors.dart';
+import 'package:tekpayapp/pages/app/transfer_page.dart';
+import 'package:tekpayapp/pages/app/confirm_transfer.dart';
+import 'package:tekpayapp/controllers/transfer_controller.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:path_provider/path_provider.dart';
@@ -407,6 +410,39 @@ class _StatusPageState extends State<StatusPage> {
             // Action Buttons
             Row(
               children: [
+                if (widget.transactionType.toLowerCase() == 'in-app transfer')
+                  Expanded(
+                    child: ElevatedButton.icon(
+                      onPressed: () async {
+                        final controller = Get.find<TransferController>();
+                        // First search for the user to get their details
+                        final recipientName =
+                            await controller.searchUser(widget.recipientId);
+                        if (recipientName != null) {
+                          Get.to(() => ConfirmTransferPage(
+                                recipientName: recipientName,
+                                accountNumber: widget.recipientId,
+                                bankName: 'In-App Transfer',
+                                bankCode: 'INTERNAL',
+                                prefillAmount: widget.amount,
+                                isInAppTransfer: true,
+                              ));
+                        }
+                      },
+                      icon: const Icon(Icons.repeat, color: Colors.white),
+                      label: const Text('Quick Transfer'),
+                      style: ElevatedButton.styleFrom(
+                        foregroundColor: Colors.white,
+                        backgroundColor: primaryColor,
+                        padding: EdgeInsets.symmetric(vertical: 12.h),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8.r),
+                        ),
+                      ),
+                    ),
+                  ),
+                if (widget.transactionType.toLowerCase() == 'in-app transfer')
+                  SizedBox(width: 16.w),
                 Expanded(
                   child: ElevatedButton.icon(
                     onPressed: _shareReceipt,
