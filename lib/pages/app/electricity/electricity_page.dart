@@ -375,7 +375,7 @@ class _ElectricityPageState extends State<ElectricityPage> {
             CustomTextFieldWidget(
               controller: _amountController,
               label: 'Enter amount',
-              icon: Icons.attach_money,
+              // icon: Icons.attach_money,
               keyboardType: TextInputType.number,
             ),
             SizedBox(height: 40.h),

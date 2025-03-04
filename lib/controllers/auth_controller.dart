@@ -117,38 +117,40 @@ class AuthController extends GetxController {
   }) async {
     try {
       isLoading.value = true;
+      error.value = '';
+
       final response = await _api.post('auth/verify-otp', body: {
         'email': email,
         'otp': otp,
       });
 
-      print('Response: $response');
-
       if (response['status'] == true) {
-        final pinToken = response['data']['pin_token'];
-        print('Extracted pin_token: $pinToken');
+        // Store the pin token for later use
+        final pinToken = response['pin_token'];
+
+        // Navigate to create PIN page
+        Get.to(() => SecurityPinPage(
+              email: email,
+              pinToken: pinToken,
+            ));
+      } else {
+        error.value = response['message'] ?? 'Failed to verify OTP';
         Get.snackbar(
-          'Success',
-          response['message'] ?? 'OTP verified successfully',
-          backgroundColor: primaryColor,
+          'Error',
+          error.value!,
+          backgroundColor: Colors.red,
           colorText: Colors.white,
+          duration: const Duration(seconds: 5),
         );
-        Get.to(() => SecurityPinPage(pinToken: pinToken, email: email));
       }
-    } on ApiException catch (e) {
-      Get.snackbar(
-        'Error',
-        e.message,
-        backgroundColor: Colors.red,
-        colorText: Colors.white,
-        duration: const Duration(seconds: 5),
-      );
     } catch (e) {
+      print("Error: ${e.toString()}");
       Get.snackbar(
         'Error',
         'An unexpected error occurred',
         backgroundColor: Colors.red,
         colorText: Colors.white,
+        duration: const Duration(seconds: 5),
       );
     } finally {
       isLoading.value = false;
@@ -211,13 +213,13 @@ class AuthController extends GetxController {
     }
   }
 
-  Future<bool> login(String username, String password) async {
+  Future<bool> login(String email, String password) async {
     try {
       isLoading.value = true;
-      error.value = null;
+      error.value = '';
 
       final response = await _api.post('auth/login', body: {
-        'username': username,
+        'email': email,
         'password': password,
       });
 
@@ -231,13 +233,12 @@ class AuthController extends GetxController {
         pinCode.value = response['pin_code'] ?? 0;
 
         // Register for notifications after successful login
-        // Don't await this call to prevent blocking the login flow
-        Get.find<NotificationController>()
-            .registerDeviceToken()
-            .catchError((error) {
-          print('Failed to register for notifications: $error');
-          // Don't block login if notification registration fails
-        });
+        final notificationController = Get.find<NotificationController>();
+        await notificationController.registerDeviceToken();
+
+        // Get user profile
+        final userController = Get.find<UserController>();
+        await userController.getProfile();
 
         return true;
       }
@@ -707,6 +708,47 @@ class AuthController extends GetxController {
         colorText: Colors.white,
       );
       return null;
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  Future<bool> resendOtp(String email) async {
+    try {
+      isLoading.value = true;
+      error.value = '';
+
+      final response = await _api.post('auth/resend-otp', body: {
+        'email': email,
+      });
+
+      if (response['status'] == true) {
+        Get.snackbar(
+          'Success',
+          'OTP has been resent to your email',
+          backgroundColor: primaryColor,
+          colorText: Colors.white,
+        );
+        return true;
+      } else {
+        error.value = response['message'] ?? 'Failed to resend OTP';
+        Get.snackbar(
+          'Error',
+          error.value!,
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+        );
+        return false;
+      }
+    } on ApiException catch (e) {
+      error.value = e.message;
+      Get.snackbar(
+        'Error',
+        error.value!,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+      return false;
     } finally {
       isLoading.value = false;
     }

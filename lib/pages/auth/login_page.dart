@@ -20,14 +20,15 @@ class LoginPage extends StatefulWidget {
 
 class _LoginPageState extends State<LoginPage> {
   final _formKey = GlobalKey<FormState>();
-  final _usernameController = TextEditingController();
+  // final _usernameController = TextEditingController();
+  final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _authController = Get.put(AuthController());
   bool _obscureText = true;
 
   @override
   void dispose() {
-    _usernameController.dispose();
+    _emailController.dispose();
     _passwordController.dispose();
     super.dispose();
   }
@@ -89,9 +90,9 @@ class _LoginPageState extends State<LoginPage> {
               ),
               SizedBox(height: 40.h),
               CustomTextFieldWidget(
-                icon: Icons.person,
-                label: 'Username',
-                controller: _usernameController,
+                icon: Icons.email,
+                label: 'Email Address',
+                controller: _emailController,
               ),
               SizedBox(height: 16.h),
               CustomTextFieldWidget(
@@ -137,7 +138,7 @@ class _LoginPageState extends State<LoginPage> {
                         text: 'Login',
                         onTap: () async {
                           final success = await _authController.login(
-                            _usernameController.text.trim(),
+                            _emailController.text.trim(),
                             _passwordController.text.trim(),
                           );
 

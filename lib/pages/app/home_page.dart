@@ -309,7 +309,7 @@ class HomePage extends StatelessWidget {
                                   Text(
                                     user != null
                                         ? userController.isBalanceVisible.value
-                                            ? '₦${NumberFormat('#,##0.00', 'en_US').format(user.profile.wallet)}'
+                                            ? '₦${userController.user.value?.profile.wallet}'
                                             : '₦•••••'
                                         : '₦0.00',
                                     style: TextStyle(
@@ -337,7 +337,7 @@ class HomePage extends StatelessWidget {
                               Row(
                                 children: [
                                   Text(
-                                    'Referral Bonus: ₦1000',
+                                    'Referral Bonus: ₦${userController.user.value?.profile.referralEarnings}',
                                     style: TextStyle(
                                       fontSize: 14.sp,
                                       color: Colors.white,

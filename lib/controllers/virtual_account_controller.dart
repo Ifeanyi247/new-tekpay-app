@@ -95,7 +95,7 @@ class VirtualAccountController extends GetxController {
             status: transferResponse.status == 'success'
                 ? TransactionStatus.success
                 : TransactionStatus.failed,
-            amount: 'NGN ${amount.toStringAsFixed(2)}',
+            amount: '₦${amount.toStringAsFixed(2)}',
             reference: transferResponse.data.reference,
             date: now.toString(),
             recipient: transferResponse.data.transferDetails.fullName,
@@ -111,7 +111,7 @@ class VirtualAccountController extends GetxController {
       Get.snackbar('Error', 'An unexpected error occurred');
       Get.off(() => TransactionStatusPage(
             status: TransactionStatus.failed,
-            amount: 'NGN ${amount.toStringAsFixed(2)}',
+            amount: '₦${amount.toStringAsFixed(2)}',
             reference: '',
             date: DateTime.now().toString(),
             recipient: '',

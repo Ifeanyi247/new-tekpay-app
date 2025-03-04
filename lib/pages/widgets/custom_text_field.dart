@@ -31,7 +31,7 @@ class CustomTextFieldWidget extends StatelessWidget {
       keyboardType: keyboardType,
       onChanged: onChanged,
       decoration: InputDecoration(
-        prefixIcon: Icon(icon, color: Colors.grey),
+        prefixIcon: icon == null ? null : Icon(icon, color: Colors.grey),
         suffixIcon: suffixIcon,
         hintText: label,
         hintStyle: const TextStyle(color: Colors.grey),

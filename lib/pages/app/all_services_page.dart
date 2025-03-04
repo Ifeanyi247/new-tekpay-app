@@ -6,6 +6,8 @@ import 'package:tekpayapp/pages/app/airtime/airtime_page.dart';
 import 'package:tekpayapp/pages/app/betting/betting_page.dart';
 import 'package:tekpayapp/pages/app/data/data_page.dart';
 import 'package:tekpayapp/pages/app/education/education_page.dart';
+import 'package:tekpayapp/pages/app/referral_page.dart';
+import 'package:tekpayapp/pages/app/transfer_page.dart';
 import 'package:tekpayapp/pages/app/tv/tv_page.dart';
 import 'package:tekpayapp/pages/app/electricity/electricity_page.dart';
 import 'package:tekpayapp/pages/app/internet/internet_page.dart';
@@ -149,7 +151,9 @@ class AllServicesPage extends StatelessWidget {
           color: primaryColor,
           size: 25.sp,
         ),
-        onTap: () {},
+        onTap: () {
+          Get.to(() => const TransferPage());
+        },
       ),
     ];
 
@@ -161,7 +165,9 @@ class AllServicesPage extends StatelessWidget {
           color: primaryColor,
           size: 25.sp,
         ),
-        onTap: () {},
+        onTap: () {
+          Get.to(() => ReferralPage());
+        },
       ),
     ];
 

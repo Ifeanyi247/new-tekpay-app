@@ -45,19 +45,19 @@ class NotificationModel {
   }
 }
 
-class NotificationResponse {
+class TekPayNotificationResponse {
   final bool status;
   final String message;
   final NotificationPagination data;
 
-  NotificationResponse({
+  TekPayNotificationResponse({
     required this.status,
     required this.message,
     required this.data,
   });
 
-  factory NotificationResponse.fromJson(Map<String, dynamic> json) {
-    return NotificationResponse(
+  factory TekPayNotificationResponse.fromJson(Map<String, dynamic> json) {
+    return TekPayNotificationResponse(
       status: json['status'],
       message: json['message'],
       data: NotificationPagination.fromJson(json['data']),

@@ -1,14 +1,16 @@
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:tekpayapp/firebase_options.dart';
 import 'package:tekpayapp/models/notification_model.dart';
 import 'package:tekpayapp/services/api_service.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 class NotificationController extends GetxController {
   final FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
   final ApiService _apiService = Get.find<ApiService>();
-  
+
   final RxList<NotificationModel> notifications = <NotificationModel>[].obs;
   final RxBool isLoading = false.obs;
   final RxInt currentPage = 1.obs;
@@ -37,7 +39,8 @@ class NotificationController extends GetxController {
         'notifications?page=${currentPage.value}',
       );
 
-      final notificationResponse = NotificationResponse.fromJson(response);
+      final notificationResponse =
+          TekPayNotificationResponse.fromJson(response);
       final pagination = notificationResponse.data;
 
       if (refresh) {
@@ -89,8 +92,32 @@ class NotificationController extends GetxController {
         alert: true,
         badge: true,
         sound: true,
+        announcement: true,
+        provisional: true, // Allow provisional authorization on iOS
+        criticalAlert: true,
       );
       print('Notification permission status: ${settings.authorizationStatus}');
+
+      // Create notification channel for Android
+      if (GetPlatform.isAndroid) {
+        const AndroidNotificationChannel channel = AndroidNotificationChannel(
+          'high_importance_channel',
+          'Transaction Notifications',
+          description: 'This channel is used for transaction notifications.',
+          importance: Importance.max,
+          enableVibration: true,
+          showBadge: true,
+          playSound: true,
+        );
+
+        final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+            FlutterLocalNotificationsPlugin();
+
+        await flutterLocalNotificationsPlugin
+            .resolvePlatformSpecificImplementation<
+                AndroidFlutterLocalNotificationsPlugin>()
+            ?.createNotificationChannel(channel);
+      }
 
       // Configure handlers for different notification scenarios
       FirebaseMessaging.onMessage.listen(_handleForegroundMessage);
@@ -98,13 +125,29 @@ class NotificationController extends GetxController {
       FirebaseMessaging.onBackgroundMessage(
           _firebaseMessagingBackgroundHandler);
 
-      // Enable foreground notifications
+      // Enable foreground notifications for iOS
       await FirebaseMessaging.instance
           .setForegroundNotificationPresentationOptions(
         alert: true,
         badge: true,
         sound: true,
       );
+
+      // For iOS, register for remote notifications
+      if (GetPlatform.isIOS) {
+        await _firebaseMessaging.requestPermission(
+          alert: true,
+          announcement: true,
+          badge: true,
+          carPlay: false,
+          criticalAlert: true,
+          provisional: true,
+          sound: true,
+        );
+
+        await FirebaseMessaging.instance.getNotificationSettings();
+        await FirebaseMessaging.instance.getAPNSToken();
+      }
     } catch (e) {
       print('Error initializing notifications: $e');
     }
@@ -196,13 +239,22 @@ class NotificationController extends GetxController {
 
   void _handleForegroundMessage(RemoteMessage message) {
     print('Received foreground message: ${message.messageId}');
+    print('Message data: ${message.data}');
+    print(
+        'Message notification: ${message.notification?.title}, ${message.notification?.body}');
 
     if (message.notification != null) {
       Get.snackbar(
         message.notification?.title ?? 'New Notification',
         message.notification?.body ?? '',
-        duration: const Duration(seconds: 3),
+        duration: const Duration(seconds: 5),
+        backgroundColor: Colors.white,
+        colorText: Colors.black,
+        snackPosition: SnackPosition.TOP,
       );
+
+      // Fetch notifications to update the list
+      fetchNotifications(refresh: true);
     }
 
     // Handle data payload
@@ -213,21 +265,22 @@ class NotificationController extends GetxController {
 
   void _handleBackgroundMessage(RemoteMessage message) {
     print('App opened from background notification: ${message.messageId}');
+    print('Background message data: ${message.data}');
+
+    // Fetch notifications when app is opened from notification
+    fetchNotifications(refresh: true);
+
     _handleNotificationData(message.data);
   }
 
   void _handleNotificationData(Map<String, dynamic> data) {
+    print('Handling notification data: $data');
+
     // Handle different types of notifications based on data
     switch (data['type']) {
       case 'transaction':
-        // Navigate to transaction details
-        if (data['transaction_id'] != null) {
-          // Get.toNamed('/transaction/${data['transaction_id']}');
-        }
-        break;
-      case 'message':
-        // Navigate to messages
-        // Get.toNamed('/messages');
+        // Refresh notifications list
+        fetchNotifications(refresh: true);
         break;
       default:
         print('Unknown notification type: ${data['type']}');

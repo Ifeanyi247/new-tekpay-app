@@ -43,7 +43,7 @@ class ReferralBonusController extends GetxController {
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              'You are about to transfer ₦ 1,000 to\nyour wallet balance',
+              'You are about to transfer NGN 1,000 to\nyour wallet balance',
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 16.sp,
@@ -170,7 +170,7 @@ class ReferralBonusController extends GetxController {
             ),
           ),
           Text(
-            '₦10.00',
+            'NGN 10.00',
             style: TextStyle(
               fontSize: 16.sp,
               fontWeight: FontWeight.w600,
@@ -217,7 +217,7 @@ class ReferralBonusPage extends StatelessWidget {
                 Obx(() => controller.buildStatItem(
                       title: 'Total Earned',
                       value:
-                          '₦${controller.referralData['total_earnings'] ?? '0.00'}',
+                          'NGN ${controller.referralData['total_earnings'] ?? '0.00'}',
                       icon: Icons.account_balance_wallet,
                     )),
                 Obx(() => controller.buildStatItem(

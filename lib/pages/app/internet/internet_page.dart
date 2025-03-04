@@ -260,51 +260,51 @@ class _InternetPageState extends State<InternetPage> {
               ),
             ),
             SizedBox(height: 24.h),
-            Text(
-              'Select Beneficiary',
-              style: TextStyle(
-                fontSize: 16.sp,
-                color: primaryColor,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-            SizedBox(height: 8.h),
-            Row(
-              children: [
-                Expanded(
-                  child: Container(
-                    padding:
-                        EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
-                    decoration: BoxDecoration(
-                      border: Border.all(color: Colors.grey.shade300),
-                      borderRadius: BorderRadius.circular(8.r),
-                    ),
-                    child: Text(
-                      'Select Beneficiary',
-                      style: TextStyle(
-                        fontSize: 14.sp,
-                        color: Colors.grey,
-                      ),
-                    ),
-                  ),
-                ),
-                SizedBox(width: 8.w),
-                Container(
-                  decoration: BoxDecoration(
-                    color: primaryColor.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(8.r),
-                  ),
-                  child: IconButton(
-                    icon: Icon(
-                      Icons.person_add_outlined,
-                      color: primaryColor,
-                    ),
-                    onPressed: () {},
-                  ),
-                ),
-              ],
-            ),
-            SizedBox(height: 24.h),
+            // Text(
+            //   'Select Beneficiary',
+            //   style: TextStyle(
+            //     fontSize: 16.sp,
+            //     color: primaryColor,
+            //     fontWeight: FontWeight.w500,
+            //   ),
+            // ),
+            // SizedBox(height: 8.h),
+            // Row(
+            //   children: [
+            //     Expanded(
+            //       child: Container(
+            //         padding:
+            //             EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
+            //         decoration: BoxDecoration(
+            //           border: Border.all(color: Colors.grey.shade300),
+            //           borderRadius: BorderRadius.circular(8.r),
+            //         ),
+            //         child: Text(
+            //           'Select Beneficiary',
+            //           style: TextStyle(
+            //             fontSize: 14.sp,
+            //             color: Colors.grey,
+            //           ),
+            //         ),
+            //       ),
+            //     ),
+            //     SizedBox(width: 8.w),
+            //     Container(
+            //       decoration: BoxDecoration(
+            //         color: primaryColor.withOpacity(0.1),
+            //         borderRadius: BorderRadius.circular(8.r),
+            //       ),
+            //       child: IconButton(
+            //         icon: Icon(
+            //           Icons.person_add_outlined,
+            //           color: primaryColor,
+            //         ),
+            //         onPressed: () {},
+            //       ),
+            //     ),
+            //   ],
+            // ),
+            // SizedBox(height: 24.h),
             Text(
               'Select Product',
               style: TextStyle(
@@ -374,7 +374,7 @@ class _InternetPageState extends State<InternetPage> {
               controller: _amountController,
               readOnly: true,
               label: '₦',
-              icon: Icons.monetization_on_outlined,
+              // icon: Icons.card,
             ),
             SizedBox(height: 40.h),
             CustomButtonWidget(

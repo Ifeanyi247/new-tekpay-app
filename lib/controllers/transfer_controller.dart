@@ -157,7 +157,7 @@ class TransferController extends GetxController {
         // Navigate to transaction status page
         Get.off(() => TransactionStatusPageInApp(
               status: "success",
-              amount: 'NGN ${amount.toStringAsFixed(2)}',
+              amount: '₦${amount.toStringAsFixed(2)}',
               reference: response['data']['transaction'],
               date: now.toString(),
               recipient: response['data']['recipient']['name'],
@@ -176,7 +176,7 @@ class TransferController extends GetxController {
       Get.snackbar('Error', error.value);
       Get.off(() => TransactionStatusPageInApp(
             status: "error",
-            amount: 'NGN ${amount.toStringAsFixed(2)}',
+            amount: '₦${amount.toStringAsFixed(2)}',
             reference: '',
             date: DateTime.now().toString(),
             recipient: '',

@@ -151,10 +151,8 @@ class _InputPinPageState extends State<InputPinPage> {
             },
             child: Image.asset(
               'assets/images/support_agent.png',
-              width: 25.w,
-              height: 25.w,
               color: Colors.black,
-              scale: 0.8,
+              scale: 0.7,
             ),
           ),
           SizedBox(width: 8.w),

@@ -7,7 +7,7 @@ class SupportPage extends StatelessWidget {
   Future<void> _launchEmail() async {
     final Uri emailLaunchUri = Uri(
       scheme: 'mailto',
-      path: 'support@tekpay.com',
+      path: 'support@usetekpay.com',
       queryParameters: {
         'subject': 'Support Request',
       },
@@ -19,7 +19,7 @@ class SupportPage extends StatelessWidget {
   }
 
   Future<void> _launchWhatsApp() async {
-    final phoneNumber = '08123456789';
+    final phoneNumber = '08104652226';
     final whatsappUrl = Uri.parse('https://wa.me/$phoneNumber');
 
     if (!await launchUrl(whatsappUrl, mode: LaunchMode.externalApplication)) {
@@ -54,7 +54,7 @@ class SupportPage extends StatelessWidget {
               context,
               icon: Icons.email_outlined,
               title: 'Email',
-              subtitle: 'support@tekpay.com',
+              subtitle: 'support@usetekpay.com',
               onTap: _launchEmail,
             ),
             const Divider(),
@@ -62,19 +62,19 @@ class SupportPage extends StatelessWidget {
               context,
               icon: Icons.phone_outlined,
               title: 'Phone',
-              subtitle: '08123456789',
+              subtitle: '08104652226',
               onTap: _launchWhatsApp,
             ),
-            const Divider(),
-            _buildContactOption(
-              context,
-              icon: Icons.chat_bubble_outline,
-              title: 'Live Chat',
-              subtitle: '',
-              onTap: () {
-                // Handle live chat
-              },
-            ),
+            // const Divider(),
+            // _buildContactOption(
+            //   context,
+            //   icon: Icons.chat_bubble_outline,
+            //   title: 'Live Chat',
+            //   subtitle: '',
+            //   onTap: () {
+            //     // Handle live chat
+            //   },
+            // ),
           ],
         ),
       ),

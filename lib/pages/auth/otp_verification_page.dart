@@ -114,8 +114,8 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
                   ),
                 ),
                 TextButton(
-                  onPressed: () {
-                    // TODO: Implement resend OTP
+                  onPressed: () async {
+                    await _authController.resendOtp(widget.email);
                   },
                   child: Text(
                     'Resend code',

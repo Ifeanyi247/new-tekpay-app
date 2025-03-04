@@ -132,7 +132,7 @@ class Transaction {
     final isDebit = type.toLowerCase().contains('purchase') ||
         type.toLowerCase() == 'transfer' ||
         type.toLowerCase().contains('checker');
-    return '${isDebit ? "-" : ""}₦$amount';
+    return '${isDebit ? "-" : ""}NGN $amount';
   }
 
   // Helper method to check if transaction is education related
