@@ -7,9 +7,9 @@ import 'package:get/get.dart';
 import 'package:tekpayapp/services/connectivity_service.dart';
 
 class ApiService extends GetxService {
-  static const String baseUrl = 'http://172.20.10.3:8000/api';
+  // static const String baseUrl = 'http://172.20.10.3:8000/api';
   // static const String baseUrl = 'https://api.usetekpay.com/api';
-  // static const String baseUrl = 'https://tekpay.co/api';
+  static const String baseUrl = 'https://tekpay.co/api';
 
   // Singleton pattern
   static final ApiService _instance = ApiService._internal();

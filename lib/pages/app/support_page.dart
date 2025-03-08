@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class SupportPage extends StatelessWidget {
@@ -7,7 +8,7 @@ class SupportPage extends StatelessWidget {
   Future<void> _launchEmail() async {
     final Uri emailLaunchUri = Uri(
       scheme: 'mailto',
-      path: 'support@usetekpay.com',
+      path: 'support@tekpay.co',
       queryParameters: {
         'subject': 'Support Request',
       },
@@ -19,11 +20,37 @@ class SupportPage extends StatelessWidget {
   }
 
   Future<void> _launchWhatsApp() async {
-    final phoneNumber = '08104652226';
+    final phoneNumber = '2348104652226';
     final whatsappUrl = Uri.parse('https://wa.me/$phoneNumber');
 
     if (!await launchUrl(whatsappUrl, mode: LaunchMode.externalApplication)) {
       throw Exception('Could not launch WhatsApp');
+    }
+  }
+
+  Future<void> _launchPhoneCall() async {
+    try {
+      final phoneNumber = '08104652226';
+      final uri = 'tel:$phoneNumber';
+
+      if (await canLaunchUrl(Uri.parse(uri))) {
+        await launchUrl(Uri.parse(uri));
+      } else {
+        Get.snackbar(
+          'Error',
+          'Could not launch phone app',
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+        );
+      }
+    } catch (e) {
+      print('Error launching phone call: $e');
+      Get.snackbar(
+        'Error',
+        'Could not launch phone app',
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
     }
   }
 
@@ -62,8 +89,16 @@ class SupportPage extends StatelessWidget {
               context,
               icon: Icons.phone_outlined,
               title: 'Phone',
-              subtitle: '08104652226',
+              subtitle: '+2348104652226',
               onTap: _launchWhatsApp,
+            ),
+            const Divider(),
+            _buildContactOption(
+              context,
+              icon: Icons.phone_outlined,
+              title: 'Phone Call',
+              subtitle: '+2348104652226',
+              onTap: _launchPhoneCall,
             ),
             // const Divider(),
             // _buildContactOption(

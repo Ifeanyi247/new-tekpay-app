@@ -540,14 +540,20 @@ class HomePage extends StatelessWidget {
                                       transaction.transactionDate.toString()),
                                 ),
                                 amount: transaction.formattedAmount,
-                                isSuccess: ['delivered', 'success']
-                                    .contains(transaction.status.toLowerCase()),
+                                isSuccess: [
+                                  'delivered',
+                                  'success',
+                                  'successful'
+                                ].contains(transaction.status.toLowerCase()),
                                 icon: transaction.icon,
                                 onTap: () {
                                   Get.to(() => TransactionStatusPage(
-                                        status: ['delivered', 'success']
-                                                .contains(transaction.status
-                                                    .toLowerCase())
+                                        status: [
+                                          'delivered',
+                                          'success',
+                                          'successful'
+                                        ].contains(transaction.status
+                                                .toLowerCase())
                                             ? TransactionStatus.success
                                             : transaction.status
                                                         .toLowerCase() ==
