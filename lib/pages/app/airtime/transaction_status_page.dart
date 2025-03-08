@@ -160,7 +160,7 @@ class TransactionStatusPage extends StatelessWidget {
                 ),
                 child: Column(
                   children: [
-                    _buildInfoRow('Amount', '₦$amount'),
+                    _buildInfoRow('Amount', '$amount'),
                     _buildInfoRow('Reference', reference),
                     _buildInfoRow('Date', date),
                     _buildInfoRow('Recipient', recipient),

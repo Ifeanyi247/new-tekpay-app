@@ -7,7 +7,6 @@ import 'package:tekpayapp/pages/app/password_reset/forgot_password_email_page.da
 import 'package:tekpayapp/pages/app/support_page.dart';
 import 'package:tekpayapp/pages/auth/input_pin_page.dart';
 import 'package:tekpayapp/pages/auth/register_page.dart';
-import 'package:tekpayapp/pages/widgets/bottom_bar.dart';
 import 'package:tekpayapp/pages/widgets/custom_button_widget.dart';
 import 'package:tekpayapp/pages/widgets/custom_text_field.dart';
 
@@ -82,7 +81,7 @@ class _LoginPageState extends State<LoginPage> {
               ),
               SizedBox(height: 8.h),
               Text(
-                'Login to you account so you can pay and purchase top-ups faster.',
+                'Login to your account so you can pay and purchase top-ups faster.',
                 style: TextStyle(
                   fontSize: 14.sp,
                   color: Colors.grey,

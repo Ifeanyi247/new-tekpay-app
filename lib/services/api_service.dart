@@ -7,8 +7,9 @@ import 'package:get/get.dart';
 import 'package:tekpayapp/services/connectivity_service.dart';
 
 class ApiService extends GetxService {
-  static const String baseUrl = 'http://172.20.10.2:8000/api';
+  static const String baseUrl = 'http://172.20.10.3:8000/api';
   // static const String baseUrl = 'https://api.usetekpay.com/api';
+  // static const String baseUrl = 'https://tekpay.co/api';
 
   // Singleton pattern
   static final ApiService _instance = ApiService._internal();
@@ -168,9 +169,10 @@ class ApiService extends GetxService {
     if (error is ApiException) {
       return error;
     }
+    print('Non-API Error: $error'); // Log the actual error for debugging
     return ApiException(
       statusCode: 0,
-      message: error.toString(),
+      message: 'An error occurred',
     );
   }
 
