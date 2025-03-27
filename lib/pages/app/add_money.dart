@@ -164,7 +164,7 @@ class _AddMoneyPageState extends State<AddMoneyPage> {
               // ),
               SizedBox(height: 8.h),
               Text(
-                'Please note that once you leave this page the generated account will be cleared, make sure you make a transfer to the generated account before leaving this page, or made a copy.',
+                'Please note that once you leave this page the generated account will be cleared, make sure you make a transfer to the generated account before leaving this page.',
                 style: TextStyle(
                   fontSize: 14.sp,
                   color: Colors.black,

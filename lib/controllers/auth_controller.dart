@@ -218,7 +218,7 @@ class AuthController extends GetxController {
       isLoading.value = true;
       error.value = '';
 
-      final response = await _api.post('auth/login', body: {
+      final response = await _api.Loginpost('auth/login', body: {
         'email': email,
         'password': password,
       });
@@ -754,7 +754,34 @@ class AuthController extends GetxController {
     }
   }
 
+  Future<void> verifyPinFromLockScreen(pin, userPin) async {
+    try {
+      isLoading.value = true;
+      print(pin.runtimeType);
+
+      if (userPin == pin) {
+        Get.offAll(() => const BottomBar());
+      } else {
+        Get.snackbar(
+          'Error',
+          'Invalid PIN',
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+        );
+      }
+    } catch (e) {
+      print(e.toString());
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
   void clearError() {
     error.value = null;
   }
+
+  // Check both token and currentUser as per security requirements
+  bool get isLoggedIn =>
+      currentUser.value != null && (StorageService.getToken() ?? '').isNotEmpty;
+  bool get isAuthenticated => isLoggedIn; // Alias for backward compatibility
 }

@@ -4,7 +4,6 @@ import 'package:tekpayapp/constants/colors.dart';
 import 'package:tekpayapp/controllers/auth_controller.dart';
 import 'package:tekpayapp/models/user_model.dart';
 import 'package:tekpayapp/models/transfer_model.dart';
-import 'package:tekpayapp/pages/app/settings_page.dart';
 import 'package:tekpayapp/pages/auth/login_page.dart';
 import 'package:tekpayapp/services/api_service.dart';
 import 'package:tekpayapp/services/api_exception.dart';

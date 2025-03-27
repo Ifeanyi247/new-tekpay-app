@@ -20,7 +20,7 @@ class ConnectivityService extends GetxService {
   Future<void> _initConnectivity() async {
     try {
       final result = await _connectivity.checkConnectivity();
-      _updateConnectionStatus(result);
+      _updateConnectionStatus(result[0]);
     } catch (e) {
       debugPrint('Couldn\'t check connectivity status: $e');
     }
@@ -28,13 +28,13 @@ class ConnectivityService extends GetxService {
 
   void _setupConnectivityStream() {
     _connectivity.onConnectivityChanged.listen((result) {
-      _updateConnectionStatus(result);
+      _updateConnectionStatus(result[0]);
     });
   }
 
   void _updateConnectionStatus(ConnectivityResult result) {
     isConnected.value = result != ConnectivityResult.none;
-    
+
     if (!isConnected.value) {
       Get.snackbar(
         'No Internet Connection',

@@ -5,6 +5,8 @@ import 'package:tekpayapp/constants/colors.dart';
 import 'package:tekpayapp/pages/auth/login_page.dart';
 import 'package:tekpayapp/pages/auth/register_page.dart';
 import 'package:tekpayapp/pages/widgets/custom_button_widget.dart';
+import 'package:flutter/gestures.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class WelcomeScreen extends StatefulWidget {
   const WelcomeScreen({super.key});
@@ -14,6 +16,13 @@ class WelcomeScreen extends StatefulWidget {
 }
 
 class _WelcomeScreenState extends State<WelcomeScreen> {
+
+  void openLink(String url) async {
+    if (await canLaunchUrl(Uri.parse(url))) {
+      await launchUrl(Uri.parse(url));
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -41,7 +50,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                 height: 10.h,
               ),
               Text(
-                'Join the Tekpay community today and simplify your bills,\nsubscriptions, and betting payments. To get started,\nplease sign in your account or create a new one.',
+                'Join the Tekpay community today and simplify your bills,\nsubscriptions, and betting payments. To get started,\nplease sign into your account or create a new one.',
                 textAlign: TextAlign.center,
               ),
               SizedBox(
@@ -70,7 +79,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
               ),
               RichText(
                 textAlign: TextAlign.center,
-                text: const TextSpan(
+                text:  TextSpan(
                   style: TextStyle(
                     color: Colors.black,
                   ),
@@ -106,14 +115,20 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                     ),
                     TextSpan(
                       text: 'Privacy Policy',
-                      style: TextStyle(),
+                      style: TextStyle(
+                        color: primaryColor,
+                      ),
+                      recognizer: TapGestureRecognizer()..onTap = () => openLink("https://tekpay.co/privacy"),
                     ),
                     TextSpan(
                       text: ' and ',
                     ),
                     TextSpan(
                       text: 'cookies Policy',
-                      style: TextStyle(),
+                      style: TextStyle(
+                        color: primaryColor,
+                      ),
+                      recognizer: TapGestureRecognizer()..onTap = () => openLink("https://tekpay.co/privacy"),
                     ),
                   ],
                 ),

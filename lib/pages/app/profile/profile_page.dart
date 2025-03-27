@@ -10,6 +10,7 @@ import 'package:tekpayapp/pages/app/profile/edit_profile_page.dart';
 import 'package:tekpayapp/pages/app/referral_page.dart';
 import 'package:tekpayapp/pages/app/settings_page.dart';
 import 'package:tekpayapp/pages/app/support_page.dart';
+import 'package:tekpayapp/pages/widgets/custom_button_widget.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -83,6 +84,60 @@ class _ProfilePageState extends State<ProfilePage> {
           ],
         ),
       ),
+    );
+  }
+
+  void _showLogoutBottomSheet(BuildContext context) {
+    final authController = Get.find<AuthController>();
+
+    Get.bottomSheet(
+      Container(
+        padding: EdgeInsets.all(24.w),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(
+            top: Radius.circular(20.r),
+          ),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              'Are you sure you want to Logout?',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 18.sp,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            SizedBox(height: 24.h),
+            Obx(() => CustomButtonWidget(
+                  text: 'Logout',
+                  onTap: authController.isLoading.value
+                      ? null
+                      : () async {
+                          await authController.logout();
+                        },
+                  bgColor: primaryColor,
+                )),
+            SizedBox(height: 16.h),
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: Text(
+                'CANCEL',
+                style: TextStyle(
+                  fontSize: 14.sp,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.black,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+      backgroundColor: Colors.transparent,
+      isDismissible: true,
+      enableDrag: true,
     );
   }
 
@@ -196,7 +251,7 @@ class _ProfilePageState extends State<ProfilePage> {
                         // ),
                         _buildProfileOption(
                           title: 'Help & Support',
-                          subtitle: 'Help or contact vasel',
+                          subtitle: 'Help or contact Tekpay',
                           icon: Icons.help_outline,
                           onTap: () {
                             Get.to(() => const SupportPage());
@@ -212,9 +267,12 @@ class _ProfilePageState extends State<ProfilePage> {
                                   title: 'Logout',
                                   subtitle: 'logout of your account',
                                   icon: Icons.logout,
-                                  onTap: () async {
-                                    await authController.logout();
-                                  },
+                                  onTap: () {
+                                    _showLogoutBottomSheet(context);
+                                  }
+                                  // onTap: () async {
+                                  //   await authController.logout();
+                                  // },
                                 );
                         }),
                       ],

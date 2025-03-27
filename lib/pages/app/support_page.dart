@@ -8,7 +8,7 @@ class SupportPage extends StatelessWidget {
   Future<void> _launchEmail() async {
     final Uri emailLaunchUri = Uri(
       scheme: 'mailto',
-      path: 'support@tekpay.co',
+      path: 'support@tekskillz.com',
       queryParameters: {
         'subject': 'Support Request',
       },
@@ -81,14 +81,14 @@ class SupportPage extends StatelessWidget {
               context,
               icon: Icons.email_outlined,
               title: 'Email',
-              subtitle: 'support@usetekpay.com',
+              subtitle: 'support@tekskillz.com',
               onTap: _launchEmail,
             ),
             const Divider(),
             _buildContactOption(
               context,
               icon: Icons.phone_outlined,
-              title: 'Phone',
+              title: 'Whatsapp',
               subtitle: '+2348104652226',
               onTap: _launchWhatsApp,
             ),

@@ -336,7 +336,7 @@ class SettingsPage extends StatelessWidget {
           ),
           _buildSettingItem(
             title: 'Rating',
-            subtitle: 'Enjoying Vastel? Give a review',
+            subtitle: 'Enjoying Tekpay? Give a review',
             icon: Icons.star,
             onTap: _showRatingDialog,
           ),
