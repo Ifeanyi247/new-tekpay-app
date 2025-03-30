@@ -1,0 +1,1 @@
+/Users/apple/Documents/Development/tekpayapp/build/app/intermediates/cxx/RelWithDebInfo/6f417234/obj/arm64-v8a

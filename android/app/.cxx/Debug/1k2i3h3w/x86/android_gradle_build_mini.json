@@ -1,0 +1,20 @@
+{
+  "buildFiles": [
+    "/Users/apple/Documents/Development/flutter/packages/flutter_tools/gradle/src/main/groovy/CMakeLists.txt"
+  ],
+  "cleanCommandsComponents": [
+    [
+      "/Users/apple/Library/Android/sdk/cmake/3.22.1/bin/ninja",
+      "-C",
+      "/Users/apple/Documents/Development/tekpayapp/android/app/.cxx/Debug/1k2i3h3w/x86",
+      "clean"
+    ]
+  ],
+  "buildTargetsCommandComponents": [
+    "/Users/apple/Library/Android/sdk/cmake/3.22.1/bin/ninja",
+    "-C",
+    "/Users/apple/Documents/Development/tekpayapp/android/app/.cxx/Debug/1k2i3h3w/x86",
+    "{LIST_OF_TARGETS_TO_BUILD}"
+  ],
+  "libraries": {}
+}

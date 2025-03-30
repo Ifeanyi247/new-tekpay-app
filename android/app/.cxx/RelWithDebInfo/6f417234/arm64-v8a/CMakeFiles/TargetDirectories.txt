@@ -1,0 +1,2 @@
+/Users/apple/Documents/Development/tekpayapp/android/app/.cxx/RelWithDebInfo/6f417234/arm64-v8a/CMakeFiles/edit_cache.dir
+/Users/apple/Documents/Development/tekpayapp/android/app/.cxx/RelWithDebInfo/6f417234/arm64-v8a/CMakeFiles/rebuild_cache.dir
